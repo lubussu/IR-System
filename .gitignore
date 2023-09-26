@@ -36,3 +36,8 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+### FIles ###
+src/main/resources/collection.tsv
+src/main/resources/stopwords.txt
+NOTE.txt
