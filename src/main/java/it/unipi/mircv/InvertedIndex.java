@@ -1,4 +1,5 @@
 package it.unipi.mircv;
+import it.unipi.mircv.Utils.IOUtils;
 import it.unipi.mircv.bean.DictionaryElem;
 import it.unipi.mircv.bean.DocumentElem;
 import it.unipi.mircv.bean.Posting;
@@ -17,6 +18,13 @@ public class InvertedIndex {
 
     public InvertedIndex() {
 
+    }
+
+    public static void clearIndexMem(){
+        posting_lists.clear();
+    }
+    public static void clearDictionaryMem(){
+        dictionary.clear();
     }
 
     public ArrayList<Integer> search(String query) {
@@ -61,7 +69,7 @@ public class InvertedIndex {
                     }else {
                         ArrayList<Posting> pl = posting_lists.get(term).getPl();
 
-                        if (pl.isEmpty() || pl.get(pl.size()-1).getDocId() != docid){
+                        if (pl.get(pl.size()-1).getDocId() != docid){
                             dictionary.get(term).setDf(dictionary.get(term).getDf()+1);
                             dictionary.get(term).setCf(dictionary.get(term).getCf()+freq);
                             //calcolare statistiche termine
@@ -73,32 +81,40 @@ public class InvertedIndex {
 
                 if (Runtime.getRuntime().totalMemory() > MaxUsableMemory) {
                     System.out.printf("(INFO) MAXIMUM PERMITTED USE OF MEMORY ACHIEVED.\n\n");
-                    //writeAndClean();
-                    break;
+                    /* Write block to disk */
+                    if (!IOUtils.writeIndexBlockToDisk(dictionary, posting_lists, block_number)){
+                        System.out.printf("(ERROR): %d block write to disk failed\n", block_number);
+                        break;
+                    }else {
+                        System.out.printf("(INFO) Writing block '%d' completed\n", block_number);
+                        block_number++;
+                    }
+
+                    /* Clear memory used for the elaboration of previous block */
+                    clearIndexMem();
+                    clearDictionaryMem();
+                    System.gc();
+
+                    /* Check if total memory is greater than usable memory */
+                    while (Runtime.getRuntime().totalMemory() > MaxUsableMemory) {
+                        System.out.println();
+                        Thread.sleep(100);
+                    }
                 }
 
                 tokens.clear();
 
             }
-        } catch (IOException ex) {
+            /* Write the final block in memory */
+            System.out.println("(INFO) Proceed with writing the final block to disk in memory");
+
+            if (!IOUtils.writeIndexBlockToDisk(dictionary, posting_lists, block_number))
+                System.out.print("(ERROR): final block write to disk failed\n");
+            else
+                System.out.printf("(INFO) Final block write %d completed\n", block_number);
+        } catch (IOException | InterruptedException ex) {
             throw new RuntimeException(ex);
         }
-    }
-
-    public void writeAndClean(){
-        for (Map.Entry<String, PostingList> entry : posting_lists.entrySet()) {
-            PostingList pl = entry.getValue();
-            pl.ToTextFile("posting_lists.txt");
-        }
-
-        for (Map.Entry<String, DictionaryElem> entry : dictionary.entrySet()) {
-            DictionaryElem dic = entry.getValue();
-            dic.ToTextFile("dictionary.txt");
-        }
-
-        dictionary.clear();
-        posting_lists.clear();
-        System.gc();
     }
 
     public static void main(String[] args) {
