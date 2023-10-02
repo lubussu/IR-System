@@ -52,10 +52,11 @@ public class PostingList {
     public void ToBinFile(String filename){
         try (FileChannel channel = FileChannel.open(Paths.get(filename), StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {
             byte[] descBytes = String.valueOf(term).getBytes(StandardCharsets.UTF_8);;
-            ByteBuffer buffer = ByteBuffer.allocate(4 + descBytes.length + pl.size() * 8);
+            ByteBuffer buffer = ByteBuffer.allocate(4 + descBytes.length + 4 + pl.size() * 8);
             // Populate the buffer
             buffer.putInt(descBytes.length);
             buffer.put(descBytes);
+            buffer.putInt(pl.size());
             for (Posting post : pl) {
                 buffer.putInt(post.getDocId());
             }

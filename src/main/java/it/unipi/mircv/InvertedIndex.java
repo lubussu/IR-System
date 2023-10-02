@@ -121,14 +121,16 @@ public class InvertedIndex {
         System.out.println("\nMerge operation executed in: " + time + " minutes");
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         String filePath = "src/main/resources/collection.tsv";
 
-        InvertedIndex invertedIndex = new InvertedIndex();
-        invertedIndex.buildIndexFromFile(filePath);
+//        InvertedIndex invertedIndex = new InvertedIndex();
+//        invertedIndex.buildIndexFromFile(filePath);
+
+        IOUtils.readBinBlockFromDisk();
 
 
-//        String query = "engineers";
+//        String query = "intrabuilding";
 //        ArrayList<Integer> results = invertedIndex.search(query);
 //
 //        if (!results.isEmpty()) {
