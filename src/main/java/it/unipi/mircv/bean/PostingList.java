@@ -6,6 +6,12 @@ import lombok.Setter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 
 @Setter
@@ -38,6 +44,27 @@ public class PostingList {
             }
             writer.write("\n");
 
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void ToBinFile(String filename){
+        try (FileChannel channel = FileChannel.open(Paths.get(filename), StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {
+            byte[] descBytes = String.valueOf(term).getBytes(StandardCharsets.UTF_8);;
+            ByteBuffer buffer = ByteBuffer.allocate(4 + descBytes.length + pl.size() * 8);
+            // Populate the buffer
+            buffer.putInt(descBytes.length);
+            buffer.put(descBytes);
+            for (Posting post : pl) {
+                buffer.putInt(post.getDocId());
+            }
+            for (Posting post : pl) {
+                buffer.putInt(post.getTermFreq());
+            }
+            buffer.flip();
+            // Write the buffer to the file
+            channel.write(buffer);
         } catch (IOException e) {
             e.printStackTrace();
         }

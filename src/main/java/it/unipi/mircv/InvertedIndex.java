@@ -43,6 +43,7 @@ public class InvertedIndex {
         String docNo;
         long MaxUsableMemory = Runtime.getRuntime().maxMemory() * 80 / 100;
 
+        long start = System.currentTimeMillis();
         //InputStreamReader permette di specificare la codifica da utilizzare
         //FileReader utilizza la codifica standard del SO usato
         try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(filePath), StandardCharsets.UTF_8))) {
@@ -82,7 +83,7 @@ public class InvertedIndex {
                 if (Runtime.getRuntime().totalMemory() > MaxUsableMemory) {
                     System.out.printf("(INFO) MAXIMUM PERMITTED USE OF MEMORY ACHIEVED.\n\n");
                     /* Write block to disk */
-                    if (!IOUtils.writeIndexBlockToDisk(dictionary, posting_lists, block_number)){
+                    if (!IOUtils.writeBinBlockToDisk(dictionary, posting_lists, block_number)){
                         System.out.printf("(ERROR): %d block write to disk failed\n", block_number);
                         break;
                     }else {
@@ -108,13 +109,16 @@ public class InvertedIndex {
             /* Write the final block in memory */
             System.out.println("(INFO) Proceed with writing the final block to disk in memory");
 
-            if (!IOUtils.writeIndexBlockToDisk(dictionary, posting_lists, block_number))
+            if (!IOUtils.writeBinBlockToDisk(dictionary, posting_lists, block_number))
                 System.out.print("(ERROR): final block write to disk failed\n");
             else
                 System.out.printf("(INFO) Final block write %d completed\n", block_number);
         } catch (IOException | InterruptedException ex) {
             throw new RuntimeException(ex);
         }
+        long end = System.currentTimeMillis() - start;
+        long time = (end/1000)/60;
+        System.out.println("\nMerge operation executed in: " + time + " minutes");
     }
 
     public static void main(String[] args) {
@@ -124,17 +128,17 @@ public class InvertedIndex {
         invertedIndex.buildIndexFromFile(filePath);
 
 
-        String query = "engineers";
-        ArrayList<Integer> results = invertedIndex.search(query);
-
-        if (!results.isEmpty()) {
-            System.out.println("Documents containing '" + query + "':");
-            for (int doc : results) {
-                System.out.println("Document " + doc + ": ");
-            }
-        } else {
-            System.out.println("No documents found for '" + query + "'.");
-        }
+//        String query = "engineers";
+//        ArrayList<Integer> results = invertedIndex.search(query);
+//
+//        if (!results.isEmpty()) {
+//            System.out.println("Documents containing '" + query + "':");
+//            for (int doc : results) {
+//                System.out.println("Document " + doc + ": ");
+//            }
+//        } else {
+//            System.out.println("No documents found for '" + query + "'.");
+//        }
 
         /*
         for (Map.Entry<String, PostingList> entry : posting_lists.entrySet()) {
