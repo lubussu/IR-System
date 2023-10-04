@@ -14,6 +14,7 @@ import java.util.*;
 public class InvertedIndex {
     public static HashMap<String, PostingList> posting_lists = new HashMap<>();
     public static HashMap<String, DictionaryElem> dictionary = new HashMap<>();
+    public static  ArrayList<String> termList;
     public static int block_number = 0;
 
     public InvertedIndex() {
@@ -38,6 +39,7 @@ public class InvertedIndex {
 
     public void buildIndexFromFile(String filePath) {
         ArrayList<String> tokens;
+        HashSet<String> terms = new HashSet<>();
         int freq;
         int docid = -1;
         String docNo;
@@ -63,7 +65,7 @@ public class InvertedIndex {
                     freq = Collections.frequency(tokens, term);
 
                     if (!dictionary.containsKey(term)) {
-
+                        terms.add(term);
                         dictionary.put(term, new DictionaryElem(term, 1,freq));
                         posting_lists.put(term, new PostingList(term, new Posting(docid, freq)));
 
@@ -116,18 +118,22 @@ public class InvertedIndex {
         } catch (IOException | InterruptedException ex) {
             throw new RuntimeException(ex);
         }
+
+        termList = new ArrayList<>(terms);
+
         long end = System.currentTimeMillis() - start;
         long time = (end/1000)/60;
-        System.out.println("\nMerge operation executed in: " + time + " minutes");
+        System.out.println("\nIndexing operation executed in: " + time + " minutes");
     }
 
     public static void main(String[] args) throws IOException {
         String filePath = "src/main/resources/collection.tsv";
 
-//        InvertedIndex invertedIndex = new InvertedIndex();
-//        invertedIndex.buildIndexFromFile(filePath);
+        InvertedIndex invertedIndex = new InvertedIndex();
+        invertedIndex.buildIndexFromFile(filePath);
 
-        IOUtils.readBinBlockFromDisk();
+        Collections.sort(termList);
+        IOUtils.readBinBlockFromDisk(termList);
 
 
 //        String query = "intrabuilding";
