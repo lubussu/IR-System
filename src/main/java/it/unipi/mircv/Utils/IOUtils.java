@@ -33,7 +33,6 @@ public class IOUtils {
 
             block_pl.ToBinFile("temp/indexBlock" + block + ".bin");
             block_de.ToBinFile("temp/dictionaryBlock" + block + ".bin");
-
         }
         return true;
     }
@@ -44,69 +43,52 @@ public class IOUtils {
         ArrayList<DictionaryElem> completeDictionary = new ArrayList<>();
 
         // Add FileChannel objects to the ArrayList
-        for (int i = 0; i <= InvertedIndex.block_number; i++) {
+        for (int i = 0; i <= 4; i++) {
             String path = "temp/dictionaryBlock" + i + ".bin";
-            try (FileChannel channel = FileChannel.open(Paths.get(path), StandardOpenOption.READ)){
+            try {
+                FileChannel channel = FileChannel.open(Paths.get(path), StandardOpenOption.READ);
                 dictionaryChannels.add(channel);
-            }
-            catch(IOException e){
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
 
-        ByteBuffer buffer = ByteBuffer.allocate(1024);
+        ByteBuffer buffer_size = ByteBuffer.allocate(4);
 
-        for(String term : termList){
+        for (String term : termList) {
             DictionaryElem dict = new DictionaryElem(term, 0, 0);
-            for(int i = 0; i <= InvertedIndex.block_number; i++){
+
+            for (int i = 0; i <= 4; i++) {
                 FileChannel channel = dictionaryChannels.get(i);
-                long current_position = channel.position();
-                int bytesRead = channel.read(buffer);
-                buffer.flip();
-                int intValue = buffer.getInt();
-                byte[] bytes = new byte[intValue];
-                buffer.get(bytes);
-                String current_term =  new String(bytes, StandardCharsets.UTF_8);
-                if(!current_term.equals(term)){
-                    channel.position(current_position);
-                }else{
-                    int df = buffer.getInt();
-                    int cf = buffer.getInt();
+                long current_position = channel.position(); //conservo la posizione per risettarla se non leggo il termine cercato
+
+                channel.read(buffer_size);
+                buffer_size.flip();
+                int termSize = buffer_size.getInt();
+                ByteBuffer buffer_term = ByteBuffer.allocate(termSize+8);
+                channel.read(buffer_term);
+                buffer_term.flip();
+
+                byte[] bytes = new byte[termSize];
+                buffer_term.get(bytes);
+                String current_term = new String(bytes, StandardCharsets.UTF_8);
+
+                if (!current_term.equals(term)) { //non ho letto il termine cercato (so che non c'è)
+                    channel.position(current_position); //setto la posizione
+                } else {
+                    int df = buffer_term.getInt();
+                    int cf = buffer_term.getInt();
                     dict.setDf(dict.getDf() + df);
                     dict.setCf(dict.getDf() + cf);
                 }
-                buffer.clear();
+                buffer_size.clear();
+                buffer_term.clear();
             }
             completeDictionary.add(dict);
         }
-
-        for(DictionaryElem d : completeDictionary){
+        for (DictionaryElem d : completeDictionary) {
             d.ToTextFile("temp/Dictionary.txt");
         }
-
-        //        try (FileChannel channel = FileChannel.open(Paths.get("temp/indexBlock0.bin"), StandardOpenOption.READ)) {
-//            ByteBuffer buffer = ByteBuffer.allocate(1024);
-//            int bytesRead = channel.read(buffer);
-//            buffer.flip();
-//            int intValue = buffer.getInt();
-//            byte[] bytes = new byte[intValue];
-//            buffer.get(bytes);
-//            String term =  new String(bytes, StandardCharsets.UTF_8);
-//            int pl_size = buffer.getInt();
-//            int i = 0;
-//            System.out.print(term + ": ");
-//            while(i<pl_size){
-//                int docid = buffer.getInt();
-//                System.out.print("docid: " + docid + " ");
-//                i++;
-//            }
-//            while(i<pl_size*2){
-//                int tf = buffer.getInt();
-//                System.out.print("tf: " + tf + " ");
-//                i++;
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
     }
 }
+

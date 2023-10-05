@@ -14,6 +14,7 @@ import java.util.*;
 public class InvertedIndex {
     public static HashMap<String, PostingList> posting_lists = new HashMap<>();
     public static HashMap<String, DictionaryElem> dictionary = new HashMap<>();
+    public static HashMap<Integer, DocumentElem> docTable = new HashMap<>();
     public static  ArrayList<String> termList;
     public static int block_number = 0;
 
@@ -48,7 +49,7 @@ public class InvertedIndex {
         long start = System.currentTimeMillis();
         //InputStreamReader permette di specificare la codifica da utilizzare
         //FileReader utilizza la codifica standard del SO usato
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(filePath), StandardCharsets.UTF_8))) {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(Files.newInputStream(Paths.get(filePath)), StandardCharsets.UTF_8))) {
             String line;
             TextPreprocesser.stopwords_global= Files.readAllLines(Paths.get("src/main/resources/stopwords.txt"));
 
@@ -59,7 +60,7 @@ public class InvertedIndex {
                 docNo = tokens.get(0);
                 tokens.remove(0);
 
-                DocumentElem doc = new DocumentElem(docid, docNo, tokens.size());
+                //docTable.put(docid, new DocumentElem(docid, docNo, tokens.size()));
 
                 for (String term : tokens) {
                     freq = Collections.frequency(tokens, term);
@@ -119,20 +120,47 @@ public class InvertedIndex {
             throw new RuntimeException(ex);
         }
 
+        System.out.println(terms);
         termList = new ArrayList<>(terms);
+
+        System.out.println(termList);
 
         long end = System.currentTimeMillis() - start;
         long time = (end/1000)/60;
         System.out.println("\nIndexing operation executed in: " + time + " minutes");
     }
 
+    public void writeTermList() {
+        try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("termList.txt"))) {
+            String termListAsString = String.join(" ", termList);
+            bufferedWriter.write(termListAsString);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void readTermList() {
+        try (BufferedReader bufferedReader = new BufferedReader(new FileReader("termList.txt"))) {
+            String termListAsString = bufferedReader.readLine();
+            String[] termArray = termListAsString.split(" ");
+            termList = new ArrayList<>(Arrays.asList(termArray));
+            block_number = Integer.parseInt(termList.remove(0));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void main(String[] args) throws IOException {
         String filePath = "src/main/resources/collection.tsv";
 
         InvertedIndex invertedIndex = new InvertedIndex();
-        invertedIndex.buildIndexFromFile(filePath);
+        //invertedIndex.buildIndexFromFile(filePath);
 
-        Collections.sort(termList);
+        //Collections.sort(termList);
+        //termList.add(0, Integer.toString(block_number));
+        //invertedIndex.writeTermList();
+
+        invertedIndex.readTermList();
         IOUtils.readBinBlockFromDisk(termList);
 
 
@@ -148,19 +176,5 @@ public class InvertedIndex {
 //            System.out.println("No documents found for '" + query + "'.");
 //        }
 
-        /*
-        for (Map.Entry<String, PostingList> entry : posting_lists.entrySet()) {
-            String term = entry.getKey();
-            PostingList pl = entry.getValue();
-            System.out.printf("Term: %s\n", term);
-            System.out.printf("PL (DocId, Freq):\n");
-            for(Posting p: pl.getPl()){
-                System.out.printf("(%d, %d) \t", p.getDocId(), p.getTermFreq());
-            }
-            System.out.println("\n");
-        }
-         */
-
-        //invertedIndex.saveIndexToFile("index.txt");
     }
 }

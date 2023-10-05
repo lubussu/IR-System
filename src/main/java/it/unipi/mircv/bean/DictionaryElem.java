@@ -89,14 +89,13 @@ public class DictionaryElem {
 
     public void ToBinFile(String filename){
         try (FileChannel channel = FileChannel.open(Paths.get(filename), StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {
-            byte[] descBytes = String.valueOf(term).getBytes(StandardCharsets.UTF_8);;
+            byte[] descBytes = String.valueOf(this.term).getBytes(StandardCharsets.UTF_8);;
             ByteBuffer buffer = ByteBuffer.allocate(4 + descBytes.length + 8);
             // Populate the buffer
             buffer.putInt(descBytes.length);
             buffer.put(descBytes);
             buffer.putInt(this.df);
             buffer.putInt(this.cf);
-            buffer.flip();
             // Write the buffer to the file
             channel.write(buffer);
         } catch (IOException e) {
