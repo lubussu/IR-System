@@ -154,11 +154,11 @@ public class InvertedIndex {
         String filePath = "src/main/resources/collection.tsv";
 
         InvertedIndex invertedIndex = new InvertedIndex();
-        //invertedIndex.buildIndexFromFile(filePath);
-
-        //Collections.sort(termList);
-        //termList.add(0, Integer.toString(block_number));
-        //invertedIndex.writeTermList();
+//        invertedIndex.buildIndexFromFile(filePath);
+//
+//        Collections.sort(termList);
+//        termList.add(0, Integer.toString(block_number));
+//        invertedIndex.writeTermList();
 
         invertedIndex.readTermList();
         IOUtils.readBinBlockFromDisk(termList);

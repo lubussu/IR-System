@@ -43,7 +43,7 @@ public class IOUtils {
         ArrayList<DictionaryElem> completeDictionary = new ArrayList<>();
 
         // Add FileChannel objects to the ArrayList
-        for (int i = 0; i <= 4; i++) {
+        for (int i = 0; i < 5; i++) {
             String path = "temp/dictionaryBlock" + i + ".bin";
             try {
                 FileChannel channel = FileChannel.open(Paths.get(path), StandardOpenOption.READ);
@@ -55,36 +55,38 @@ public class IOUtils {
 
         ByteBuffer buffer_size = ByteBuffer.allocate(4);
 
+        System.out.println(termList.size());
         for (String term : termList) {
             DictionaryElem dict = new DictionaryElem(term, 0, 0);
-
-            for (int i = 0; i <= 4; i++) {
+            System.out.println(term + " " + term.getBytes(StandardCharsets.UTF_8).length);
+            for (int i = 0; i < 5; i++) {
                 FileChannel channel = dictionaryChannels.get(i);
                 long current_position = channel.position(); //conservo la posizione per risettarla se non leggo il termine cercato
-
-                channel.read(buffer_size);
+                int byteRead = channel.read(buffer_size);
+                if(byteRead == -1)
+                    continue;
                 buffer_size.flip();
                 int termSize = buffer_size.getInt();
                 ByteBuffer buffer_term = ByteBuffer.allocate(termSize+8);
                 channel.read(buffer_term);
                 buffer_term.flip();
-
                 byte[] bytes = new byte[termSize];
                 buffer_term.get(bytes);
                 String current_term = new String(bytes, StandardCharsets.UTF_8);
-
                 if (!current_term.equals(term)) { //non ho letto il termine cercato (so che non c'è)
                     channel.position(current_position); //setto la posizione
                 } else {
                     int df = buffer_term.getInt();
                     int cf = buffer_term.getInt();
                     dict.setDf(dict.getDf() + df);
-                    dict.setCf(dict.getDf() + cf);
+                    dict.setCf(dict.getCf() + cf);
+                    System.out.println(current_term + " " + termSize);
                 }
                 buffer_size.clear();
                 buffer_term.clear();
             }
             completeDictionary.add(dict);
+            System.out.println();
         }
         for (DictionaryElem d : completeDictionary) {
             d.ToTextFile("temp/Dictionary.txt");
