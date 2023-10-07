@@ -40,7 +40,7 @@ build/
 ### FIles ###
 src/main/resources/collection.tsv
 src/main/resources/stopwords.txt
-NOTE.txt
+termList.txt
 
 ### block files ###
 temp/
