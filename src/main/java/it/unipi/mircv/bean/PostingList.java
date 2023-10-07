@@ -31,7 +31,7 @@ public class PostingList {
     }
 
     public void addPosting(Posting p) {
-        pl.add(p);
+        this.pl.add(p);
     }
 
     public void ToTextFile(String filename) {
