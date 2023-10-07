@@ -120,10 +120,7 @@ public class InvertedIndex {
             throw new RuntimeException(ex);
         }
 
-        System.out.println(terms);
         termList = new ArrayList<>(terms);
-
-        System.out.println(termList);
 
         long end = System.currentTimeMillis() - start;
         long time = (end/1000)/60;
@@ -150,18 +147,19 @@ public class InvertedIndex {
         }
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         String filePath = "src/main/resources/collection.tsv";
 
         InvertedIndex invertedIndex = new InvertedIndex();
-        //invertedIndex.buildIndexFromFile(filePath);
+        invertedIndex.buildIndexFromFile(filePath);
 
-        //Collections.sort(termList);
-        //termList.add(0, Integer.toString(block_number));
-        //invertedIndex.writeTermList();
+        Collections.sort(termList);
+        termList.add(0, Integer.toString(block_number));
+        invertedIndex.writeTermList();
 
-        invertedIndex.readTermList();
-        IOUtils.readBinBlockFromDisk(termList);
+
+        //invertedIndex.readTermList();
+        //IOUtils.readBinBlockFromDisk(termList);
 
 
 //        String query = "intrabuilding";

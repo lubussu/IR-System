@@ -30,8 +30,11 @@ public class IOUtils {
             File folder = new File("temp");
             if (!folder.exists())
                 folder.mkdirs();
+            else if (block==0)
+                for (File file : folder.listFiles())
+                    file.delete();
 
-            block_pl.ToBinFile("temp/indexBlock" + block + ".bin");
+            block_pl.ToBinFile("temp/indexBlock" + block + ".bin", true);
             block_de.ToBinFile("temp/dictionaryBlock" + block + ".bin");
         }
         return true;
@@ -66,7 +69,10 @@ public class IOUtils {
                 buffer_size.flip();
                 int termSize = buffer_size.getInt();
                 ByteBuffer buffer_term = ByteBuffer.allocate(termSize+8);
-                channel.read(buffer_term);
+                int byteRead = channel.read(buffer_term);
+                if (byteRead == -1)
+                    continue;
+
                 buffer_term.flip();
 
                 byte[] bytes = new byte[termSize];
@@ -79,7 +85,7 @@ public class IOUtils {
                     int df = buffer_term.getInt();
                     int cf = buffer_term.getInt();
                     dict.setDf(dict.getDf() + df);
-                    dict.setCf(dict.getDf() + cf);
+                    dict.setCf(dict.getCf() + cf);
                 }
                 buffer_size.clear();
                 buffer_term.clear();

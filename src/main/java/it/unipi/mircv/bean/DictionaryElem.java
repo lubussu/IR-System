@@ -96,6 +96,8 @@ public class DictionaryElem {
             buffer.put(descBytes);
             buffer.putInt(this.df);
             buffer.putInt(this.cf);
+
+            buffer.flip();
             // Write the buffer to the file
             channel.write(buffer);
         } catch (IOException e) {
