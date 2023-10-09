@@ -38,9 +38,9 @@ build/
 .DS_Store
 
 ### FIles ###
-src/main/resources/collection.tsv
-src/main/resources/stopwords.txt
-termList.txt
+src/main/resources/*
+IndexConstruction/src/main/resources/*
+IndexConstruction/termList.txt
 
 ### block files ###
 temp/
