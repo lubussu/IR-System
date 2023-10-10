@@ -38,22 +38,56 @@ public class IOUtils {
 
     public static boolean writeBinBlockToDisk(HashMap<String, DictionaryElem> blockDictionary,
                                               HashMap<String, PostingList> blockPostingList, int block) throws IOException{
+
         ArrayList<String> termList = new ArrayList<>(blockDictionary.keySet());
         Collections.sort(termList);
-        for (String term: termList){
-            PostingList block_pl = blockPostingList.get(term);
-            DictionaryElem block_de = blockDictionary.get(term);
 
-            File folder = new File("temp");
-            if (!folder.exists())
-                folder.mkdirs();
-            else if (block==0)
-                for (File file : folder.listFiles())
-                    file.delete();
+        File folder = new File(PATH_TO_TEMP_BLOCKS);
+        if (!folder.exists())
+            folder.mkdirs();
+        else if (block==0)
+            for (File file : folder.listFiles())
+                file.delete();
 
-            block_pl.ToBinFile("temp/indexBlock" + block + ".bin", compression);
-            block_de.ToBinFile("temp/dictionaryBlock" + block + ".bin");
+        String dictionary_filename = PATH_TO_TEMP_BLOCKS + "/dictionaryBlock" + block + ".bin";
+        String index_filename = PATH_TO_TEMP_BLOCKS + "/indexBlock" + block + ".bin";
+
+        try (FileChannel dictionary_channel = FileChannel.open(Paths.get(dictionary_filename), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+             FileChannel index_channel = FileChannel.open(Paths.get(index_filename), StandardOpenOption.CREATE, StandardOpenOption.APPEND)){
+
+            for (String term : termList) {
+                PostingList block_pl = blockPostingList.get(term);
+                DictionaryElem block_de = blockDictionary.get(term);
+
+                block_pl.ToBinFile(index_channel, true);
+                block_de.ToBinFile(dictionary_channel);
+            }
+        }catch (IOException e) {
+            e.printStackTrace();
         }
+        return true;
+    }
+
+    public static boolean writeMergedPLToDisk(ArrayList<PostingList> mergedPostingList, int block){
+
+        File folder = new File(PATH_TO_FINAL_BLOCKS);
+        if (!folder.exists())
+            folder.mkdirs();
+        else if (block==0)
+            for (File file : folder.listFiles())
+                file.delete();
+
+        String filename = PATH_TO_FINAL_BLOCKS + "/indexMerged" + block + ".bin";
+
+        try{
+            FileChannel channel = FileChannel.open(Paths.get(filename), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+            for(PostingList pl : mergedPostingList){
+                pl.ToBinFile(channel, true);
+            }
+        }catch (IOException e) {
+            e.printStackTrace();
+        }
+
         return true;
     }
 

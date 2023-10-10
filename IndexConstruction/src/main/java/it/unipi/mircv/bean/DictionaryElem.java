@@ -84,8 +84,8 @@ public class DictionaryElem {
         }
     }
 
-    public void ToBinFile(String filename){
-        try (FileChannel channel = FileChannel.open(Paths.get(filename), StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {
+    public void ToBinFile(FileChannel channel){
+        try{
             byte[] descBytes = String.valueOf(this.term).getBytes(StandardCharsets.UTF_8);;
             ByteBuffer buffer = ByteBuffer.allocate(4 + descBytes.length + 8);
             // Populate the buffer

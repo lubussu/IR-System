@@ -6,6 +6,7 @@ import it.unipi.mircv.compression.VariableByte;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -52,8 +53,8 @@ public class PostingList {
         }
     }
 
-    public void ToBinFile(String filename, boolean compression) {
-        try (FileChannel channel = FileChannel.open(Paths.get(filename), StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {
+    public void ToBinFile(FileChannel channel, boolean compression) {
+        try{
             byte[] descBytes = String.valueOf(term).getBytes(StandardCharsets.UTF_8);
             ByteBuffer buffer = ByteBuffer.allocate(4 + descBytes.length + 4);
             
