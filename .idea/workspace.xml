@@ -4,25 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="df94d5ac-57f6-4e1d-af20-d4cd43d3e36c" name="Changes" comment="completed merged dictionary">
-      <change afterPath="$PROJECT_DIR$/IndexConstruction/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/IndexConstruction/pom.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/QueryProcessing/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/QueryProcessing/pom.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/QueryProcessing/src/test/java/org/example/AppTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+    <list default="true" id="df94d5ac-57f6-4e1d-af20-d4cd43d3e36c" name="Changes" comment="Riorganizzazione codice e aggiunta moduli">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/mircv/InvertedIndex.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/mircv/TextPreprocesser.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/mircv/Utils/IOUtils.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/mircv/bean/DictionaryElem.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/mircv/bean/DocumentElem.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/mircv/bean/Posting.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/mircv/bean/PostingList.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/mircv/compression/Unary.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/mircv/compression/VariableByte.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/QueryProcessing/src/test/java/org/example/AppTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/mircv/MIRCV.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/mircv/MIRCV.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -78,6 +64,7 @@
     "git-widget-placeholder": "main",
     "ignore.virus.scanning.warn.message": "true",
     "jdk.selected.JAVA_MODULE": "corretto-20",
+    "last_opened_file_path": "/Users/luanabussu/GitHub/MIRCV-project/MIRCV-project/src/main/java/it/unipi/mircv",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -88,49 +75,10 @@
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
-  <component name="RunManager" selected="Application.Main">
-    <configuration name="Main" type="Application" factoryName="Application" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="it.unipi.mircv.Main" />
-      <module name="IndexConstruction" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="it.unipi.mircv.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="All in IndexConstruction" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="IndexConstruction" />
-      <option name="PACKAGE_NAME" value="" />
-      <option name="MAIN_CLASS_NAME" value="" />
-      <option name="METHOD_NAME" value="" />
-      <option name="TEST_OBJECT" value="package" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="All in MIRCV-project" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="MIRCV-project" />
-      <option name="PACKAGE_NAME" value="" />
-      <option name="TEST_OBJECT" value="package" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <list>
-      <item itemvalue="Application.Main" />
-      <item itemvalue="JUnit.All in IndexConstruction" />
-      <item itemvalue="JUnit.All in MIRCV-project" />
-    </list>
-    <recent_temporary>
-      <list>
-        <item itemvalue="JUnit.All in IndexConstruction" />
-        <item itemvalue="JUnit.All in MIRCV-project" />
-      </list>
-    </recent_temporary>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/main/java/it/unipi/mircv" />
+    </key>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -148,7 +96,8 @@
       <workItem from="1696344036730" duration="1511000" />
       <workItem from="1696422235200" duration="13380000" />
       <workItem from="1696676811735" duration="13912000" />
-      <workItem from="1696858532397" duration="1548000" />
+      <workItem from="1696858532397" duration="3307000" />
+      <workItem from="1696932904582" duration="506000" />
     </task>
     <task id="LOCAL-00001" summary="Added index blocks creation">
       <option name="closed" value="true" />
@@ -190,7 +139,14 @@
       <option name="project" value="LOCAL" />
       <updated>1696690244238</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Riorganizzazione codice e aggiunta moduli">
+      <created>1696861225665</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1696861225665</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -201,6 +157,7 @@
     <MESSAGE value="created partial indexes as bin files" />
     <MESSAGE value="commented merging function" />
     <MESSAGE value="completed merged dictionary" />
-    <option name="LAST_COMMIT_MESSAGE" value="completed merged dictionary" />
+    <MESSAGE value="Riorganizzazione codice e aggiunta moduli" />
+    <option name="LAST_COMMIT_MESSAGE" value="Riorganizzazione codice e aggiunta moduli" />
   </component>
 </project>
