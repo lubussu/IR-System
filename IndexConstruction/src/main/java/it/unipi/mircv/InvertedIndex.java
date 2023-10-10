@@ -8,12 +8,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.*;
-import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.*;
 
 @Getter
@@ -42,15 +40,6 @@ public class InvertedIndex {
     }
     public void clearDictionaryMem(){
         dictionary.clear();
-    }
-
-    public ArrayList<Integer> search(String query) {
-        query = query.toLowerCase();
-        PostingList pl = posting_lists.get(query);
-        ArrayList<Integer> docids = new ArrayList<Integer>();
-        for(Posting p : pl.getPl())
-            docids.add(p.getDocId());
-        return docids;
     }
 
     public void buildIndexFromFile(String filePath) {
@@ -143,21 +132,21 @@ public class InvertedIndex {
         Collections.sort(termList);
     }
 
-    public void writeTermList() {
-        termList.add(0, Integer.toString(block_number));
-        try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("termList.txt"))) {
-            String termListAsString = String.join(" ", termList);
-            bufferedWriter.write(termListAsString);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     public void readIndexFromFile(){
+        long start = System.currentTimeMillis();
         if(termList == null || termList.isEmpty())
             readTermList();
 
-        IOUtils.readBinBlockFromDisk(termList);
+        try {
+            //mergeDictionary(termList);
+            mergePostingList(termList);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        long end = System.currentTimeMillis() - start;
+        long time = (end/1000)/60;
+        System.out.println("\nReading operation executed in: " + time + " minutes");
     }
 
     public void readTermList() {
@@ -169,5 +158,68 @@ public class InvertedIndex {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void writeTermList() {
+        termList.add(0, Integer.toString(block_number));
+        try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("termList.txt"))) {
+            String termListAsString = String.join(" ", termList);
+            bufferedWriter.write(termListAsString);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void mergeDictionary(ArrayList<String> termList) throws IOException {
+        System.out.printf("(INFO) Starting merging dictionary\n");
+        ArrayList<FileChannel> dictionaryChannels = IOUtils.prepareChannels("dictionaryBlock", block_number);
+
+        for (String term : termList) {
+            DictionaryElem dict = new DictionaryElem(term, 0, 0);
+            for (int i = 0; i < block_number; i++) {
+                FileChannel channel = dictionaryChannels.get(i);
+                long current_position = channel.position(); //conservo la posizione per risettarla se non leggo il termine cercato
+                if (!dict.FromBinFile(channel))
+                    channel.position(current_position);
+                dictionary.put(term, dict);
+            }
+        }
+        System.out.printf("(INFO) Merging dictionary completed\n");
+    }
+
+    public void mergePostingList (ArrayList < String > termList) throws IOException {
+        System.out.printf("(INFO) Starting Merging PL\n");
+        ArrayList<FileChannel> postingListChannels = IOUtils.prepareChannels("indexBlock", block_number);
+        ArrayList<PostingList> completePostingList = new ArrayList<>();
+        long MaxUsableMemory = Runtime.getRuntime().maxMemory() * 80 / 100;
+        int pl_block = 0;
+
+        for (String term : termList) {
+            PostingList posting_list = new PostingList(term);
+            for (int i = 0; i < block_number; i++) {
+                FileChannel channel = postingListChannels.get(i);
+                long current_position = channel.position(); //conservo la posizione per risettarla se non leggo il termine cercato
+                if (!posting_list.FromBinFile(channel, true))
+                    channel.position(current_position);
+            }
+            completePostingList.add(posting_list);
+
+            if (Runtime.getRuntime().totalMemory() > MaxUsableMemory) {
+                System.out.printf("(INFO) MAXIMUM PERMITTED USE OF MEMORY ACHIEVED.\n\n Number of posting lists to write: %d\n",
+                        completePostingList.size());
+                /* Write block to disk */
+                if (!IOUtils.writeMergedPLToDisk(completePostingList, pl_block)) {
+                    System.out.printf("(ERROR): %d block write to disk failed\n", pl_block);
+                    break;
+                } else {
+                    System.out.printf("(INFO) Writing block '%d' completed\n", pl_block);
+                    pl_block++;
+                }
+                completePostingList.clear();
+                System.gc();
+            }
+        }
+        block_number = pl_block;
+        System.out.printf("(INFO) Merging PL completed\n");
     }
 }

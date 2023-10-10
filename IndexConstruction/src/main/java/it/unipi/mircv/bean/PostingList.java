@@ -1,5 +1,6 @@
 package it.unipi.mircv.bean;
 
+import it.unipi.mircv.Utils.IOUtils;
 import it.unipi.mircv.compression.Unary;
 import it.unipi.mircv.compression.VariableByte;
 import lombok.Getter;
@@ -54,17 +55,16 @@ public class PostingList {
     public void ToBinFile(String filename, boolean compression) {
         try (FileChannel channel = FileChannel.open(Paths.get(filename), StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {
             byte[] descBytes = String.valueOf(term).getBytes(StandardCharsets.UTF_8);
-            ByteBuffer buffer_term = ByteBuffer.allocate(4 + descBytes.length + 4);
+            ByteBuffer buffer = ByteBuffer.allocate(4 + descBytes.length + 4);
             
-            // Populate the buffer_term
-            buffer_term.putInt(descBytes.length);
-            buffer_term.put(descBytes);
-            buffer_term.putInt(pl.size());
-            buffer_term.flip();
+            // Populate the buffer for termLenght + term
+            buffer.putInt(descBytes.length);
+            buffer.put(descBytes);
+            buffer.putInt(pl.size());
+            buffer.flip();
             // Write the buffer to the file
-            channel.write(buffer_term);
+            channel.write(buffer);
 
-            ByteBuffer buffer;
             if (compression) {
                 ArrayList<Integer> docids = new ArrayList<>();
                 ArrayList<Integer> freqs = new ArrayList<>();
@@ -85,11 +85,13 @@ public class PostingList {
 
             } else {
                 buffer = ByteBuffer.allocate(pl.size() * 8);
-                for (Posting post : this.pl)
+                int offset = (pl.size()-1)*4;
+                for (Posting post : this.pl) {
                     buffer.putInt(post.getDocId());
-
-                for (Posting post : this.pl)
-                    buffer.putInt(post.getTermFreq());
+                    int current_position = buffer.position();
+                    buffer.putInt(current_position + offset, post.getTermFreq());
+                    buffer.position(current_position);
+                }
             }
 
             buffer.flip();
@@ -101,26 +103,15 @@ public class PostingList {
     }
 
     public boolean FromBinFile(FileChannel channel, boolean compressed) throws IOException {
-        ByteBuffer buffer_size = ByteBuffer.allocate(4);
-        int byteRead = channel.read(buffer_size);
-        if(byteRead == -1)
-            return false;
-
-        buffer_size.flip();
-        int termSize = buffer_size.getInt();
-        ByteBuffer buffer_term = ByteBuffer.allocate(termSize);
-        channel.read(buffer_term);
-        buffer_term.flip();
-        byte[] bytes = new byte[termSize];
-        buffer_term.get(bytes);
-        String current_term = new String(bytes, StandardCharsets.UTF_8);
-        if (!current_term.equals(term)) { //non ho letto il termine cercato (so che non c'è)
+        ByteBuffer buffer;
+        String current_term = IOUtils.readTerm(channel);
+        if (current_term==null || !current_term.equals(this.term)) { //non ho letto il termine cercato (so che non c'è)
             return false;
         } else {
-            buffer_size = ByteBuffer.allocate(4);
-            channel.read(buffer_size);
-            buffer_size.flip();
-            int pl_size = buffer_size.getInt(); // dimensione della posting_list salvata sul blocco
+            buffer = ByteBuffer.allocate(4);
+            channel.read(buffer);
+            buffer.flip();
+            int pl_size = buffer.getInt(); // dimensione della posting_list salvata sul blocco
             if (compressed) {
                 readCompressedPL(channel, pl_size);
             } else {
@@ -153,11 +144,12 @@ public class PostingList {
     }
 
     public void readCompressedPL(FileChannel channel, int pl_size) throws IOException {
-        //byte[] docids = VariableByte.fromVariableBytesToIntegers();
         ByteBuffer buffer_pl = ByteBuffer.allocate(4);
         channel.read(buffer_pl);
         buffer_pl.flip();
         int byteRead = buffer_pl.getInt();
+        if(byteRead < 0)
+            return;
         buffer_pl = ByteBuffer.allocate(byteRead);
         channel.read(buffer_pl);
         buffer_pl.flip();

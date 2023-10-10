@@ -1,5 +1,6 @@
 package it.unipi.mircv.bean;
 
+import it.unipi.mircv.Utils.IOUtils;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -24,11 +25,8 @@ public class DictionaryElem {
     /* Number of times the term appears in the collection */
     private int cf;
 
-    /* Offset of the docIDs posting list */
+    /* Pointer to the beginning of posting list of term t */
     private long offset_docids;
-
-    /* Length of the docIDs posting list */
-    private int docids_len;
 
     /* Offset of the term frequencies posting list */
     private long offset_tf;
@@ -63,7 +61,6 @@ public class DictionaryElem {
         this.df = df;
         this.cf = cf;
         this.offset_docids = 0;
-        this.docids_len = 0;
         this.offset_tf = 0;
         this.tf_len = 0;
         this.maxTf = 0;
@@ -102,5 +99,21 @@ public class DictionaryElem {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public boolean FromBinFile(FileChannel channel) throws IOException {
+        ByteBuffer buffer;
+        String current_term = IOUtils.readTerm(channel);
+        if (current_term==null || !current_term.equals(this.term)) { //non ho letto il termine cercato (so che non c'è)
+            return false;
+        } else {
+            buffer = ByteBuffer.allocate(8);
+            int df = buffer.getInt();
+            int cf = buffer.getInt();
+            this.setDf(this.getDf() + df);
+            this.setCf(this.getCf() + cf);
+        }
+        buffer.clear();
+        return true;
     }
 }
