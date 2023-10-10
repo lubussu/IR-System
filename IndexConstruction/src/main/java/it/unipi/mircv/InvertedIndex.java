@@ -138,7 +138,7 @@ public class InvertedIndex {
             readTermList();
 
         try {
-            //mergeDictionary(termList);
+            mergeDictionary(termList);
             mergePostingList(termList);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -184,6 +184,12 @@ public class InvertedIndex {
                 dictionary.put(term, dict);
             }
         }
+        if (!IOUtils.writeMergedDictToDisk(new ArrayList<>(dictionary.values()), 0)) {
+            System.out.printf("(ERROR): Merged dictionary write to disk failed\n");
+        }else{
+            System.out.printf("(INFO) Merged dictionary write completed\n");
+        }
+
         System.out.printf("(INFO) Merging dictionary completed\n");
     }
 

@@ -8,20 +8,9 @@ public class IndexConstruction {
         //invertedIndex.buildIndexFromFile(filePath);
         //invertedIndex.writeTermList();
 
+        invertedIndex.clearIndexMem();
+        invertedIndex.clearDictionaryMem();
         invertedIndex.readIndexFromFile();
-
-
-//        String query = "intrabuilding";
-//        ArrayList<Integer> results = invertedIndex.search(query);
-//
-//        if (!results.isEmpty()) {
-//            System.out.println("Documents containing '" + query + "':");
-//            for (int doc : results) {
-//                System.out.println("Document " + doc + ": ");
-//            }
-//        } else {
-//            System.out.println("No documents found for '" + query + "'.");
-//        }
 
     }
 }

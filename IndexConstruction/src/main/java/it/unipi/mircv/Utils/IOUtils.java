@@ -68,27 +68,40 @@ public class IOUtils {
         return true;
     }
 
-    public static boolean writeMergedPLToDisk(ArrayList<PostingList> mergedPostingList, int block){
-
+    public static boolean writeMergedDataToDisk(ArrayList<?> mergedData, String filename, int block) {
         File folder = new File(PATH_TO_FINAL_BLOCKS);
-        if (!folder.exists())
+        if (!folder.exists()) {
             folder.mkdirs();
-        else if (block==0)
-            for (File file : folder.listFiles())
+        } else if (block == 0) {
+            for (File file : folder.listFiles()) {
                 file.delete();
-
-        String filename = PATH_TO_FINAL_BLOCKS + "/indexMerged" + block + ".bin";
-
-        try{
-            FileChannel channel = FileChannel.open(Paths.get(filename), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
-            for(PostingList pl : mergedPostingList){
-                pl.ToBinFile(channel, true);
             }
-        }catch (IOException e) {
+        }
+
+        try {
+            FileChannel channel = FileChannel.open(Paths.get(filename), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+            for (Object item : mergedData) {
+                if (item instanceof PostingList) {
+                    ((PostingList) item).ToBinFile(channel, true);
+                } else if (item instanceof DictionaryElem) {
+                    ((DictionaryElem) item).ToBinFile(channel);
+                } // Add more cases for other data types if needed
+            }
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
         return true;
+    }
+
+    public static boolean writeMergedDictToDisk(ArrayList<DictionaryElem> mergedDictionary, int block){
+        String filename = PATH_TO_FINAL_BLOCKS + "/dictionaryMerged" + block + ".bin";
+        return writeMergedDataToDisk(mergedDictionary,filename, block);
+    }
+
+    public static boolean writeMergedPLToDisk(ArrayList<PostingList> mergedPostingList, int block){
+        String filename = PATH_TO_FINAL_BLOCKS + "/indexMerged" + block + ".bin";
+        return writeMergedDataToDisk(mergedPostingList, filename, block);
     }
 
     public static String readTerm(FileChannel channel) throws IOException {
