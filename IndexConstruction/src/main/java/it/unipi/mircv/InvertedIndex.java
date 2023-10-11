@@ -181,8 +181,8 @@ public class InvertedIndex {
                 long current_position = channel.position(); //conservo la posizione per risettarla se non leggo il termine cercato
                 if (!dict.FromBinFile(channel))
                     channel.position(current_position);
-                dictionary.put(term, dict);
             }
+            dictionary.put(term, dict);
         }
         if (!IOUtils.writeMergedDictToDisk(new ArrayList<>(dictionary.values()), 0)) {
             System.out.printf("(ERROR): Merged dictionary write to disk failed\n");
@@ -225,6 +225,17 @@ public class InvertedIndex {
                 System.gc();
             }
         }
+        System.out.printf("(INFO) Writing FINAL BLOCK TO DISK.\n\n Number of posting lists to write: %d\n",
+                completePostingList.size());
+        if (!IOUtils.writeMergedPLToDisk(completePostingList, pl_block)) {
+            System.out.printf("(ERROR): %d block write to disk failed\n", pl_block);
+        } else {
+            System.out.printf("(INFO) Writing block '%d' completed\n", pl_block);
+            pl_block++;
+        }
+        completePostingList.clear();
+        System.gc();
+
         block_number = pl_block;
         System.out.printf("(INFO) Merging PL completed\n");
     }
