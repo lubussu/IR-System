@@ -38,19 +38,23 @@ public class PostingList {
         this.pl.add(p);
     }
 
-    public void ToTextFile(String filename) {
-        try (FileWriter fileWriter = new FileWriter(filename, true);
-             PrintWriter writer = new PrintWriter(fileWriter)) {
-            writer.write(this.term);
-            for (Posting posting : this.pl) {
-                writer.write(" " + posting.getDocId());
-                writer.write(":" + posting.getTermFreq());
+    public boolean FromBinFile(FileChannel channel, boolean compressed) throws IOException {
+        ByteBuffer buffer;
+        String current_term = IOUtils.readTerm(channel);
+        if (current_term==null || !current_term.equals(this.term)) { //non ho letto il termine cercato (so che non c'è)
+            return false;
+        } else {
+            buffer = ByteBuffer.allocate(4);
+            channel.read(buffer);
+            buffer.flip();
+            int pl_size = buffer.getInt(); // dimensione della posting_list salvata sul blocco
+            if (compressed) {
+                readCompressedPL(channel, pl_size);
+            } else {
+                readPL(channel, pl_size);
             }
-            writer.write("\n");
-
-        } catch (IOException e) {
-            e.printStackTrace();
         }
+        return true;
     }
 
     public void ToBinFile(FileChannel channel, boolean compression) {
@@ -103,47 +107,6 @@ public class PostingList {
         }
     }
 
-    public boolean FromBinFile(FileChannel channel, boolean compressed) throws IOException {
-        ByteBuffer buffer;
-        String current_term = IOUtils.readTerm(channel);
-        if (current_term==null || !current_term.equals(this.term)) { //non ho letto il termine cercato (so che non c'è)
-            return false;
-        } else {
-            buffer = ByteBuffer.allocate(4);
-            channel.read(buffer);
-            buffer.flip();
-            int pl_size = buffer.getInt(); // dimensione della posting_list salvata sul blocco
-            if (compressed) {
-                readCompressedPL(channel, pl_size);
-            } else {
-                readPL(channel, pl_size);
-            }
-        }
-        return true;
-    }
-
-    public void readPL(FileChannel channel, int pl_size) throws IOException {
-        ByteBuffer buffer_pl = ByteBuffer.allocate(pl_size * 4);
-        channel.read(buffer_pl);
-        buffer_pl.flip();
-
-        int current_size = this.getPl().size();
-
-        for (int j = 0; j < pl_size; j++) {
-            int docid = buffer_pl.getInt();
-            Posting post = new Posting(docid, 0);
-            this.addPosting(post);
-        }
-
-        buffer_pl.clear();
-
-        for (int j = 0; j < pl_size; j++) {
-            int freq = buffer_pl.getInt();
-            this.getPl().get(j + current_size).setTermFreq(freq);
-        }
-        buffer_pl.clear();
-    }
-
     public void readCompressedPL(FileChannel channel, int pl_size) throws IOException {
         ByteBuffer buffer_pl = ByteBuffer.allocate(4);
         channel.read(buffer_pl);
@@ -170,6 +133,43 @@ public class PostingList {
         }
 
         buffer_pl.clear();
+    }
+
+    public void readPL(FileChannel channel, int pl_size) throws IOException {
+        ByteBuffer buffer_pl = ByteBuffer.allocate(pl_size * 4);
+        channel.read(buffer_pl);
+        buffer_pl.flip();
+
+        int current_size = this.getPl().size();
+
+        for (int j = 0; j < pl_size; j++) {
+            int docid = buffer_pl.getInt();
+            Posting post = new Posting(docid, 0);
+            this.addPosting(post);
+        }
+
+        buffer_pl.clear();
+
+        for (int j = 0; j < pl_size; j++) {
+            int freq = buffer_pl.getInt();
+            this.getPl().get(j + current_size).setTermFreq(freq);
+        }
+        buffer_pl.clear();
+    }
+
+    public void ToTextFile(String filename) {
+        try (FileWriter fileWriter = new FileWriter(filename, true);
+             PrintWriter writer = new PrintWriter(fileWriter)) {
+            writer.write(this.term);
+            for (Posting posting : this.pl) {
+                writer.write(" " + posting.getDocId());
+                writer.write(":" + posting.getTermFreq());
+            }
+            writer.write("\n");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void printPostingList() {

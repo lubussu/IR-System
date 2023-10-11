@@ -37,7 +37,7 @@ public class IOUtils {
     }
 
     public static boolean writeBinBlockToDisk(HashMap<String, DictionaryElem> blockDictionary,
-                                              HashMap<String, PostingList> blockPostingList, int block) throws IOException{
+                                              ArrayList<PostingList> blockPostingList, int block) throws IOException{
 
         ArrayList<String> termList = new ArrayList<>(blockDictionary.keySet());
         Collections.sort(termList);
@@ -56,8 +56,8 @@ public class IOUtils {
              FileChannel index_channel = FileChannel.open(Paths.get(index_filename), StandardOpenOption.CREATE, StandardOpenOption.APPEND)){
 
             for (String term : termList) {
-                PostingList block_pl = blockPostingList.get(term);
                 DictionaryElem block_de = blockDictionary.get(term);
+                PostingList block_pl = blockPostingList.get(block_de.getOffset_posting_lists());
 
                 block_pl.ToBinFile(index_channel, true);
                 block_de.ToBinFile(dictionary_channel);
@@ -95,7 +95,7 @@ public class IOUtils {
     }
 
     public static boolean writeMergedDictToDisk(ArrayList<DictionaryElem> mergedDictionary, int block){
-        String filename = PATH_TO_FINAL_BLOCKS + "/dictionaryMerged" + block + ".bin";
+        String filename = PATH_TO_FINAL_BLOCKS + "/dictionaryMerged.bin";
         return writeMergedDataToDisk(mergedDictionary,filename, true);
     }
 
