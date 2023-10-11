@@ -68,11 +68,11 @@ public class IOUtils {
         return true;
     }
 
-    public static boolean writeMergedDataToDisk(ArrayList<?> mergedData, String filename, int block) {
+    public static boolean writeMergedDataToDisk(ArrayList<?> mergedData, String filename, boolean delete) {
         File folder = new File(PATH_TO_FINAL_BLOCKS);
         if (!folder.exists()) {
             folder.mkdirs();
-        } else if (block == 0) {
+        } else if (delete) {
             for (File file : folder.listFiles()) {
                 file.delete();
             }
@@ -96,12 +96,12 @@ public class IOUtils {
 
     public static boolean writeMergedDictToDisk(ArrayList<DictionaryElem> mergedDictionary, int block){
         String filename = PATH_TO_FINAL_BLOCKS + "/dictionaryMerged" + block + ".bin";
-        return writeMergedDataToDisk(mergedDictionary,filename, block);
+        return writeMergedDataToDisk(mergedDictionary,filename, true);
     }
 
     public static boolean writeMergedPLToDisk(ArrayList<PostingList> mergedPostingList, int block){
         String filename = PATH_TO_FINAL_BLOCKS + "/indexMerged" + block + ".bin";
-        return writeMergedDataToDisk(mergedPostingList, filename, block);
+        return writeMergedDataToDisk(mergedPostingList, filename, false);
     }
 
     public static String readTerm(FileChannel channel) throws IOException {
