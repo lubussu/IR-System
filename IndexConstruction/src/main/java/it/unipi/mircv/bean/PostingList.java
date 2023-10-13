@@ -39,20 +39,11 @@ public class PostingList {
     }
 
     public boolean FromBinFile(FileChannel channel, boolean compressed) throws IOException {
-        ByteBuffer buffer;
         String current_term = IOUtils.readTerm(channel);
         if (current_term==null || !current_term.equals(this.term)) { //non ho letto il termine cercato (so che non c'è)
             return false;
         } else {
-            buffer = ByteBuffer.allocate(4);
-            channel.read(buffer);
-            buffer.flip();
-            int pl_size = buffer.getInt(); // dimensione della posting_list salvata sul blocco
-            if (compressed) {
-                readCompressedPL(channel, pl_size);
-            } else {
-                readPL(channel, pl_size);
-            }
+            updateFromBinFile(channel,compressed);
         }
         return true;
     }
@@ -177,6 +168,19 @@ public class PostingList {
         for (Posting p : this.getPl()) {
             System.out.printf("Docid: %d - Freq: %d\n", p.getDocId(), p.getTermFreq());
         }
+    }
+
+    public void updateFromBinFile(FileChannel channel, boolean compressed) throws IOException {
+        ByteBuffer buffer = ByteBuffer.allocate(4);
+        channel.read(buffer);
+        buffer.flip();
+        int pl_size = buffer.getInt(); // dimensione della posting_list salvata sul blocco
+        if (compressed) {
+            readCompressedPL(channel, pl_size);
+        } else {
+            readPL(channel, pl_size);
+        }
+        buffer.clear();
     }
 
 }

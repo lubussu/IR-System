@@ -29,7 +29,7 @@ public class DictionaryElem {
     private int offset_posting_lists;
 
     /* Number of block in which the PL is stored */
-    private long block_number;
+    private int block_number;
 
     /* Offset of the term frequencies posting list */
     private long offset_tf;
@@ -76,18 +76,12 @@ public class DictionaryElem {
     }
 
     public boolean FromBinFile(FileChannel channel) throws IOException {
-        ByteBuffer buffer;
         String current_term = IOUtils.readTerm(channel);
         if (current_term==null || !current_term.equals(this.term)) { //non ho letto il termine cercato (so che non c'è)
             return false;
         } else {
-            buffer = ByteBuffer.allocate(8);
-            int df = buffer.getInt();
-            int cf = buffer.getInt();
-            this.setDf(this.getDf() + df);
-            this.setCf(this.getCf() + cf);
+            updateFromBinFile(channel);
         }
-        buffer.clear();
         return true;
     }
 
@@ -120,5 +114,17 @@ public class DictionaryElem {
             e.printStackTrace();
         }
     }
+
+    public void updateFromBinFile(FileChannel channel) throws IOException {
+        ByteBuffer buffer = ByteBuffer.allocate(8);
+        channel.read(buffer);
+        buffer.flip();
+        int df = buffer.getInt();
+        int cf = buffer.getInt();
+        this.setDf(this.getDf() + df);
+        this.setCf(this.getCf() + cf);
+        buffer.clear();
+    }
+
 
 }
