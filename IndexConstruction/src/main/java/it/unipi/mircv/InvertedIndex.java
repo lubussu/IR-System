@@ -1,14 +1,10 @@
 package it.unipi.mircv;
 import it.unipi.mircv.Utils.IOUtils;
-import it.unipi.mircv.bean.DictionaryElem;
-import it.unipi.mircv.bean.DocumentElem;
-import it.unipi.mircv.bean.Posting;
-import it.unipi.mircv.bean.PostingList;
+import it.unipi.mircv.bean.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.io.*;
-import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -52,6 +48,7 @@ public class InvertedIndex {
         HashSet<String> terms = new HashSet<>();
         int freq;
         int docid = -1;
+        long total_lenght = 0;
         String docNo;
         long MaxUsableMemory = Runtime.getRuntime().maxMemory() * 80 / 100;
 
@@ -70,6 +67,7 @@ public class InvertedIndex {
                 tokens.remove(0);
 
                 //docTable.put(docid, new DocumentElem(docid, docNo, tokens.size()));
+                total_lenght += tokens.size();
 
                 for (String term : tokens) {
                     freq = Collections.frequency(tokens, term);
@@ -134,6 +132,10 @@ public class InvertedIndex {
             throw new RuntimeException(ex);
         }
 
+        CollectionInfo.setCollection_size(docid+1);
+        CollectionInfo.setCollection_total_len(total_lenght);
+        CollectionInfo.ToBinFile(IOUtils.getFileChannel("CollectionInfo", "write"));
+
         termList = new ArrayList<>(terms);
 
         long end = System.currentTimeMillis() - start;
@@ -174,8 +176,6 @@ public class InvertedIndex {
         int pl_block = 0;
 
         for (String term : termList) {
-            if(posting_lists.size()==0)
-                System.out.printf("first term of the block: %s\n", term);
             PostingList posting_list = new PostingList(term);
             for (int i = 0; i < block_number; i++) {
                 FileChannel channel = postingListChannels.get(i);
@@ -188,7 +188,6 @@ public class InvertedIndex {
             dictionary.get(term).setBlock_number(pl_block);
 
             if (Runtime.getRuntime().totalMemory() > MaxUsableMemory) {
-                System.out.printf("last term of the block: %s\n", term);
                 System.out.printf("(INFO) MAXIMUM PERMITTED USE OF MEMORY ACHIEVED.\n\n Number of posting lists to write: %d\n",
                         posting_lists.size());
                 /* Write block to disk */

@@ -19,7 +19,22 @@ import java.util.HashMap;
 public class IOUtils {
     public static String PATH_TO_TEMP_BLOCKS = "temp";
     public static String PATH_TO_FINAL_BLOCKS = "final";
-    
+
+    public static FileChannel getFileChannel(String filename, String mode){
+        Path path = Paths.get( filename+ ".bin");
+        FileChannel channel;
+
+        try {
+            if (mode.equals("read"))
+                channel = FileChannel.open(path, StandardOpenOption.READ);
+            else
+                channel = FileChannel.open(path, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return channel;
+    }
+
     public static ArrayList<FileChannel> prepareChannels (String filename, int block_number){
         ArrayList<FileChannel> channels = new ArrayList<>();
 
