@@ -4,21 +4,18 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="df94d5ac-57f6-4e1d-af20-d4cd43d3e36c" name="Changes" comment="">
+    <list default="true" id="df94d5ac-57f6-4e1d-af20-d4cd43d3e36c" name="Changes" comment="added read posting list from the block files and added offset on the block file to the dictionary">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/IndexConstruction/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/InvertedIndex.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/InvertedIndex.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/TextPreprocesser.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/TextPreprocesser.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/Utils/IOUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/Utils/IOUtils.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/CollectionInfo.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/CollectionInfo.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/DictionaryElem.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/DictionaryElem.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/DocumentElem.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/DocumentElem.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/Posting.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/Posting.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/PostingList.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/PostingList.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/compression/Unary.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/compression/Unary.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/QueryProcessing/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/QueryProcessing/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/QueryProcessing/src/main/java/it/unipi/mircv/algorithm/DAAT.java" beforeDir="false" afterPath="$PROJECT_DIR$/QueryProcessing/src/main/java/it/unipi/mircv/algorithm/DAAT.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+    </list>
+    <list id="401deacf-cbf0-4b59-b24c-8f1b64158506" name="Changes by luanabussu" comment="">
+      <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/IndexConstruction.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/IndexConstruction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/InvertedIndex.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/InvertedIndex.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/PostingList.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/PostingList.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/QueryProcessing/src/main/java/it/unipi/mircv/algorithm/DAAT.java" beforeDir="false" afterPath="$PROJECT_DIR$/QueryProcessing/src/main/java/it/unipi/mircv/algorithm/DAAT.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/mircv/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/mircv/Main.java" afterDir="false" />
     </list>
     <list id="a7cec896-e1d0-4a38-9286-bc3d2cbe40ce" name="Changes by ludav" comment="Changes by ludav" />
@@ -56,8 +53,56 @@
       </UrlAndAccount>
     </option>
   </component>
+  <component name="LineStatusTrackerManager">
+    <file path="$PROJECT_DIR$/QueryProcessing/src/main/java/it/unipi/mircv/algorithm/DAAT.java">
+      <ranges>
+        <range start1="4" end1="4" start2="4" end2="5" changelist="df94d5ac-57f6-4e1d-af20-d4cd43d3e36c" />
+        <range start1="7" end1="7" start2="8" end2="9" changelist="df94d5ac-57f6-4e1d-af20-d4cd43d3e36c" />
+        <range start1="9" end1="9" start2="11" end2="12" changelist="df94d5ac-57f6-4e1d-af20-d4cd43d3e36c" />
+        <range start1="11" end1="12" start2="14" end2="15" changelist="401deacf-cbf0-4b59-b24c-8f1b64158506" />
+        <range start1="16" end1="18" start2="19" end2="27" changelist="401deacf-cbf0-4b59-b24c-8f1b64158506" />
+        <range start1="23" end1="24" start2="32" end2="33" changelist="401deacf-cbf0-4b59-b24c-8f1b64158506" />
+        <range start1="34" end1="35" start2="43" end2="44" changelist="401deacf-cbf0-4b59-b24c-8f1b64158506" />
+        <range start1="89" end1="90" start2="98" end2="99" changelist="401deacf-cbf0-4b59-b24c-8f1b64158506" />
+        <range start1="95" end1="96" start2="104" end2="105" changelist="401deacf-cbf0-4b59-b24c-8f1b64158506" />
+      </ranges>
+    </file>
+    <file path="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/InvertedIndex.java">
+      <ranges>
+        <range start1="14" end1="31" start2="14" end2="20" changelist="401deacf-cbf0-4b59-b24c-8f1b64158506" />
+        <range start1="32" end1="33" start2="21" end2="22" changelist="df94d5ac-57f6-4e1d-af20-d4cd43d3e36c" />
+        <range start1="35" end1="36" start2="24" end2="25" changelist="df94d5ac-57f6-4e1d-af20-d4cd43d3e36c" />
+        <range start1="39" end1="40" start2="28" end2="29" changelist="df94d5ac-57f6-4e1d-af20-d4cd43d3e36c" />
+        <range start1="139" end1="140" start2="128" end2="129" changelist="401deacf-cbf0-4b59-b24c-8f1b64158506" />
+        <range start1="164" end1="165" start2="153" end2="154" changelist="df94d5ac-57f6-4e1d-af20-d4cd43d3e36c" />
+        <range start1="207" end1="208" start2="196" end2="197" changelist="df94d5ac-57f6-4e1d-af20-d4cd43d3e36c" />
+        <range start1="214" end1="214" start2="203" end2="209" changelist="401deacf-cbf0-4b59-b24c-8f1b64158506" />
+        <range start1="222" end1="223" start2="217" end2="218" changelist="401deacf-cbf0-4b59-b24c-8f1b64158506" />
+        <range start1="239" end1="240" start2="234" end2="235" changelist="401deacf-cbf0-4b59-b24c-8f1b64158506" />
+        <range start1="254" end1="255" start2="249" end2="250" changelist="df94d5ac-57f6-4e1d-af20-d4cd43d3e36c" />
+        <range start1="267" end1="268" start2="262" end2="263" changelist="401deacf-cbf0-4b59-b24c-8f1b64158506" />
+        <range start1="278" end1="279" start2="273" end2="274" changelist="df94d5ac-57f6-4e1d-af20-d4cd43d3e36c" />
+        <range start1="288" end1="289" start2="283" end2="284" changelist="401deacf-cbf0-4b59-b24c-8f1b64158506" />
+        <range start1="292" end1="294" start2="287" end2="289" changelist="401deacf-cbf0-4b59-b24c-8f1b64158506" />
+        <range start1="296" end1="297" start2="291" end2="292" changelist="401deacf-cbf0-4b59-b24c-8f1b64158506" />
+        <range start1="300" end1="302" start2="295" end2="297" changelist="401deacf-cbf0-4b59-b24c-8f1b64158506" />
+        <range start1="304" end1="305" start2="299" end2="300" changelist="401deacf-cbf0-4b59-b24c-8f1b64158506" />
+        <range start1="308" end1="310" start2="303" end2="305" changelist="401deacf-cbf0-4b59-b24c-8f1b64158506" />
+        <range start1="312" end1="313" start2="307" end2="308" changelist="401deacf-cbf0-4b59-b24c-8f1b64158506" />
+        <range start1="316" end1="318" start2="311" end2="313" changelist="401deacf-cbf0-4b59-b24c-8f1b64158506" />
+        <range start1="320" end1="321" start2="315" end2="316" changelist="401deacf-cbf0-4b59-b24c-8f1b64158506" />
+        <range start1="324" end1="326" start2="319" end2="321" changelist="401deacf-cbf0-4b59-b24c-8f1b64158506" />
+        <range start1="328" end1="329" start2="323" end2="324" changelist="401deacf-cbf0-4b59-b24c-8f1b64158506" />
+        <range start1="332" end1="334" start2="327" end2="329" changelist="401deacf-cbf0-4b59-b24c-8f1b64158506" />
+        <range start1="335" end1="335" start2="330" end2="335" changelist="df94d5ac-57f6-4e1d-af20-d4cd43d3e36c" />
+      </ranges>
+    </file>
+  </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
@@ -82,7 +127,7 @@
     "git-widget-placeholder": "main",
     "ignore.virus.scanning.warn.message": "true",
     "jdk.selected.JAVA_MODULE": "corretto-20",
-    "last_opened_file_path": "/Users/luanabussu/GitHub/MIRCV-project",
+    "last_opened_file_path": "/Users/luanabussu/GitHub/MIRCV-project/IndexConstruction/src/main/resources",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -174,9 +219,7 @@
       <workItem from="1697116850497" duration="10853000" />
       <workItem from="1697132309775" duration="10508000" />
       <workItem from="1697196610501" duration="1929000" />
-      <workItem from="1697883475845" duration="4097000" />
-      <workItem from="1697894029313" duration="1000" />
-      <workItem from="1697894041219" duration="1746000" />
+      <workItem from="1697883475845" duration="2634000" />
     </task>
     <task id="LOCAL-00001" summary="Added index blocks creation">
       <option name="closed" value="true" />
@@ -260,14 +303,7 @@
       <option name="project" value="LOCAL" />
       <updated>1697039338038</updated>
     </task>
-    <task id="LOCAL-00012" summary="Ricerca documenti in memoria con DAAT e aggiunta controllo conjunctive/disjunctive">
-      <created>1697886320275</created>
-      <option name="number" value="00012" />
-      <option name="presentableId" value="LOCAL-00012" />
-      <option name="project" value="LOCAL" />
-      <updated>1697886320275</updated>
-    </task>
-    <option name="localTasksCounter" value="13" />
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -295,11 +331,7 @@
     <MESSAGE value="Changes by ludav" />
     <MESSAGE value="Unione funzione simili e scrittura dizionario completo" />
     <MESSAGE value="Correzioni" />
-    <MESSAGE value="Ricerca documenti in memoria con DAAT e aggiunta controllo conjunctive/disjunctive" />
-    <option name="LAST_COMMIT_MESSAGE" value="Ricerca documenti in memoria con DAAT e aggiunta controllo conjunctive/disjunctive" />
-  </component>
-  <component name="XSLT-Support.FileAssociations.UIState">
-    <expand />
-    <select />
+    <MESSAGE value="added read posting list from the block files and added offset on the block file to the dictionary" />
+    <option name="LAST_COMMIT_MESSAGE" value="added read posting list from the block files and added offset on the block file to the dictionary" />
   </component>
 </project>

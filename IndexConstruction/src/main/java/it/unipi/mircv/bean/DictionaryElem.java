@@ -24,6 +24,9 @@ public class DictionaryElem {
     /* Number of block in which the PL is stored */
     private int block_number;
 
+    /* Pointer to the posting list on block */
+    private long offset_block;
+
     /* Offset of the term frequencies posting list */
     private long offset_tf;
 
@@ -58,6 +61,7 @@ public class DictionaryElem {
         this.cf = cf;
         this.offset_posting_lists = 0;
         this.block_number = 0;
+        this.offset_block = 0;
         this.offset_tf = 0;
         this.tf_len = 0;
         this.maxTf = 0;
@@ -158,6 +162,14 @@ public class DictionaryElem {
 
     public void setBlock_number(int block_number) {
         this.block_number = block_number;
+    }
+
+    public long getOffset_block() {
+        return offset_block;
+    }
+
+    public void setOffset_block(long offset_block) {
+        this.offset_block = offset_block;
     }
 
     public long getOffset_tf() {

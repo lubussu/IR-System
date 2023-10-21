@@ -1,9 +1,11 @@
 package it.unipi.mircv.Utils;
 
 import it.unipi.mircv.bean.DictionaryElem;
+import it.unipi.mircv.bean.Posting;
 import it.unipi.mircv.bean.PostingList;
 import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
@@ -11,6 +13,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 
@@ -20,15 +23,14 @@ public class IOUtils {
 
     public static FileChannel getFileChannel(String filename, String mode){
         Path path = Paths.get( filename+ ".bin");
-        FileChannel channel;
-
+        FileChannel channel = null;
         try {
             if (mode.equals("read"))
                 channel = FileChannel.open(path, StandardOpenOption.READ);
             else
                 channel = FileChannel.open(path, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
         return channel;
     }
@@ -133,4 +135,18 @@ public class IOUtils {
         return new String(bytes, StandardCharsets.UTF_8);
     }
 
+    public static PostingList readPlFromIndexFile(int block, long offset, String term){
+        String path = PATH_TO_FINAL_BLOCKS + "/indexMerged" + block;
+        FileChannel channel = getFileChannel(path, "read");
+        PostingList current_pl = new PostingList(term);
+        try {
+            channel.position(offset);
+            if(current_pl.FromBinFile(channel, true))
+                return current_pl;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
+
+}

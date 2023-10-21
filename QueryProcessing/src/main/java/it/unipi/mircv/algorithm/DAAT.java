@@ -2,10 +2,13 @@ package it.unipi.mircv.algorithm;
 
 import it.unipi.mircv.IndexConstruction;
 import it.unipi.mircv.InvertedIndex;
+import it.unipi.mircv.Utils.IOUtils;
 import it.unipi.mircv.bean.DictionaryElem;
 import it.unipi.mircv.bean.Posting;
 import it.unipi.mircv.bean.PostingList;
+
 import java.util.*;
+
 
 public class DAAT {
 

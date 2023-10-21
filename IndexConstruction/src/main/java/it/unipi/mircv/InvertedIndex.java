@@ -30,14 +30,14 @@ public class InvertedIndex {
         this(false);
     }
 
-    public void clearIndexMem(){
+    public static void clearIndexMem(){
         posting_lists.clear();
     }
-    public void clearDictionaryMem(){
+    public static void clearDictionaryMem(){
         dictionary.clear();
     }
 
-    public void buildIndexFromFile(String filePath) {
+    public static void buildIndexFromFile(String filePath) {
         ArrayList<String> tokens;
         HashSet<String> terms = new HashSet<>();
         int freq;
@@ -162,7 +162,7 @@ public class InvertedIndex {
         System.out.printf("(INFO) Merging dictionary completed\n");
     }
 
-    public void mergePostingList (ArrayList < String > termList) throws IOException {
+    public static void mergePostingList(ArrayList<String> termList) throws IOException {
         System.out.printf("(INFO) Starting Merging PL\n");
         ArrayList<FileChannel> postingListChannels = IOUtils.prepareChannels("indexBlock", block_number);
         long MaxUsableMemory = Runtime.getRuntime().maxMemory() * 80 / 100;
@@ -205,7 +205,7 @@ public class InvertedIndex {
         System.out.printf("(INFO) Merging PL completed\n");
     }
 
-    public void mergeIndexes(){
+    public static void mergeIndexes(){
         long start = System.currentTimeMillis();
         if(termList == null || termList.isEmpty())
             readTermList();
@@ -252,7 +252,7 @@ public class InvertedIndex {
         }
     }
 
-    public void readIndexFromFile(){
+    public static void readIndexFromFile(){
         long start = System.currentTimeMillis();
         if(termList == null || termList.isEmpty())
             readTermList();
@@ -276,7 +276,7 @@ public class InvertedIndex {
         }
     }
 
-    public void writeTermList() {
+    public static void writeTermList() {
         termList.add(0, Integer.toString(block_number));
         try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("termList.txt"))) {
             String termListAsString = String.join(" ", termList);
@@ -332,5 +332,10 @@ public class InvertedIndex {
 
     public void setCompression(boolean compression) {
         this.compression = compression;
+    }
+
+    public static void updateDictionaryElem(String term, long offset_block){
+        DictionaryElem dict = dictionary.get(term);
+        dict.setOffset_block(offset_block);
     }
 }
