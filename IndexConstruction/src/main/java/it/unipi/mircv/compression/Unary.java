@@ -1,8 +1,6 @@
 package it.unipi.mircv.compression;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.BitSet;
 
 public class Unary {
 

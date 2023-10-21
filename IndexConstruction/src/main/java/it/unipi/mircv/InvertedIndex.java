@@ -1,9 +1,6 @@
 package it.unipi.mircv;
 import it.unipi.mircv.Utils.IOUtils;
 import it.unipi.mircv.bean.*;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.io.*;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
@@ -12,11 +9,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
-
 import static java.lang.Math.log;
 
-@Getter
-@Setter
 public class InvertedIndex {
     private HashMap<String, DictionaryElem> dictionary;
     private HashMap<Integer, DocumentElem> docTable;
@@ -292,4 +286,51 @@ public class InvertedIndex {
         }
     }
 
+    public HashMap<String, DictionaryElem> getDictionary() {
+        return dictionary;
+    }
+
+    public void setDictionary(HashMap<String, DictionaryElem> dictionary) {
+        this.dictionary = dictionary;
+    }
+
+    public HashMap<Integer, DocumentElem> getDocTable() {
+        return docTable;
+    }
+
+    public void setDocTable(HashMap<Integer, DocumentElem> docTable) {
+        this.docTable = docTable;
+    }
+
+    public ArrayList<PostingList> getPosting_lists() {
+        return posting_lists;
+    }
+
+    public void setPosting_lists(ArrayList<PostingList> posting_lists) {
+        this.posting_lists = posting_lists;
+    }
+
+    public ArrayList<String> getTermList() {
+        return termList;
+    }
+
+    public void setTermList(ArrayList<String> termList) {
+        this.termList = termList;
+    }
+
+    public int getBlock_number() {
+        return block_number;
+    }
+
+    public void setBlock_number(int block_number) {
+        this.block_number = block_number;
+    }
+
+    public boolean isCompression() {
+        return compression;
+    }
+
+    public void setCompression(boolean compression) {
+        this.compression = compression;
+    }
 }

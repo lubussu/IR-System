@@ -4,12 +4,21 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="df94d5ac-57f6-4e1d-af20-d4cd43d3e36c" name="Changes" comment="Correzioni">
+    <list default="true" id="df94d5ac-57f6-4e1d-af20-d4cd43d3e36c" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/IndexConstruction.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/IndexConstruction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IndexConstruction/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/InvertedIndex.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/InvertedIndex.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/TextPreprocesser.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/TextPreprocesser.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/Utils/IOUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/Utils/IOUtils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/CollectionInfo.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/CollectionInfo.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/DictionaryElem.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/DictionaryElem.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/DocumentElem.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/DocumentElem.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/Posting.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/Posting.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/PostingList.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/PostingList.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/compression/Unary.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/compression/Unary.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/QueryProcessing/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/QueryProcessing/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/QueryProcessing/src/main/java/it/unipi/mircv/algorithm/DAAT.java" beforeDir="false" afterPath="$PROJECT_DIR$/QueryProcessing/src/main/java/it/unipi/mircv/algorithm/DAAT.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/mircv/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/mircv/Main.java" afterDir="false" />
     </list>
     <list id="a7cec896-e1d0-4a38-9286-bc3d2cbe40ce" name="Changes by ludav" comment="Changes by ludav" />
@@ -73,7 +82,7 @@
     "git-widget-placeholder": "main",
     "ignore.virus.scanning.warn.message": "true",
     "jdk.selected.JAVA_MODULE": "corretto-20",
-    "last_opened_file_path": "/Users/luanabussu/GitHub/MIRCV-project/IndexConstruction/src/main/resources",
+    "last_opened_file_path": "/Users/luanabussu/GitHub/MIRCV-project",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -81,7 +90,7 @@
     "project.structure.last.edited": "Modules",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "project.propCompiler",
+    "settings.editor.selected.configurable": "reference.projectsettings.compiler.annotationProcessors",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -98,7 +107,7 @@
       <recent name="it.unipi.mircv.Utils" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.DAAT">
+  <component name="RunManager" selected="Application.Main">
     <configuration name="DAAT" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="it.unipi.mircv.algorithm.DAAT" />
       <module name="QueryProcessing" />
@@ -138,8 +147,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.DAAT" />
         <item itemvalue="Application.Main" />
+        <item itemvalue="Application.DAAT" />
       </list>
     </recent_temporary>
   </component>
@@ -165,7 +174,9 @@
       <workItem from="1697116850497" duration="10853000" />
       <workItem from="1697132309775" duration="10508000" />
       <workItem from="1697196610501" duration="1929000" />
-      <workItem from="1697883475845" duration="2634000" />
+      <workItem from="1697883475845" duration="4097000" />
+      <workItem from="1697894029313" duration="1000" />
+      <workItem from="1697894041219" duration="1746000" />
     </task>
     <task id="LOCAL-00001" summary="Added index blocks creation">
       <option name="closed" value="true" />
@@ -249,7 +260,14 @@
       <option name="project" value="LOCAL" />
       <updated>1697039338038</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="Ricerca documenti in memoria con DAAT e aggiunta controllo conjunctive/disjunctive">
+      <created>1697886320275</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1697886320275</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -277,6 +295,11 @@
     <MESSAGE value="Changes by ludav" />
     <MESSAGE value="Unione funzione simili e scrittura dizionario completo" />
     <MESSAGE value="Correzioni" />
-    <option name="LAST_COMMIT_MESSAGE" value="Correzioni" />
+    <MESSAGE value="Ricerca documenti in memoria con DAAT e aggiunta controllo conjunctive/disjunctive" />
+    <option name="LAST_COMMIT_MESSAGE" value="Ricerca documenti in memoria con DAAT e aggiunta controllo conjunctive/disjunctive" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>

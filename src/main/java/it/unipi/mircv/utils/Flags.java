@@ -1,10 +1,5 @@
 package it.unipi.mircv.utils;
 
-import lombok.Getter;
-import lombok.Setter;
-
-@Setter
-@Getter
 public class Flags {
 
     private static boolean compression;

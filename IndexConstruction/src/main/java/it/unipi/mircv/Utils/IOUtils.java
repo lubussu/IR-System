@@ -2,7 +2,6 @@ package it.unipi.mircv.Utils;
 
 import it.unipi.mircv.bean.DictionaryElem;
 import it.unipi.mircv.bean.PostingList;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -15,10 +14,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
-
 public class IOUtils {
-    public static String PATH_TO_TEMP_BLOCKS = "temp";
-    public static String PATH_TO_FINAL_BLOCKS = "final";
+    public static final String PATH_TO_TEMP_BLOCKS = "temp";
+    public static final String PATH_TO_FINAL_BLOCKS = "final";
 
     public static FileChannel getFileChannel(String filename, String mode){
         Path path = Paths.get( filename+ ".bin");

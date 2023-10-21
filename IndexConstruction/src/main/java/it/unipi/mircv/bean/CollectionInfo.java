@@ -36,15 +36,15 @@ public class CollectionInfo {
         return collection_size;
     }
 
-    public static void setCollection_size(long collection_size) {
-        CollectionInfo.collection_size = collection_size;
-    }
-
     public static long getCollection_total_len() {
         return collection_total_len;
     }
 
     public static void setCollection_total_len(long collection_total_len) {
         CollectionInfo.collection_total_len = collection_total_len;
+    }
+
+    public static void setCollection_size(long collection_size) {
+        CollectionInfo.collection_size = collection_size;
     }
 }

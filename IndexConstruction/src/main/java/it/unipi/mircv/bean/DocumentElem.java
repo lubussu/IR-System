@@ -1,10 +1,5 @@
 package it.unipi.mircv.bean;
 
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter
-@Setter
 public class DocumentElem {
     private String docNo;
     private long docId;
@@ -17,6 +12,30 @@ public class DocumentElem {
     public DocumentElem(long docId, String docNo, long length) {
         this.docId = docId;
         this.docNo = docNo;
+        this.length = length;
+    }
+
+    public String getDocNo() {
+        return docNo;
+    }
+
+    public void setDocNo(String docNo) {
+        this.docNo = docNo;
+    }
+
+    public long getDocId() {
+        return docId;
+    }
+
+    public void setDocId(long docId) {
+        this.docId = docId;
+    }
+
+    public long getLength() {
+        return length;
+    }
+
+    public void setLength(long length) {
         this.length = length;
     }
 }

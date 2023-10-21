@@ -3,9 +3,6 @@ package it.unipi.mircv.bean;
 import it.unipi.mircv.Utils.IOUtils;
 import it.unipi.mircv.compression.Unary;
 import it.unipi.mircv.compression.VariableByte;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -15,11 +12,21 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-@Setter
-@Getter
 public class PostingList {
     private String term;
     private final ArrayList<Posting> pl;
+
+    public String getTerm() {
+        return term;
+    }
+
+    public void setTerm(String term) {
+        this.term = term;
+    }
+
+    public ArrayList<Posting> getPl() {
+        return pl;
+    }
 
     public PostingList(String term) {
         this.term = term;

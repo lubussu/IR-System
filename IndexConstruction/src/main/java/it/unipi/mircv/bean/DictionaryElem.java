@@ -1,20 +1,13 @@
 package it.unipi.mircv.bean;
 
 import it.unipi.mircv.Utils.IOUtils;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 
-@Getter
-@Setter
 public class DictionaryElem {
 
     private String term;
@@ -127,4 +120,107 @@ public class DictionaryElem {
     }
 
 
+    public String getTerm() {
+        return term;
+    }
+
+    public void setTerm(String term) {
+        this.term = term;
+    }
+
+    public int getDf() {
+        return df;
+    }
+
+    public void setDf(int df) {
+        this.df = df;
+    }
+
+    public int getCf() {
+        return cf;
+    }
+
+    public void setCf(int cf) {
+        this.cf = cf;
+    }
+
+    public int getOffset_posting_lists() {
+        return offset_posting_lists;
+    }
+
+    public void setOffset_posting_lists(int offset_posting_lists) {
+        this.offset_posting_lists = offset_posting_lists;
+    }
+
+    public int getBlock_number() {
+        return block_number;
+    }
+
+    public void setBlock_number(int block_number) {
+        this.block_number = block_number;
+    }
+
+    public long getOffset_tf() {
+        return offset_tf;
+    }
+
+    public void setOffset_tf(long offset_tf) {
+        this.offset_tf = offset_tf;
+    }
+
+    public int getTf_len() {
+        return tf_len;
+    }
+
+    public void setTf_len(int tf_len) {
+        this.tf_len = tf_len;
+    }
+
+    public int getMaxTf() {
+        return maxTf;
+    }
+
+    public void setMaxTf(int maxTf) {
+        this.maxTf = maxTf;
+    }
+
+    public int getOffset_skipInfo() {
+        return offset_skipInfo;
+    }
+
+    public void setOffset_skipInfo(int offset_skipInfo) {
+        this.offset_skipInfo = offset_skipInfo;
+    }
+
+    public int getSkipInfo_len() {
+        return skipInfo_len;
+    }
+
+    public void setSkipInfo_len(int skipInfo_len) {
+        this.skipInfo_len = skipInfo_len;
+    }
+
+    public double getIdf() {
+        return idf;
+    }
+
+    public void setIdf(double idf) {
+        this.idf = idf;
+    }
+
+    public double getMaxTFIDF() {
+        return maxTFIDF;
+    }
+
+    public void setMaxTFIDF(double maxTFIDF) {
+        this.maxTFIDF = maxTFIDF;
+    }
+
+    public double getMaxBM25() {
+        return maxBM25;
+    }
+
+    public void setMaxBM25(double maxBM25) {
+        this.maxBM25 = maxBM25;
+    }
 }

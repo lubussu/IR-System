@@ -1,5 +1,6 @@
 package it.unipi.mircv;
 
+import it.unipi.mircv.algorithm.DAAT;
 import it.unipi.mircv.utils.Flags;
 
 import java.util.*;
@@ -80,7 +81,7 @@ public class Main {
             long start = System.currentTimeMillis();
 
             // EXECUTE QUERY .......
-            // DAAT.retrieveDocuments(tokens, index, 5, false);
+            DAAT.retrieveDocuments(tokens, index, 5, false);
 
             long end = System.currentTimeMillis() - start;
             System.out.println("\n(INFO) Query executed in: " + end + " ms");

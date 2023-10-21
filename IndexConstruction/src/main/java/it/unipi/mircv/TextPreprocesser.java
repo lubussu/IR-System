@@ -15,7 +15,6 @@ public class TextPreprocesser {
 
     public static List<String> stopwords_global;
 
-
     private static String removeUnicodeChars(String s) {
 
         String str;
@@ -72,11 +71,7 @@ public class TextPreprocesser {
     }
 
     public static ArrayList<String> executeTextPreprocessing(String line) {
-        try {
-            TextPreprocesser.stopwords_global= Files.readAllLines(Paths.get("IndexConstruction/src/main/resources/stopwords.txt"));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        TextPreprocesser.setStopwords_global("IndexConstruction/src/main/resources/stopwords.txt");
 
         ArrayList<String> tokens;
 
@@ -86,5 +81,17 @@ public class TextPreprocesser {
         // tokens = stemmingToken(tokens);
 
         return tokens;
+    }
+
+    public static List<String> getStopwords_global() {
+        return stopwords_global;
+    }
+
+    public static void setStopwords_global(String path) {
+        try {
+            TextPreprocesser.stopwords_global= Files.readAllLines(Paths.get(path));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

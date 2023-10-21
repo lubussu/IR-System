@@ -5,13 +5,7 @@ import it.unipi.mircv.InvertedIndex;
 import it.unipi.mircv.bean.DictionaryElem;
 import it.unipi.mircv.bean.Posting;
 import it.unipi.mircv.bean.PostingList;
-import lombok.Getter;
-import lombok.Setter;
-
-import javax.print.Doc;
 import java.util.*;
-
-import static java.lang.Math.log;
 
 public class DAAT {
 
@@ -61,8 +55,6 @@ public class DAAT {
         return topKResults;
     }
 
-    @Getter
-    @Setter
     static class DocumentScore implements Comparable<DocumentScore> {
         private int docId;
         private double score;
@@ -75,6 +67,22 @@ public class DAAT {
         @Override
         public int compareTo(DocumentScore other) {
             return Double.compare(other.score, this.score);
+        }
+
+        public int getDocId() {
+            return docId;
+        }
+
+        public void setDocId(int docId) {
+            this.docId = docId;
+        }
+
+        public double getScore() {
+            return score;
+        }
+
+        public void setScore(double score) {
+            this.score = score;
         }
     }
 
