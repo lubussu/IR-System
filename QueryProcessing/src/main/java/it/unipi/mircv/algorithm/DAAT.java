@@ -12,19 +12,25 @@ import java.util.*;
 
 public class DAAT {
 
-    public static ArrayList<Integer> retrieveDocuments(ArrayList<String> queryTerms, InvertedIndex index,
+    public static ArrayList<Integer> retrieveDocuments(ArrayList<String> queryTerms,
                                                        int k, boolean conjunctive) {
         ArrayList<PostingList> postingLists = new ArrayList<>();
         // Ottenere le posting list dei termini nella query
         for (String term : queryTerms) {
-            DictionaryElem dict = index.getDictionary().get(term);
-            PostingList termPL = index.getPosting_lists().get(dict.getOffset_posting_lists());
+            DictionaryElem dict = InvertedIndex.getDictionary().get(term);
+            PostingList termPL;
+            int offset = dict.getOffset_posting_lists();
+            if(InvertedIndex.getPosting_lists().size() >= offset && InvertedIndex.getPosting_lists().get(offset).getTerm().equals(term)) {
+                termPL = InvertedIndex.getPosting_lists().get(offset);
+            }else{
+                termPL = IOUtils.readPlFromIndexFile(dict.getBlock_number(), dict.getOffset_block(), term);
+            }
             postingLists.add(termPL);
         }
 
         PriorityQueue<DocumentScore> result = new PriorityQueue<>(k);
 
-        for (int docId = 0; docId < index.getDictionary().size(); docId++) {
+        for (int docId = 0; docId < InvertedIndex.getDictionary().size(); docId++) {
             double score = 0;
             boolean present = true;
             for (PostingList list : postingLists) {
@@ -35,7 +41,7 @@ public class DAAT {
                     continue;
                 }
                 else if (current_posting.getDocId() == docId) {
-                    DictionaryElem dict = index.getDictionary().get(term);
+                    DictionaryElem dict = InvertedIndex.getDictionary().get(term);
                     score += Scorer.scoreDocument(current_posting, dict.getIdf(), "idf");
                     list.getPl().remove(0);
                 }
@@ -90,12 +96,12 @@ public class DAAT {
     }
 
     public static void main(String[] args) {
-        InvertedIndex index = IndexConstruction.main(new String[]{"merge"});
+        IndexConstruction.main(new String[]{"merge"});
 
         ArrayList<String> tokens = new ArrayList<>();
         tokens.add("vax");
         tokens.add("vaulty");
 
-        retrieveDocuments(tokens, index, 5, false);
+        retrieveDocuments(tokens, 5, false);
     }
 }

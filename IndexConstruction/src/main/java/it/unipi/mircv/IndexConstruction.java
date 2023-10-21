@@ -1,7 +1,7 @@
 package it.unipi.mircv;
 
 public class IndexConstruction {
-    public static InvertedIndex main(String[] args) {
+    public static void main(String[] args) {
         String filePath = "IndexConstruction/src/main/resources/collection.tsv";
 
         String operation = "build"; // Imposta il valore predefinito come "build" se nessun argomento è passato
@@ -12,20 +12,18 @@ public class IndexConstruction {
             }
         }
 
-        InvertedIndex invertedIndex = new InvertedIndex(true);
 
         if (operation.equals("build")) {
             /* Costruzione indice da file*/
-            invertedIndex.buildIndexFromFile(filePath);
-            invertedIndex.writeTermList();
+            InvertedIndex.buildIndexFromFile(filePath);
+            InvertedIndex.writeTermList();
         } else if (operation.equals("merge")) {
             /* Merge index blocks from file*/
-            invertedIndex.mergeIndexes();
+            InvertedIndex.mergeIndexes();
         } else if (operation.equals("read")) {
             /* read Merged Index from files*/
-            invertedIndex.readIndexFromFile();
+            InvertedIndex.readIndexFromFile();
         }
 
-        return invertedIndex;
     }
 }

@@ -1,5 +1,7 @@
 package it.unipi.mircv.bean;
 
+import it.unipi.mircv.IndexConstruction;
+import it.unipi.mircv.InvertedIndex;
 import it.unipi.mircv.Utils.IOUtils;
 import it.unipi.mircv.compression.Unary;
 import it.unipi.mircv.compression.VariableByte;
@@ -56,7 +58,10 @@ public class PostingList {
         try{
             byte[] descBytes = String.valueOf(term).getBytes(StandardCharsets.UTF_8);
             ByteBuffer buffer = ByteBuffer.allocate(4 + descBytes.length + 4);
-            
+            long start_position = channel.position();
+            DictionaryElem dict = InvertedIndex.getDictionary().get(this.term);
+            dict.setOffset_block(start_position);
+
             // Populate the buffer for termLenght + term
             buffer.putInt(descBytes.length);
             buffer.put(descBytes);

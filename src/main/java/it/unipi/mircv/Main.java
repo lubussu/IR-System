@@ -13,7 +13,7 @@ public class Main {
 
         String query;
         ArrayList<String> tokens;
-        InvertedIndex index = IndexConstruction.main(new String[]{"merge"});
+        IndexConstruction.main(new String[]{"build"});
 
         String type;
         int k;
@@ -81,7 +81,7 @@ public class Main {
             long start = System.currentTimeMillis();
 
             // EXECUTE QUERY .......
-            DAAT.retrieveDocuments(tokens, index, 5, false);
+            DAAT.retrieveDocuments(tokens, 5, false);
 
             long end = System.currentTimeMillis() - start;
             System.out.println("\n(INFO) Query executed in: " + end + " ms");

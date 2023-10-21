@@ -12,23 +12,12 @@ import java.util.*;
 import static java.lang.Math.log;
 
 public class InvertedIndex {
-    private HashMap<String, DictionaryElem> dictionary;
-    private HashMap<Integer, DocumentElem> docTable;
-    private ArrayList<PostingList> posting_lists;
-    private ArrayList<String> termList;
-    private int block_number;
-    private boolean compression;
-
-    public InvertedIndex(boolean compression) {
-        this.compression = compression;
-        this.posting_lists = new ArrayList<>();
-        this.dictionary = new HashMap<>();
-        this.docTable = new HashMap<>();
-        this.block_number = 0;
-    }
-    public InvertedIndex() {
-        this(false);
-    }
+    private static HashMap<String, DictionaryElem> dictionary = new HashMap<>();
+    private static HashMap<Integer, DocumentElem> docTable = new HashMap<>();
+    private static ArrayList<PostingList> posting_lists = new ArrayList<>();
+    private static ArrayList<String> termList = new ArrayList<>();
+    private static int block_number = 0;
+    private static boolean compression = true;
 
     public static void clearIndexMem(){
         posting_lists.clear();
@@ -137,7 +126,7 @@ public class InvertedIndex {
         Collections.sort(termList);
     }
 
-    public void mergeDictionary(ArrayList<String> termList) throws IOException {
+    public static void mergeDictionary(ArrayList<String> termList) throws IOException {
         System.out.printf("(INFO) Starting merging dictionary\n");
         ArrayList<FileChannel> dictionaryChannels = IOUtils.prepareChannels("dictionaryBlock", block_number);
 
@@ -212,6 +201,12 @@ public class InvertedIndex {
         try {
             mergeDictionary(termList);
             mergePostingList(termList);
+
+            if (!IOUtils.writeMergedDictToDisk(new ArrayList<>(dictionary.values()), 0)) {
+                System.out.printf("(ERROR): Merged dictionary write to disk failed\n");
+            }else{
+                System.out.printf("(INFO) Merged dictionary write completed\n");
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -220,7 +215,7 @@ public class InvertedIndex {
         System.out.println("\nMerging operation executed in: " + time + " minutes");
     }
 
-    public void readPL(int block, boolean compressed){
+    public static void readPL(int block, boolean compressed){
         Path path = Paths.get("final/indexMerged"+block+".bin");
         try (FileChannel channel = FileChannel.open(path, StandardOpenOption.READ)){
             String current_term;
@@ -237,7 +232,7 @@ public class InvertedIndex {
         }
     }
 
-    public void readDictionary(){
+    public static void readDictionary(){
         Path path = Paths.get("final","dictionaryMerged.bin");
         try (FileChannel channel = FileChannel.open(path, StandardOpenOption.READ)){
             String current_term;
@@ -265,7 +260,7 @@ public class InvertedIndex {
         System.out.println("\nReading operation executed in: " + time + " minutes");
     }
 
-    public void readTermList() {
+    public static void readTermList() {
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader("termList.txt"))) {
             String termListAsString = bufferedReader.readLine();
             String[] termArray = termListAsString.split(" ");
@@ -286,52 +281,52 @@ public class InvertedIndex {
         }
     }
 
-    public HashMap<String, DictionaryElem> getDictionary() {
+    public static HashMap<String, DictionaryElem> getDictionary() {
         return dictionary;
     }
 
-    public void setDictionary(HashMap<String, DictionaryElem> dictionary) {
-        this.dictionary = dictionary;
+    public static void setDictionary(HashMap<String, DictionaryElem> dictionary) {
+        InvertedIndex.dictionary = dictionary;
     }
 
-    public HashMap<Integer, DocumentElem> getDocTable() {
+    public static HashMap<Integer, DocumentElem> getDocTable() {
         return docTable;
     }
 
-    public void setDocTable(HashMap<Integer, DocumentElem> docTable) {
-        this.docTable = docTable;
+    public static void setDocTable(HashMap<Integer, DocumentElem> docTable) {
+        InvertedIndex.docTable = docTable;
     }
 
-    public ArrayList<PostingList> getPosting_lists() {
+    public static ArrayList<PostingList> getPosting_lists() {
         return posting_lists;
     }
 
-    public void setPosting_lists(ArrayList<PostingList> posting_lists) {
-        this.posting_lists = posting_lists;
+    public static void setPosting_lists(ArrayList<PostingList> posting_lists) {
+        InvertedIndex.posting_lists = posting_lists;
     }
 
-    public ArrayList<String> getTermList() {
+    public static ArrayList<String> getTermList() {
         return termList;
     }
 
-    public void setTermList(ArrayList<String> termList) {
-        this.termList = termList;
+    public static void setTermList(ArrayList<String> termList) {
+        InvertedIndex.termList = termList;
     }
 
-    public int getBlock_number() {
+    public static int getBlock_number() {
         return block_number;
     }
 
-    public void setBlock_number(int block_number) {
-        this.block_number = block_number;
+    public static void setBlock_number(int block_number) {
+        InvertedIndex.block_number = block_number;
     }
 
-    public boolean isCompression() {
+    public static boolean isCompression() {
         return compression;
     }
 
-    public void setCompression(boolean compression) {
-        this.compression = compression;
+    public static void setCompression(boolean compression) {
+        InvertedIndex.compression = compression;
     }
 
     public static void updateDictionaryElem(String term, long offset_block){
