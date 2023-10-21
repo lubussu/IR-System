@@ -15,9 +15,9 @@ import static java.lang.Math.log;
 
 public class DAAT {
 
-    public static ArrayList<Integer> retrieveDocuments(ArrayList<String> queryTerms, InvertedIndex index, int k) {
+    public static ArrayList<Integer> retrieveDocuments(ArrayList<String> queryTerms, InvertedIndex index,
+                                                       int k, boolean conjunctive) {
         ArrayList<PostingList> postingLists = new ArrayList<>();
-
         // Ottenere le posting list dei termini nella query
         for (String term : queryTerms) {
             DictionaryElem dict = index.getDictionary().get(term);
@@ -29,26 +29,32 @@ public class DAAT {
 
         for (int docId = 0; docId < index.getDictionary().size(); docId++) {
             double score = 0;
-
+            boolean present = true;
             for (PostingList list : postingLists) {
                 String term = list.getTerm();
                 Posting current_posting = list.getPl().get(0);
-                if (current_posting.getDocId() == docId) {
+                if(current_posting.getDocId() != docId &&  conjunctive){
+                    present = false;
+                    continue;
+                }
+                else if (current_posting.getDocId() == docId) {
                     DictionaryElem dict = index.getDictionary().get(term);
                     score += Scorer.scoreDocument(current_posting, dict.getIdf(), "idf");
                     list.getPl().remove(0);
-
-                    result.offer(new DocumentScore(docId, score));
-                    if (result.size() > k)
-                        result.poll(); // Rimuovi il documento con il punteggio più basso se supera k
                 }
+
+                if((conjunctive && present)|| (!conjunctive && score!=0))
+                    result.offer(new DocumentScore(docId, score));
+                if (result.size() > k)
+                    result.poll(); // Rimuovi il documento con il punteggio più basso se supera k
+
             }
         }
 
         ArrayList<Integer> topKResults = new ArrayList<>();
         while(!result.isEmpty()){
             DocumentScore ds = result.poll();
-            //System.out.println(ds.getDocId()+": " + ds.getScore());
+            System.out.println(ds.getDocId()+": " + ds.getScore());
             topKResults.add(ds.getDocId());
         }
 
@@ -79,7 +85,6 @@ public class DAAT {
         tokens.add("vax");
         tokens.add("vaulty");
 
-        retrieveDocuments(tokens, index, 5);
+        retrieveDocuments(tokens, index, 5, false);
     }
-
 }

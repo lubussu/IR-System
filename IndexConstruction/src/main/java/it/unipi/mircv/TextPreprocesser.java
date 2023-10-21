@@ -1,5 +1,6 @@
 package it.unipi.mircv;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -71,6 +72,11 @@ public class TextPreprocesser {
     }
 
     public static ArrayList<String> executeTextPreprocessing(String line) {
+        try {
+            TextPreprocesser.stopwords_global= Files.readAllLines(Paths.get("IndexConstruction/src/main/resources/stopwords.txt"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         ArrayList<String> tokens;
 

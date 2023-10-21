@@ -57,7 +57,6 @@ public class InvertedIndex {
         //FileReader utilizza la codifica standard del SO usato
         try (BufferedReader br = new BufferedReader(new InputStreamReader(Files.newInputStream(Paths.get(filePath)), StandardCharsets.UTF_8))) {
             String line;
-            TextPreprocesser.stopwords_global= Files.readAllLines(Paths.get("IndexConstruction/src/main/resources/stopwords.txt"));
 
             while ((line = br.readLine()) != null) {
                 tokens = TextPreprocesser.executeTextPreprocessing(line);
