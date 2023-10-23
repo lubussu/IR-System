@@ -40,7 +40,6 @@ public class InvertedIndex {
         //FileReader utilizza la codifica standard del SO usato
         try (BufferedReader br = new BufferedReader(new InputStreamReader(Files.newInputStream(Paths.get(filePath)), StandardCharsets.UTF_8))) {
             String line;
-
             while ((line = br.readLine()) != null) {
                 tokens = TextPreprocesser.executeTextPreprocessing(line);
 
@@ -60,8 +59,7 @@ public class InvertedIndex {
                         posting_lists.add(new PostingList(term, new Posting(docid, freq)));
                         dictionary.get(term).setOffset_posting_lists(posting_lists.size()-1);
                         dictionary.get(term).setBlock_number(block_number);
-                        dictionary.get(term).setIdf(log((double) dictionary.size()/1));
-
+                        dictionary.get(term).setIdf(log(dictionary.size()));
                     }else {
                         DictionaryElem dict = dictionary.get(term);
                         ArrayList<Posting> pl = posting_lists.get(dict.getOffset_posting_lists()).getPl();
@@ -70,7 +68,6 @@ public class InvertedIndex {
                             dict.setDf(dictionary.get(term).getDf()+1);
                             dict.setCf(dictionary.get(term).getCf()+freq);
                             dict.setIdf(log(((double) dictionary.size()/dict.getDf())));
-                            //calcolare statistiche termine
 
                             pl.add(new Posting(docid,freq));
                         }
@@ -79,7 +76,6 @@ public class InvertedIndex {
 
                 if (Runtime.getRuntime().totalMemory() > MaxUsableMemory) {
                     System.out.printf("(INFO) MAXIMUM PERMITTED USE OF MEMORY ACHIEVED.\n\n");
-                    /* Write block to disk */
                     if (!IOUtils.writeBinBlockToDisk(dictionary, posting_lists, block_number)){
                         System.out.printf("(ERROR): %d block write to disk failed\n", block_number);
                         break;
@@ -105,7 +101,6 @@ public class InvertedIndex {
             }
             /* Write the final block in memory */
             System.out.println("(INFO) Proceed with writing the final block to disk in memory");
-
             if (!IOUtils.writeBinBlockToDisk(dictionary, posting_lists, block_number))
                 System.out.print("(ERROR): final block write to disk failed\n");
             else
@@ -196,6 +191,9 @@ public class InvertedIndex {
 
     public static void mergeIndexes(){
         long start = System.currentTimeMillis();
+
+        clearDictionaryMem();
+        clearIndexMem();
         if(termList == null || termList.isEmpty())
             readTermList();
         try {
@@ -329,8 +327,4 @@ public class InvertedIndex {
         InvertedIndex.compression = compression;
     }
 
-    public static void updateDictionaryElem(String term, long offset_block){
-        DictionaryElem dict = dictionary.get(term);
-        dict.setOffset_block(offset_block);
-    }
 }

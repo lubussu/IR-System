@@ -123,7 +123,6 @@ public class DictionaryElem {
         buffer.clear();
     }
 
-
     public String getTerm() {
         return term;
     }

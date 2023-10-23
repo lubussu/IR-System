@@ -13,10 +13,10 @@ public class Main {
 
         String query;
         ArrayList<String> tokens;
-        IndexConstruction.main(new String[]{"build"});
+        IndexConstruction.main(new String[]{"read"});
 
         String type;
-        int k;
+        int k = 1;
         boolean goOn = false;
 
         while (true) {
@@ -43,18 +43,13 @@ public class Main {
                 sc = new Scanner(System.in);
                 type = sc.nextLine();
             } while (!type.equals("1") && !type.equals("2"));
+            Flags.setQueryMode(type.equals("1"));
 
-            if (type.equals("1"))
-                Flags.setQueryMode(true);
-            else {
-                Flags.setQueryMode(false);
-
-                do {
-                    System.out.println("SELECT EXECUTION MODE:\n1: To execute DAAT\n2: To execute MaxScore");
-                    sc=new Scanner(System.in);
-                    type = sc.nextLine();
-                } while (!type.equals("1") && !type.equals("2"));
-            }
+            do {
+                System.out.println("SELECT EXECUTION MODE:\n1: To execute DAAT\n2: To execute MaxScore");
+                sc=new Scanner(System.in);
+                type = sc.nextLine();
+            } while (!type.equals("1") && !type.equals("2"));
             Flags.setMaxScore(type.equals("2"));
 
             do {
@@ -62,7 +57,6 @@ public class Main {
                 sc = new Scanner(System.in);
                 type = sc.nextLine();
             } while (!type.equals("1") && !type.equals("2"));
-
             Flags.setScoreMode(type.equals("2"));
 
             do {
@@ -81,7 +75,7 @@ public class Main {
             long start = System.currentTimeMillis();
 
             // EXECUTE QUERY .......
-            DAAT.retrieveDocuments(tokens, 5, false);
+            DAAT.retrieveDocuments(tokens, k);
 
             long end = System.currentTimeMillis() - start;
             System.out.println("\n(INFO) Query executed in: " + end + " ms");

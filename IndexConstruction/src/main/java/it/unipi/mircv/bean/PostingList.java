@@ -191,5 +191,4 @@ public class PostingList {
         }
         buffer.clear();
     }
-
 }
