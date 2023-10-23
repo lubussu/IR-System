@@ -1,6 +1,8 @@
 package it.unipi.mircv;
 import it.unipi.mircv.Utils.IOUtils;
 import it.unipi.mircv.bean.*;
+import it.unipi.mircv.utils.Flags;
+
 import java.io.*;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
@@ -27,6 +29,7 @@ public class InvertedIndex {
     }
 
     public static void buildIndexFromFile(String filePath) {
+        IOUtils.cleanDirectory("temp"); //clean directory of temporary files
         ArrayList<String> tokens;
         HashSet<String> terms = new HashSet<>();
         int freq;
@@ -111,7 +114,7 @@ public class InvertedIndex {
 
         CollectionInfo.setCollection_size(docid+1);
         CollectionInfo.setCollection_total_len(total_lenght);
-        CollectionInfo.ToBinFile(IOUtils.getFileChannel("CollectionInfo", "write"));
+        CollectionInfo.ToBinFile(IOUtils.getFileChannel("final/CollectionInfo", "write"));
 
         termList = new ArrayList<>(terms);
 
@@ -136,11 +139,6 @@ public class InvertedIndex {
                 dictionary.put(term, dict);
                 //dict.ToTextFile("Dictionary.txt");
             }
-        }
-        if (!IOUtils.writeMergedDictToDisk(new ArrayList<>(dictionary.values()), 0)) {
-            System.out.printf("(ERROR): Merged dictionary write to disk failed\n");
-        }else{
-            System.out.printf("(INFO) Merged dictionary write completed\n");
         }
 
         System.out.printf("(INFO) Merging dictionary completed\n");
@@ -190,10 +188,11 @@ public class InvertedIndex {
     }
 
     public static void mergeIndexes(){
-        long start = System.currentTimeMillis();
-
+        IOUtils.cleanDirectory("final"); //clean directory of final files
         clearDictionaryMem();
         clearIndexMem();
+
+        long start = System.currentTimeMillis();
         if(termList == null || termList.isEmpty())
             readTermList();
         try {
@@ -213,17 +212,16 @@ public class InvertedIndex {
         System.out.println("\nMerging operation executed in: " + time + " minutes");
     }
 
-    public static void readPL(int block, boolean compressed){
+    public static void readPL(int block){
         Path path = Paths.get("final/indexMerged"+block+".bin");
         try (FileChannel channel = FileChannel.open(path, StandardOpenOption.READ)){
             String current_term;
             while((current_term = IOUtils.readTerm(channel))!=null){
                 PostingList pl = new PostingList(current_term);
-                pl.updateFromBinFile(channel, true);
+                pl.updateFromBinFile(channel, Flags.isCompression());
                 posting_lists.add(pl);
                 dictionary.get(current_term).setBlock_number(block);
                 dictionary.get(current_term).setOffset_posting_lists(posting_lists.size()-1);
-
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -251,7 +249,7 @@ public class InvertedIndex {
             readTermList();
 
         readDictionary(); //read final Dictionary from file
-        readPL(1, true); //read final PL block form file
+        readPL(1); //read final PL block form file
 
         long end = System.currentTimeMillis() - start;
         long time = (end/1000)/60;

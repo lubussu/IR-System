@@ -2,7 +2,7 @@ package it.unipi.mircv.utils;
 
 public class Flags {
 
-    private static boolean compression;
+    private static boolean compression = true;
 
     private static boolean maxScore;
 

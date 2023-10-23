@@ -32,6 +32,15 @@ public class IOUtils {
         return channel;
     }
 
+    public static void cleanDirectory(String directory){
+        File folder = new File(directory);
+        if (!folder.exists())
+            folder.mkdirs();
+        else
+            for (File file : folder.listFiles())
+                file.delete();
+    }
+
     public static ArrayList<FileChannel> prepareChannels (String filename, int block_number){
         ArrayList<FileChannel> channels = new ArrayList<>();
 
@@ -54,13 +63,6 @@ public class IOUtils {
         ArrayList<String> termList = new ArrayList<>(blockDictionary.keySet());
         Collections.sort(termList);
 
-        File folder = new File(PATH_TO_TEMP_BLOCKS);
-        if (!folder.exists())
-            folder.mkdirs();
-        else if (block==0)
-            for (File file : folder.listFiles())
-                file.delete();
-
         String dictionary_filename = PATH_TO_TEMP_BLOCKS + "/dictionaryBlock" + block + ".bin";
         String index_filename = PATH_TO_TEMP_BLOCKS + "/indexBlock" + block + ".bin";
 
@@ -80,14 +82,10 @@ public class IOUtils {
         return true;
     }
 
-    public static boolean writeMergedDataToDisk(ArrayList<?> mergedData, String filename, boolean delete) {
+    public static boolean writeMergedDataToDisk(ArrayList<?> mergedData, String filename) {
         File folder = new File(PATH_TO_FINAL_BLOCKS);
         if (!folder.exists()) {
             folder.mkdirs();
-        } else if (delete) {
-            for (File file : folder.listFiles()) {
-                file.delete();
-            }
         }
 
         try {
@@ -108,12 +106,12 @@ public class IOUtils {
 
     public static boolean writeMergedDictToDisk(ArrayList<DictionaryElem> mergedDictionary, int block){
         String filename = PATH_TO_FINAL_BLOCKS + "/dictionaryMerged.bin";
-        return writeMergedDataToDisk(mergedDictionary,filename, true);
+        return writeMergedDataToDisk(mergedDictionary,filename);
     }
 
     public static boolean writeMergedPLToDisk(ArrayList<PostingList> mergedPostingList, int block){
         String filename = PATH_TO_FINAL_BLOCKS + "/indexMerged" + block + ".bin";
-        return writeMergedDataToDisk(mergedPostingList, filename, false);
+        return writeMergedDataToDisk(mergedPostingList, filename);
     }
 
     public static String readTerm(FileChannel channel) throws IOException {
