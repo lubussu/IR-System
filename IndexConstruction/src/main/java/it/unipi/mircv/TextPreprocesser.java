@@ -10,6 +10,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.tartarus.snowball.SnowballProgram;
+import org.tartarus.snowball.ext.EnglishStemmer;
 
 public class TextPreprocesser {
 
@@ -62,8 +64,21 @@ public class TextPreprocesser {
     }
 
     public static ArrayList<String> stemmingToken(ArrayList<String> tokens) {
-        return null;
+        ArrayList<String> stemmedTokens = new ArrayList<>();
+        EnglishStemmer stemmer = new EnglishStemmer();
+
+        for (String token : tokens) {
+            stemmer.setCurrent(token);
+            if (stemmer.stem()) {
+                stemmedTokens.add(stemmer.getCurrent());
+            } else {
+                stemmedTokens.add(token); // If stemming fails, keep the original token
+            }
+        }
+
+        return stemmedTokens;
     }
+
 
     public static ArrayList<String> removeStopwords(ArrayList<String> tokens) {
         tokens.removeAll(stopwords_global);
@@ -78,7 +93,7 @@ public class TextPreprocesser {
         line = cleanText(line);
         tokens = tokenizeLine(line);
         tokens = removeStopwords(tokens);
-        // tokens = stemmingToken(tokens);
+        tokens = stemmingToken(tokens);
 
         return tokens;
     }

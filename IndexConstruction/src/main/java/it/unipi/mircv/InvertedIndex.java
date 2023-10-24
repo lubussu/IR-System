@@ -333,4 +333,23 @@ public class InvertedIndex {
         DictionaryElem dict = dictionary.get(term);
         dict.setOffset_block(offset_block);
     }
+
+    public static void buildCachedPostingList(long MaxUsableMemory){
+        PriorityQueue<PostingList> queue_cached_pl = new PriorityQueue<>((a, b) -> b.compareTo(a));
+        ArrayList<FileChannel> channels = IOUtils.prepareChannels("", block_number);
+
+        for(Map.Entry<String, DictionaryElem> entry : dictionary.entrySet()) {
+            PostingList pl_to_cache = IOUtils.readPlToCache(channels.get(entry.getValue().getBlock_number()), entry.getValue().getOffset_block(),
+                    entry.getValue().getTerm());
+            queue_cached_pl.add(pl_to_cache);
+            if (Runtime.getRuntime().totalMemory() > MaxUsableMemory){
+                break;
+            }
+        }
+
+        while(!queue_cached_pl.isEmpty()){
+            posting_lists.add(queue_cached_pl.poll());
+        }
+
+    }
 }
