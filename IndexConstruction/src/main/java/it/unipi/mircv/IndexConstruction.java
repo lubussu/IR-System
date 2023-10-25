@@ -21,9 +21,11 @@ public class IndexConstruction {
         } else if (operation.equals("merge")) {
             /* Merge index blocks from file*/
             InvertedIndex.mergeIndexes();
+            InvertedIndex.buildCachePostingList();
         } else if (operation.equals("read")) {
             /* read Merged Index from files*/
             InvertedIndex.readIndexFromFile();
+            InvertedIndex.readCacheFromDisk();
         }
 
     }
