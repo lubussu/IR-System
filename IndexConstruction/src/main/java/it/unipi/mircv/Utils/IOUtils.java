@@ -44,14 +44,27 @@ public class IOUtils {
     public static ArrayList<FileChannel> prepareChannels (String filename, int block_number){
         ArrayList<FileChannel> channels = new ArrayList<>();
 
-        // Add FileChannel objects to the ArrayList
-        for (int i = 0; i < block_number; i++) {
-            Path path = Paths.get(PATH_TO_TEMP_BLOCKS, filename+ i + ".bin");
-            try {
-                FileChannel channel = FileChannel.open(path, StandardOpenOption.READ);
-                channels.add(channel);
-            } catch (IOException e) {
-                e.printStackTrace();
+        if(filename.isEmpty()){
+            // Add FileChannel objects to the ArrayList
+            for (int i = 0; i < block_number; i++) {
+                Path path = Paths.get(PATH_TO_FINAL_BLOCKS, "/indexMerged" + i + ".bin");
+                try {
+                    FileChannel channel = FileChannel.open(path, StandardOpenOption.READ);
+                    channels.add(channel);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }else {
+            // Add FileChannel objects to the ArrayList
+            for (int i = 0; i < block_number; i++) {
+                Path path = Paths.get(PATH_TO_TEMP_BLOCKS, filename + i + ".bin");
+                try {
+                    FileChannel channel = FileChannel.open(path, StandardOpenOption.READ);
+                    channels.add(channel);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
         return channels;

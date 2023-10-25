@@ -236,4 +236,12 @@ public class DictionaryElem {
     public void setMaxBM25(double maxBM25) {
         this.maxBM25 = maxBM25;
     }
+
+    public int compareTo(DictionaryElem de) {
+        if(this.getDf() > de.getDf()){
+            return 1;
+        }else{
+            return -1;
+        }
+    }
 }

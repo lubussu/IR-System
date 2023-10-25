@@ -182,6 +182,7 @@ public class InvertedIndex {
             System.out.printf("(ERROR): final block write to disk failed\n", pl_block);
         } else {
             System.out.printf("(INFO) Writing final block completed\n", pl_block);
+            pl_block++;
         }
         block_number = pl_block;
         System.out.printf("(INFO) Merging PL completed\n");
@@ -207,6 +208,10 @@ public class InvertedIndex {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+        clearIndexMem();
+        System.gc();
+
         long end = System.currentTimeMillis() - start;
         long time = (end/1000)/60;
         System.out.println("\nMerging operation executed in: " + time + " minutes");
@@ -249,7 +254,7 @@ public class InvertedIndex {
             readTermList();
 
         readDictionary(); //read final Dictionary from file
-        readPL(1); //read final PL block form file
+        readCacheFromDisk();
 
         long end = System.currentTimeMillis() - start;
         long time = (end/1000)/60;
@@ -329,11 +334,22 @@ public class InvertedIndex {
 
         long MaxUsableMemory = Runtime.getRuntime().maxMemory() * 80 / 100;
         PriorityQueue<PostingList> queue_cached_pl = new PriorityQueue<>((a, b) -> b.compareTo(a));
+        PriorityQueue<DictionaryElem> queue_temp_dict = new PriorityQueue<>((a, b) -> b.compareTo(a));
         ArrayList<FileChannel> channels = IOUtils.prepareChannels("", block_number);
 
-        for(Map.Entry<String, DictionaryElem> entry : dictionary.entrySet()) {
-            PostingList pl_to_cache = IOUtils.readPlToCache(channels.get(entry.getValue().getBlock_number()), entry.getValue().getOffset_block(),
-                    entry.getValue().getTerm());
+        System.out.println("(INFO) Starting creation posting list cache\n");
+
+        for (Map.Entry<String, DictionaryElem> entry : dictionary.entrySet()) {
+            queue_temp_dict.add(entry.getValue());
+        }
+
+        while (!queue_temp_dict.isEmpty()){
+            DictionaryElem current_de = queue_temp_dict.poll();
+            PostingList pl_to_cache = IOUtils.readPlToCache(channels.get(current_de.getBlock_number()), current_de.getOffset_block(),
+                    current_de.getTerm());
+//        for(Map.Entry<String, DictionaryElem> entry : dictionary.entrySet()) {
+//            PostingList pl_to_cache = IOUtils.readPlToCache(channels.get(entry.getValue().getBlock_number()), entry.getValue().getOffset_block(),
+//                    entry.getValue().getTerm());
             queue_cached_pl.add(pl_to_cache);
             if (Runtime.getRuntime().totalMemory() > MaxUsableMemory){
                 break;
@@ -344,8 +360,15 @@ public class InvertedIndex {
             posting_lists.add(queue_cached_pl.poll());
         }
 
+        System.out.println("(INFO) Maximum cache memory reached, saving cache on disk. " +
+                "The number of posting list cached is " + posting_lists.size() + "\n");
+
         String path = "final/PostingListCache.bin";
-        IOUtils.writeMergedDataToDisk(posting_lists, path);
+        if (!IOUtils.writeMergedDataToDisk(posting_lists, path)) {
+            System.out.printf("(ERROR): Cache write to disk failed\n");
+        } else {
+            System.out.printf("(INFO) Writing cache completed\n");
+        }
     }
 
     public static void readCacheFromDisk(){

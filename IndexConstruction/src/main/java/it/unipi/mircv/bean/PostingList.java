@@ -192,8 +192,8 @@ public class PostingList {
         buffer.clear();
     }
 
-    public int compareTo(PostingList a) {
-        if(this.pl.size() > a.pl.size()){
+    public int compareTo(PostingList pl) {
+        if(this.pl.size() > pl.pl.size()){
             return 1;
         }else{
             return -1;
