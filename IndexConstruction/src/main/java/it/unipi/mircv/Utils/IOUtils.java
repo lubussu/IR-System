@@ -174,4 +174,8 @@ public class IOUtils {
         return null;
     }
 
+    public static void loadCachePostingList(){
+
+    }
+
 }
