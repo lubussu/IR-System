@@ -6,6 +6,7 @@ import it.unipi.mircv.Utils.IOUtils;
 import it.unipi.mircv.bean.DictionaryElem;
 import it.unipi.mircv.bean.Posting;
 import it.unipi.mircv.bean.PostingList;
+import it.unipi.mircv.utils.Flags;
 
 import java.util.*;
 
@@ -13,7 +14,7 @@ import java.util.*;
 public class DAAT {
 
     public static ArrayList<Integer> retrieveDocuments(ArrayList<String> queryTerms,
-                                                       int k, boolean conjunctive) {
+                                                       int k) {
         ArrayList<PostingList> postingLists = new ArrayList<>();
         // Ottenere le posting list dei termini nella query
         for (String term : queryTerms) {
@@ -36,17 +37,17 @@ public class DAAT {
             for (PostingList list : postingLists) {
                 String term = list.getTerm();
                 Posting current_posting = list.getPl().get(0);
-                if(current_posting.getDocId() != docId &&  conjunctive){
+                if(current_posting.getDocId() != docId &&  Flags.isQueryMode()){
                     present = false;
                     continue;
                 }
                 else if (current_posting.getDocId() == docId) {
                     DictionaryElem dict = InvertedIndex.getDictionary().get(term);
-                    score += Scorer.scoreDocument(current_posting, dict.getIdf(), "idf");
+                    score += Scorer.scoreDocument(current_posting, dict.getIdf(), Flags.isScoreMode());
                     list.getPl().remove(0);
                 }
 
-                if((conjunctive && present)|| (!conjunctive && score!=0))
+                if((Flags.isQueryMode() && present)|| (!Flags.isQueryMode() && score!=0))
                     result.offer(new DocumentScore(docId, score));
                 if (result.size() > k)
                     result.poll(); // Rimuovi il documento con il punteggio più basso se supera k
@@ -102,6 +103,6 @@ public class DAAT {
         tokens.add("vax");
         tokens.add("vaulty");
 
-        retrieveDocuments(tokens, 5, false);
+        retrieveDocuments(tokens, 5);
     }
 }
