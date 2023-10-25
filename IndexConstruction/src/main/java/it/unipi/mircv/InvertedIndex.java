@@ -333,4 +333,44 @@ public class InvertedIndex {
         DictionaryElem dict = dictionary.get(term);
         dict.setOffset_block(offset_block);
     }
+
+    public static void buildCachePostingList(){
+
+        long MaxUsableMemory = Runtime.getRuntime().maxMemory() * 80 / 100;
+        PriorityQueue<PostingList> queue_cached_pl = new PriorityQueue<>((a, b) -> b.compareTo(a));
+        ArrayList<FileChannel> channels = IOUtils.prepareChannels("", block_number);
+
+        for(Map.Entry<String, DictionaryElem> entry : dictionary.entrySet()) {
+            PostingList pl_to_cache = IOUtils.readPlToCache(channels.get(entry.getValue().getBlock_number()), entry.getValue().getOffset_block(),
+                    entry.getValue().getTerm());
+            queue_cached_pl.add(pl_to_cache);
+            if (Runtime.getRuntime().totalMemory() > MaxUsableMemory){
+                break;
+            }
+        }
+
+        while(!queue_cached_pl.isEmpty()){
+            posting_lists.add(queue_cached_pl.poll());
+        }
+
+        String path = "final/PostingListCache.bin";
+        IOUtils.writeMergedDataToDisk(posting_lists, path);
+
+    }
+
+    public static void readCacheFromDisk(){
+        Path path = Paths.get("final/PostingListCache.bin");
+        try (FileChannel channel = FileChannel.open(path, StandardOpenOption.READ)){
+            String current_term;
+            while((current_term = IOUtils.readTerm(channel))!=null){
+                PostingList pl = new PostingList(current_term);
+                pl.updateFromBinFile(channel, true);
+                posting_lists.add(pl);
+                dictionary.get(current_term).setOffset_posting_lists(posting_lists.size()-1);
+
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
