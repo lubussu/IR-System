@@ -144,4 +144,16 @@ public class IOUtils {
         return null;
     }
 
+    public static PostingList readPlToCache(FileChannel channel, long offset, String term){
+        PostingList current_pl = new PostingList(term);
+        try {
+            channel.position(offset);
+            if(current_pl.FromBinFile(channel, true))
+                return current_pl;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }
