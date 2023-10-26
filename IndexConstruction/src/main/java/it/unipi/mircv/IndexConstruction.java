@@ -1,7 +1,5 @@
 package it.unipi.mircv;
 
-import it.unipi.mircv.bean.DictionaryElem;
-
 public class IndexConstruction {
     public static final String PATH_TO_COLLECTION = "IndexConstruction/src/main/resources/collection.tsv";
 
@@ -15,22 +13,19 @@ public class IndexConstruction {
             }
         }
 
-        switch (operation) {
-            case "build":
-                /* Costruzione indice da file*/
-                InvertedIndex.buildIndexFromFile(PATH_TO_COLLECTION);
-                InvertedIndex.mergeIndexes();
-                InvertedIndex.buildCachePostingList();
-                break;
-            case "merge":
-                /* Merge index blocks from file*/
-                InvertedIndex.mergeIndexes();
-                InvertedIndex.buildCachePostingList();
-                break;
-            case "read":
-                /* read Merged Index from files*/
-                InvertedIndex.readIndexFromFile();
-                break;
+        if (operation.equals("build")) {
+            /* Costruzione indice da file*/
+            InvertedIndex.buildIndexFromFile(PATH_TO_COLLECTION);
+            InvertedIndex.writeTermList();
+            InvertedIndex.mergeIndexes();
+            InvertedIndex.buildCachePostingList();
+        } else if (operation.equals("merge")) {
+            /* Merge index blocks from file*/
+            InvertedIndex.mergeIndexes();
+            InvertedIndex.buildCachePostingList();
+        } else if (operation.equals("read")) {
+            /* read Merged Index from files*/
+            InvertedIndex.readIndexFromFile();
         }
 
     }

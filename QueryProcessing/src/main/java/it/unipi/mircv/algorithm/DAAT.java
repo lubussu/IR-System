@@ -43,7 +43,7 @@ public class DAAT {
                 }
                 else if (current_posting.getDocId() == docId) {
                     DictionaryElem dict = InvertedIndex.getDictionary().get(term);
-                    score += Scorer.scoreDocument(current_posting, Flags.isScoreMode(), dict.getIdf());
+                    score += Scorer.scoreDocument(current_posting, dict.getIdf(), Flags.isScoreMode());
                     list.getPl().remove(0);
                 }
 

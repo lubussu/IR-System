@@ -1,9 +1,7 @@
 package it.unipi.mircv.Utils;
 
 import it.unipi.mircv.bean.DictionaryElem;
-import it.unipi.mircv.bean.DocumentElem;
 import it.unipi.mircv.bean.PostingList;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -15,51 +13,32 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Objects;
 
 public class IOUtils {
-    public static final String PATH_TO_TEMP_BLOCKS = "temp/index";
-    public static final String PATH_TO_FINAL_BLOCKS = "final/index";
+    public static final String PATH_TO_TEMP_BLOCKS = "temp";
+    public static final String PATH_TO_FINAL_BLOCKS = "final";
+
+    public static FileChannel getFileChannel(String filename, String mode){
+        Path path = Paths.get( filename+ ".bin");
+        FileChannel channel = null;
+        try {
+            if (mode.equals("read"))
+                channel = FileChannel.open(path, StandardOpenOption.READ);
+            else
+                channel = FileChannel.open(path, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return channel;
+    }
 
     public static void cleanDirectory(String directory){
         File folder = new File(directory);
         if (!folder.exists())
             folder.mkdirs();
         else
-            for (File file : Objects.requireNonNull(folder.listFiles()))
+            for (File file : folder.listFiles())
                 file.delete();
-    }
-
-    public static FileChannel getFileChannel(String filename, String mode) {
-        return getFileChannel(filename, mode, "bin");
-    }
-
-    public static FileChannel getFileChannel(String filename, String mode, String fileType){
-        Path path = Paths.get( filename+ "." + fileType);
-        File file = path.toFile();
-        File directory = file.getParentFile();
-
-        if (!directory.exists()) {
-            directory.mkdirs();
-        }
-        FileChannel channel = null;
-        try {
-            switch (mode) {
-                case "read":
-                    channel = FileChannel.open(path, StandardOpenOption.READ);
-                    break;
-                case "append":
-                    channel = FileChannel.open(path, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
-                    break;
-                case "write":
-                    channel = FileChannel.open(path, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
-                    break;
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return channel;
     }
 
     public static ArrayList<FileChannel> prepareChannels (String filename, int block_number){
@@ -138,7 +117,7 @@ public class IOUtils {
         return true;
     }
 
-    public static boolean writeMergedDictToDisk(ArrayList<DictionaryElem> mergedDictionary){
+    public static boolean writeMergedDictToDisk(ArrayList<DictionaryElem> mergedDictionary, int block){
         String filename = PATH_TO_FINAL_BLOCKS + "/dictionaryMerged.bin";
         return writeMergedDataToDisk(mergedDictionary,filename);
     }
@@ -146,12 +125,6 @@ public class IOUtils {
     public static boolean writeMergedPLToDisk(ArrayList<PostingList> mergedPostingList, int block){
         String filename = PATH_TO_FINAL_BLOCKS + "/indexMerged" + block + ".bin";
         return writeMergedDataToDisk(mergedPostingList, filename);
-    }
-
-    public static void writeDocTable(ArrayList<DocumentElem> docTable){
-        FileChannel channel = getFileChannel("final/DocumentTable", "append");
-        for(DocumentElem doc: docTable)
-            doc.ToBinFile(channel);
     }
 
     public static String readTerm(FileChannel channel) throws IOException {
