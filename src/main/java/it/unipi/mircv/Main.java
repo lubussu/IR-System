@@ -9,7 +9,7 @@ public class Main {
 
     public static void main(String[] args){
 
-        System.out.println("***** SEARCH ENGINE *****");
+        System.out.println("***** SEARCH ENGINE *****\n");
 
         String query;
         ArrayList<String> tokens;

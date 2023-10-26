@@ -4,13 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="df94d5ac-57f6-4e1d-af20-d4cd43d3e36c" name="Changes" comment="Added stemming, posting list cached build-up and reading from disk file.">
+    <list default="true" id="df94d5ac-57f6-4e1d-af20-d4cd43d3e36c" name="Changes" comment="Checkpoint">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/IndexConstruction.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/IndexConstruction.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/InvertedIndex.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/InvertedIndex.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/Utils/IOUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/Utils/IOUtils.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/DictionaryElem.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/DictionaryElem.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/PostingList.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/PostingList.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/DocumentElem.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/DocumentElem.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/QueryProcessing/src/main/java/it/unipi/mircv/algorithm/DAAT.java" beforeDir="false" afterPath="$PROJECT_DIR$/QueryProcessing/src/main/java/it/unipi/mircv/algorithm/DAAT.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/QueryProcessing/src/main/java/it/unipi/mircv/algorithm/Scorer.java" beforeDir="false" afterPath="$PROJECT_DIR$/QueryProcessing/src/main/java/it/unipi/mircv/algorithm/Scorer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/mircv/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/mircv/Main.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/termList.txt" beforeDir="false" afterPath="$PROJECT_DIR$/termList.txt" afterDir="false" />
     </list>
     <list id="401deacf-cbf0-4b59-b24c-8f1b64158506" name="Changes by luanabussu" comment="" />
@@ -174,6 +176,9 @@
       <workItem from="1697883475845" duration="2634000" />
       <workItem from="1697968463918" duration="439000" />
       <workItem from="1697971026901" duration="13310000" />
+      <workItem from="1698243868225" duration="24000" />
+      <workItem from="1698243898139" duration="187000" />
+      <workItem from="1698244246348" duration="19718000" />
     </task>
     <task id="LOCAL-00001" summary="Added index blocks creation">
       <option name="closed" value="true" />
@@ -264,15 +269,7 @@
       <option name="project" value="LOCAL" />
       <updated>1698046908419</updated>
     </task>
-    <task id="LOCAL-00013" summary="Added stemming, posting list cached build-up and reading from disk file.">
-      <option name="closed" value="true" />
-      <created>1698239059230</created>
-      <option name="number" value="00013" />
-      <option name="presentableId" value="LOCAL-00013" />
-      <option name="project" value="LOCAL" />
-      <updated>1698239059230</updated>
-    </task>
-    <option name="localTasksCounter" value="14" />
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -302,7 +299,6 @@
     <MESSAGE value="Correzioni" />
     <MESSAGE value="added read posting list from the block files and added offset on the block file to the dictionary" />
     <MESSAGE value="Checkpoint" />
-    <MESSAGE value="Added stemming, posting list cached build-up and reading from disk file." />
-    <option name="LAST_COMMIT_MESSAGE" value="Added stemming, posting list cached build-up and reading from disk file." />
+    <option name="LAST_COMMIT_MESSAGE" value="Checkpoint" />
   </component>
 </project>
