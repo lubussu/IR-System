@@ -333,31 +333,23 @@ public class InvertedIndex {
     public static void buildCachePostingList(){
 
         long MaxUsableMemory = Runtime.getRuntime().maxMemory() * 80 / 100;
-        PriorityQueue<PostingList> queue_cached_pl = new PriorityQueue<>((a, b) -> b.compareTo(a));
-        PriorityQueue<DictionaryElem> queue_temp_dict = new PriorityQueue<>((a, b) -> b.compareTo(a));
+        PriorityQueue<DictionaryElem> queue_dict = new PriorityQueue<>((a, b) -> b.compareTo(a));
         ArrayList<FileChannel> channels = IOUtils.prepareChannels("", block_number);
 
         System.out.println("(INFO) Starting creation posting list cache\n");
 
         for (Map.Entry<String, DictionaryElem> entry : dictionary.entrySet()) {
-            queue_temp_dict.add(entry.getValue());
+            queue_dict.add(entry.getValue());
         }
 
-        while (!queue_temp_dict.isEmpty()){
-            DictionaryElem current_de = queue_temp_dict.poll();
+        while (!queue_dict.isEmpty()){
+            DictionaryElem current_de = queue_dict.poll();
             PostingList pl_to_cache = IOUtils.readPlToCache(channels.get(current_de.getBlock_number()), current_de.getOffset_block(),
                     current_de.getTerm());
-//        for(Map.Entry<String, DictionaryElem> entry : dictionary.entrySet()) {
-//            PostingList pl_to_cache = IOUtils.readPlToCache(channels.get(entry.getValue().getBlock_number()), entry.getValue().getOffset_block(),
-//                    entry.getValue().getTerm());
-            queue_cached_pl.add(pl_to_cache);
+            posting_lists.add(pl_to_cache);
             if (Runtime.getRuntime().totalMemory() > MaxUsableMemory){
                 break;
             }
-        }
-
-        while(!queue_cached_pl.isEmpty()){
-            posting_lists.add(queue_cached_pl.poll());
         }
 
         System.out.println("(INFO) Maximum cache memory reached, saving cache on disk. " +
@@ -380,7 +372,6 @@ public class InvertedIndex {
                 pl.updateFromBinFile(channel, true);
                 posting_lists.add(pl);
                 dictionary.get(current_term).setOffset_posting_lists(posting_lists.size()-1);
-
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
