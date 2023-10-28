@@ -85,12 +85,13 @@ public class DictionaryElem {
     public void ToBinFile(FileChannel channel){
         try{
             byte[] descBytes = String.valueOf(this.term).getBytes(StandardCharsets.UTF_8);;
-            ByteBuffer buffer = ByteBuffer.allocate(4 + descBytes.length + 16);
+            ByteBuffer buffer = ByteBuffer.allocate(4 + descBytes.length + 20);
             // Populate the buffer
             buffer.putInt(descBytes.length);
             buffer.put(descBytes);
             buffer.putInt(this.df);
             buffer.putInt(this.cf);
+            buffer.putInt(this.block_number);
             buffer.putLong(this.offset_block);
             buffer.flip();
             // Write the buffer to the file
@@ -114,13 +115,14 @@ public class DictionaryElem {
     }
 
     public void updateFromBinFile(FileChannel channel) throws IOException {
-        ByteBuffer buffer = ByteBuffer.allocate(16);
+        ByteBuffer buffer = ByteBuffer.allocate(20);
         channel.read(buffer);
         buffer.flip();
         int df = buffer.getInt();
         int cf = buffer.getInt();
         this.setDf(this.getDf() + df);
         this.setCf(this.getCf() + cf);
+        this.block_number = buffer.getInt();
         this.offset_block = buffer.getLong();
         buffer.clear();
     }

@@ -16,7 +16,6 @@ public class IndexConstruction {
         if (operation.equals("build")) {
             /* Costruzione indice da file*/
             InvertedIndex.buildIndexFromFile(PATH_TO_COLLECTION);
-            InvertedIndex.writeTermList();
             InvertedIndex.mergeIndexes();
             InvertedIndex.buildCachePostingList();
         } else if (operation.equals("merge")) {
