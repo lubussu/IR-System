@@ -40,7 +40,7 @@ build/
 ### FIles ###
 src/main/resources/*
 IndexConstruction/src/main/resources/*
-IndexConstruction/termList.txt
+termList.txt
 
 ### block files ###
 temp/

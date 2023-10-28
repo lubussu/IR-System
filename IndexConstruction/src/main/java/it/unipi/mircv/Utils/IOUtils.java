@@ -1,7 +1,10 @@
 package it.unipi.mircv.Utils;
 
+import it.unipi.mircv.InvertedIndex;
 import it.unipi.mircv.bean.DictionaryElem;
+import it.unipi.mircv.bean.DocumentElem;
 import it.unipi.mircv.bean.PostingList;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -13,32 +16,51 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class IOUtils {
-    public static final String PATH_TO_TEMP_BLOCKS = "temp";
-    public static final String PATH_TO_FINAL_BLOCKS = "final";
-
-    public static FileChannel getFileChannel(String filename, String mode){
-        Path path = Paths.get( filename+ ".bin");
-        FileChannel channel = null;
-        try {
-            if (mode.equals("read"))
-                channel = FileChannel.open(path, StandardOpenOption.READ);
-            else
-                channel = FileChannel.open(path, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return channel;
-    }
+    public static final String PATH_TO_TEMP_BLOCKS = "temp/index";
+    public static final String PATH_TO_FINAL_BLOCKS = "final/index";
 
     public static void cleanDirectory(String directory){
         File folder = new File(directory);
         if (!folder.exists())
             folder.mkdirs();
         else
-            for (File file : folder.listFiles())
+            for (File file : Objects.requireNonNull(folder.listFiles()))
                 file.delete();
+    }
+
+    public static FileChannel getFileChannel(String filename, String mode) {
+        return getFileChannel(filename, mode, "bin");
+    }
+
+    public static FileChannel getFileChannel(String filename, String mode, String fileType){
+        Path path = Paths.get( filename+ "." + fileType);
+        File file = path.toFile();
+        File directory = file.getParentFile();
+
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
+        FileChannel channel = null;
+        try {
+            switch (mode) {
+                case "read":
+                    channel = FileChannel.open(path, StandardOpenOption.READ);
+                    break;
+                case "append":
+                    channel = FileChannel.open(path, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.APPEND);
+                    break;
+                case "write":
+                    channel = FileChannel.open(path, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
+                    break;
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return channel;
     }
 
     public static ArrayList<FileChannel> prepareChannels (String filename, int block_number){
@@ -68,6 +90,43 @@ public class IOUtils {
             }
         }
         return channels;
+    }
+
+    public static void readDocTable(){
+        FileChannel channel = getFileChannel("final/DocumentTable", "read");
+        DocumentElem doc = new DocumentElem();
+        while(doc.FromBinFile(channel)){
+            InvertedIndex.getDocTable().add(doc);
+        }
+    }
+
+    public static PostingList readPlFromFile(FileChannel channel, long offset, String term){
+        PostingList current_pl = new PostingList(term);
+        try {
+            channel.position(offset);
+            if(current_pl.FromBinFile(channel, true))
+                return current_pl;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static String readTerm(FileChannel channel) throws IOException {
+        ByteBuffer buffer = ByteBuffer.allocate(4);
+        int byteRead = channel.read(buffer);
+        if(byteRead < 0)
+            return null;
+
+        buffer.flip();
+        int termSize = buffer.getInt();
+        buffer.clear();
+        buffer = ByteBuffer.allocate(termSize);
+        channel.read(buffer);
+        buffer.flip();
+        byte[] bytes = new byte[termSize];
+        buffer.get(bytes);
+        return new String(bytes, StandardCharsets.UTF_8);
     }
 
     public static boolean writeBinBlockToDisk(HashMap<String, DictionaryElem> blockDictionary,
@@ -117,7 +176,7 @@ public class IOUtils {
         return true;
     }
 
-    public static boolean writeMergedDictToDisk(ArrayList<DictionaryElem> mergedDictionary, int block){
+    public static boolean writeMergedDictToDisk(ArrayList<DictionaryElem> mergedDictionary){
         String filename = PATH_TO_FINAL_BLOCKS + "/dictionaryMerged.bin";
         return writeMergedDataToDisk(mergedDictionary,filename);
     }
@@ -127,46 +186,9 @@ public class IOUtils {
         return writeMergedDataToDisk(mergedPostingList, filename);
     }
 
-    public static String readTerm(FileChannel channel) throws IOException {
-        ByteBuffer buffer = ByteBuffer.allocate(4);
-        int byteRead = channel.read(buffer);
-        if(byteRead == -1)
-            return null;
-
-        buffer.flip();
-        int termSize = buffer.getInt();
-        buffer = ByteBuffer.allocate(termSize);
-        channel.read(buffer);
-        buffer.flip();
-        byte[] bytes = new byte[termSize];
-        buffer.get(bytes);
-        return new String(bytes, StandardCharsets.UTF_8);
+    public static void writeDocTable(ArrayList<DocumentElem> docTable){
+        FileChannel channel = getFileChannel("final/DocumentTable", "append");
+        for(DocumentElem doc: docTable)
+            doc.ToBinFile(channel);
     }
-
-    public static PostingList readPlFromIndexFile(int block, long offset, String term){
-        String path = PATH_TO_FINAL_BLOCKS + "/indexMerged" + block;
-        FileChannel channel = getFileChannel(path, "read");
-        PostingList current_pl = new PostingList(term);
-        try {
-            channel.position(offset);
-            if(current_pl.FromBinFile(channel, true))
-                return current_pl;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public static PostingList readPlToCache(FileChannel channel, long offset, String term){
-        PostingList current_pl = new PostingList(term);
-        try {
-            channel.position(offset);
-            if(current_pl.FromBinFile(channel, true))
-                return current_pl;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
 }

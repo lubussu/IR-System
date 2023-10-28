@@ -2,7 +2,6 @@ package it.unipi.mircv;
 
 import it.unipi.mircv.algorithm.DAAT;
 import it.unipi.mircv.utils.Flags;
-
 import java.util.*;
 
 public class Main {
@@ -13,7 +12,7 @@ public class Main {
 
         String query;
         ArrayList<String> tokens;
-        IndexConstruction.main(new String[]{"merge"});
+        IndexConstruction.main(new String[]{"read"});
 
         String type;
         int k = 1;
@@ -81,4 +80,5 @@ public class Main {
             }
         }
     }
+
 }

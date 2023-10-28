@@ -1,7 +1,6 @@
 package it.unipi.mircv;
 import it.unipi.mircv.Utils.IOUtils;
 import it.unipi.mircv.bean.*;
-import it.unipi.mircv.utils.Flags;
 
 import java.io.*;
 import java.nio.channels.FileChannel;
@@ -15,11 +14,10 @@ import static java.lang.Math.log;
 
 public class InvertedIndex {
     private static HashMap<String, DictionaryElem> dictionary = new HashMap<>();
-    private static HashMap<Integer, DocumentElem> docTable = new HashMap<>();
+    private static ArrayList<DocumentElem> docTable = new ArrayList<>();
     private static ArrayList<PostingList> posting_lists = new ArrayList<>();
     private static ArrayList<String> termList = new ArrayList<>();
     private static int block_number = 0;
-    private static boolean compression = true;
 
     public static void clearIndexMem(){
         posting_lists.clear();
@@ -28,8 +26,44 @@ public class InvertedIndex {
         dictionary.clear();
     }
 
+    public static void buildCachePostingList(){
+        long MaxUsableMemory = Runtime.getRuntime().maxMemory() * 80 / 100;
+        PriorityQueue<DictionaryElem> queue_dict = new PriorityQueue<>((a, b) -> b.compareTo(a));
+        ArrayList<FileChannel> channels = IOUtils.prepareChannels("", block_number);
+
+        System.out.println("(INFO) Starting creation posting list cache\n");
+        clearIndexMem();
+        System.gc();
+
+        for (Map.Entry<String, DictionaryElem> entry : dictionary.entrySet()) {
+            queue_dict.add(entry.getValue());
+        }
+
+        while (!queue_dict.isEmpty()){
+            DictionaryElem current_de = queue_dict.poll();
+            PostingList pl_to_cache = IOUtils.readPlFromFile(channels.get(current_de.getBlock_number()), current_de.getOffset_block(),
+                    current_de.getTerm());
+            posting_lists.add(pl_to_cache);
+            dictionary.get(pl_to_cache.getTerm()).setOffset_posting_lists(posting_lists.size()-1);
+
+            if (Runtime.getRuntime().totalMemory() > MaxUsableMemory){
+                break;
+            }
+        }
+
+        System.out.println("(INFO) MAXIMUM CACHE MEMORY ACHIEVED. SAVING CACHE ON DISK\n" +
+                "The number of posting list cached is " + posting_lists.size() + "\n");
+
+        String path = IOUtils.PATH_TO_FINAL_BLOCKS+"/PostingListCache.bin";
+        if (!IOUtils.writeMergedDataToDisk(posting_lists, path)) {
+            System.out.println("(ERROR): Cache write to disk failed\n");
+        } else {
+            System.out.println("(INFO) Writing cache completed\n");
+        }
+    }
+
     public static void buildIndexFromFile(String filePath) {
-        IOUtils.cleanDirectory("temp"); //clean directory of temporary files
+        IOUtils.cleanDirectory(IOUtils.PATH_TO_TEMP_BLOCKS); //create or flush the directory
         ArrayList<String> tokens;
         HashSet<String> terms = new HashSet<>();
         int freq;
@@ -39,6 +73,7 @@ public class InvertedIndex {
         long MaxUsableMemory = Runtime.getRuntime().maxMemory() * 80 / 100;
 
         long start = System.currentTimeMillis();
+        System.out.println("(INFO) Starting building index\n");
         //InputStreamReader permette di specificare la codifica da utilizzare
         //FileReader utilizza la codifica standard del SO usato
         try (BufferedReader br = new BufferedReader(new InputStreamReader(Files.newInputStream(Paths.get(filePath)), StandardCharsets.UTF_8))) {
@@ -50,7 +85,7 @@ public class InvertedIndex {
                 docNo = tokens.get(0);
                 tokens.remove(0);
 
-                //docTable.put(docid, new DocumentElem(docid, docNo, tokens.size()));
+                docTable.add(new DocumentElem(docid, docNo, tokens.size()));
                 total_lenght += tokens.size();
 
                 for (String term : tokens) {
@@ -78,12 +113,12 @@ public class InvertedIndex {
                 }
 
                 if (Runtime.getRuntime().totalMemory() > MaxUsableMemory) {
-                    System.out.printf("(INFO) MAXIMUM PERMITTED USE OF MEMORY ACHIEVED.\n\n");
+                    System.out.println("(INFO) MAXIMUM PERMITTED USE OF MEMORY ACHIEVED.");
                     if (!IOUtils.writeBinBlockToDisk(dictionary, posting_lists, block_number)){
                         System.out.printf("(ERROR): %d block write to disk failed\n", block_number);
                         break;
                     }else {
-                        System.out.printf("(INFO) Writing block '%d' completed\n", block_number);
+                        System.out.printf("(INFO) Writing block '%d' completed\n\n", block_number);
                         block_number++;
                     }
 
@@ -98,16 +133,16 @@ public class InvertedIndex {
                         Thread.sleep(100);
                     }
                 }
-
                 tokens.clear();
-
             }
             /* Write the final block in memory */
             System.out.println("(INFO) Proceed with writing the final block to disk in memory");
-            if (!IOUtils.writeBinBlockToDisk(dictionary, posting_lists, block_number))
-                System.out.print("(ERROR): final block write to disk failed\n");
-            else
-                System.out.printf("(INFO) Final block write %d completed\n", block_number);
+            if (!IOUtils.writeBinBlockToDisk(dictionary, posting_lists, block_number)) {
+                System.out.println("(ERROR): final block write to disk failed");
+            }else {
+                System.out.printf("(INFO) Final block write %d completed\n\n", block_number);
+                block_number++;
+            }
         } catch (IOException | InterruptedException ex) {
             throw new RuntimeException(ex);
         }
@@ -115,17 +150,18 @@ public class InvertedIndex {
         CollectionInfo.setCollection_size(docid+1);
         CollectionInfo.setCollection_total_len(total_lenght);
         CollectionInfo.ToBinFile(IOUtils.getFileChannel("final/CollectionInfo", "write"));
+        IOUtils.writeDocTable(docTable);
 
         termList = new ArrayList<>(terms);
 
         long end = System.currentTimeMillis() - start;
         long time = (end/1000)/60;
-        System.out.println("\nIndexing operation executed in: " + time + " minutes");
-        Collections.sort(termList);
+        System.out.println("(INFO) Indexing operation executed in: " + time + " minutes\n");
+        writeTermList();
     }
 
     public static void mergeDictionary(ArrayList<String> termList) throws IOException {
-        System.out.printf("(INFO) Starting merging dictionary\n");
+        System.out.println("(INFO) Starting merging dictionary");
         ArrayList<FileChannel> dictionaryChannels = IOUtils.prepareChannels("dictionaryBlock", block_number);
 
         for (String term : termList) {
@@ -137,15 +173,13 @@ public class InvertedIndex {
                     channel.position(current_position);
                 dict.setIdf(log(((double) dictionary.size()/dict.getDf())));
                 dictionary.put(term, dict);
-                //dict.ToTextFile("Dictionary.txt");
             }
         }
-
-        System.out.printf("(INFO) Merging dictionary completed\n");
+        System.out.println("(INFO) Merging dictionary completed\n");
     }
 
     public static void mergePostingList(ArrayList<String> termList) throws IOException {
-        System.out.printf("(INFO) Starting Merging PL\n");
+        System.out.println("(INFO) Starting Merging PL\n");
         ArrayList<FileChannel> postingListChannels = IOUtils.prepareChannels("indexBlock", block_number);
         long MaxUsableMemory = Runtime.getRuntime().maxMemory() * 80 / 100;
         int pl_block = 0;
@@ -163,14 +197,14 @@ public class InvertedIndex {
             dictionary.get(term).setBlock_number(pl_block);
 
             if (Runtime.getRuntime().totalMemory() > MaxUsableMemory) {
-                System.out.printf("(INFO) MAXIMUM PERMITTED USE OF MEMORY ACHIEVED.\n\n Number of posting lists to write: %d\n",
+                System.out.printf("(INFO) MAXIMUM PERMITTED USE OF MEMORY ACHIEVED.\nNumber of posting lists to write: %d\n",
                         posting_lists.size());
                 /* Write block to disk */
                 if (!IOUtils.writeMergedPLToDisk(posting_lists, pl_block)) {
                     System.out.printf("(ERROR): %d block write to disk failed\n", pl_block);
                     break;
                 } else {
-                    System.out.printf("(INFO) Writing block '%d' completed\n", pl_block);
+                    System.out.printf("(INFO) Writing block '%d' completed\n\n", pl_block);
                     pl_block++;
                 }
                 posting_lists.clear();
@@ -178,18 +212,19 @@ public class InvertedIndex {
             }
         }
         /* Write final block to disk */
+        System.out.println("(INFO) Proceed with writing the final block to disk in memory");
         if (!IOUtils.writeMergedPLToDisk(posting_lists, pl_block)) {
-            System.out.printf("(ERROR): final block write to disk failed\n", pl_block);
+            System.out.println("(ERROR): Final block write to disk failed");
         } else {
-            System.out.printf("(INFO) Writing final block completed\n", pl_block);
+            System.out.println("(INFO) Writing final block completed\n");
             pl_block++;
         }
         block_number = pl_block;
-        System.out.printf("(INFO) Merging PL completed\n");
+        System.out.println("(INFO) Merging PL completed\n");
     }
 
     public static void mergeIndexes(){
-        IOUtils.cleanDirectory("final"); //clean directory of final files
+        IOUtils.cleanDirectory(IOUtils.PATH_TO_FINAL_BLOCKS); //clean directory of final files
         clearDictionaryMem();
         clearIndexMem();
 
@@ -199,42 +234,24 @@ public class InvertedIndex {
         try {
             mergeDictionary(termList);
             mergePostingList(termList);
+            IOUtils.readDocTable();
 
-            if (!IOUtils.writeMergedDictToDisk(new ArrayList<>(dictionary.values()), 0)) {
-                System.out.printf("(ERROR): Merged dictionary write to disk failed\n");
+            if (!IOUtils.writeMergedDictToDisk(new ArrayList<>(dictionary.values()))) {
+                System.out.println("(ERROR): Merged dictionary write to disk failed");
             }else{
-                System.out.printf("(INFO) Merged dictionary write completed\n");
+                System.out.println("(INFO) Merged dictionary write completed\n");
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-        clearIndexMem();
-        System.gc();
 
         long end = System.currentTimeMillis() - start;
         long time = (end/1000)/60;
-        System.out.println("\nMerging operation executed in: " + time + " minutes");
-    }
-
-    public static void readPL(int block){
-        Path path = Paths.get("final/indexMerged"+block+".bin");
-        try (FileChannel channel = FileChannel.open(path, StandardOpenOption.READ)){
-            String current_term;
-            while((current_term = IOUtils.readTerm(channel))!=null){
-                PostingList pl = new PostingList(current_term);
-                pl.updateFromBinFile(channel, Flags.isCompression());
-                posting_lists.add(pl);
-                dictionary.get(current_term).setBlock_number(block);
-                dictionary.get(current_term).setOffset_posting_lists(posting_lists.size()-1);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        System.out.println("(INFO)Merging operation executed in: " + time + " minutes\n");
     }
 
     public static void readDictionary(){
-        Path path = Paths.get("final","dictionaryMerged.bin");
+        Path path = Paths.get(IOUtils.PATH_TO_FINAL_BLOCKS,"dictionaryMerged.bin");
         try (FileChannel channel = FileChannel.open(path, StandardOpenOption.READ)){
             String current_term;
             while((current_term = IOUtils.readTerm(channel))!=null){
@@ -249,16 +266,38 @@ public class InvertedIndex {
     }
 
     public static void readIndexFromFile(){
+        System.out.println("(INFO) Starting reading index");
         long start = System.currentTimeMillis();
         if(termList == null || termList.isEmpty())
-            readTermList();
+           readTermList();
 
         readDictionary(); //read final Dictionary from file
-        readCacheFromDisk();
+        readPLsFromFile("PostingListCache.bin");
+        try {
+            CollectionInfo.FromBinFile(IOUtils.getFileChannel("final/CollectionInfo", "read"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        IOUtils.readDocTable();
 
         long end = System.currentTimeMillis() - start;
         long time = (end/1000)/60;
         System.out.println("\nReading operation executed in: " + time + " minutes");
+    }
+
+    public static void readPLsFromFile(String filename){ //usata quando carico indice da file
+        Path path = Paths.get(IOUtils.PATH_TO_FINAL_BLOCKS, filename);
+        try (FileChannel channel = FileChannel.open(path, StandardOpenOption.READ)){
+            String current_term;
+            while((current_term = IOUtils.readTerm(channel))!=null){
+                PostingList pl = new PostingList(current_term);
+                pl.updateFromBinFile(channel, true);
+                posting_lists.add(pl);
+                dictionary.get(current_term).setOffset_posting_lists(posting_lists.size()-1);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static void readTermList() {
@@ -273,6 +312,7 @@ public class InvertedIndex {
     }
 
     public static void writeTermList() {
+        Collections.sort(termList);
         termList.add(0, Integer.toString(block_number));
         try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("termList.txt"))) {
             String termListAsString = String.join(" ", termList);
@@ -290,11 +330,11 @@ public class InvertedIndex {
         InvertedIndex.dictionary = dictionary;
     }
 
-    public static HashMap<Integer, DocumentElem> getDocTable() {
+    public static ArrayList<DocumentElem> getDocTable() {
         return docTable;
     }
 
-    public static void setDocTable(HashMap<Integer, DocumentElem> docTable) {
+    public static void setDocTable(ArrayList<DocumentElem> docTable) {
         InvertedIndex.docTable = docTable;
     }
 
@@ -320,62 +360,6 @@ public class InvertedIndex {
 
     public static void setBlock_number(int block_number) {
         InvertedIndex.block_number = block_number;
-    }
-
-    public static boolean isCompression() {
-        return compression;
-    }
-
-    public static void setCompression(boolean compression) {
-        InvertedIndex.compression = compression;
-    }
-
-    public static void buildCachePostingList(){
-
-        long MaxUsableMemory = Runtime.getRuntime().maxMemory() * 80 / 100;
-        PriorityQueue<DictionaryElem> queue_dict = new PriorityQueue<>((a, b) -> b.compareTo(a));
-        ArrayList<FileChannel> channels = IOUtils.prepareChannels("", block_number);
-
-        System.out.println("(INFO) Starting creation posting list cache\n");
-
-        for (Map.Entry<String, DictionaryElem> entry : dictionary.entrySet()) {
-            queue_dict.add(entry.getValue());
-        }
-
-        while (!queue_dict.isEmpty()){
-            DictionaryElem current_de = queue_dict.poll();
-            PostingList pl_to_cache = IOUtils.readPlToCache(channels.get(current_de.getBlock_number()), current_de.getOffset_block(),
-                    current_de.getTerm());
-            posting_lists.add(pl_to_cache);
-            if (Runtime.getRuntime().totalMemory() > MaxUsableMemory){
-                break;
-            }
-        }
-
-        System.out.println("(INFO) Maximum cache memory reached, saving cache on disk. " +
-                "The number of posting list cached is " + posting_lists.size() + "\n");
-
-        String path = "final/PostingListCache.bin";
-        if (!IOUtils.writeMergedDataToDisk(posting_lists, path)) {
-            System.out.printf("(ERROR): Cache write to disk failed\n");
-        } else {
-            System.out.printf("(INFO) Writing cache completed\n");
-        }
-    }
-
-    public static void readCacheFromDisk(){
-        Path path = Paths.get("final/PostingListCache.bin");
-        try (FileChannel channel = FileChannel.open(path, StandardOpenOption.READ)){
-            String current_term;
-            while((current_term = IOUtils.readTerm(channel))!=null){
-                PostingList pl = new PostingList(current_term);
-                pl.updateFromBinFile(channel, true);
-                posting_lists.add(pl);
-                dictionary.get(current_term).setOffset_posting_lists(posting_lists.size()-1);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
 }

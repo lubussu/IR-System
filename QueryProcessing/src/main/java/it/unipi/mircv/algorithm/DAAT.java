@@ -8,6 +8,7 @@ import it.unipi.mircv.bean.Posting;
 import it.unipi.mircv.bean.PostingList;
 import it.unipi.mircv.utils.Flags;
 
+import java.nio.channels.FileChannel;
 import java.util.*;
 
 
@@ -24,7 +25,9 @@ public class DAAT {
             if(InvertedIndex.getPosting_lists().size() >= offset && InvertedIndex.getPosting_lists().get(offset).getTerm().equals(term)) {
                 termPL = InvertedIndex.getPosting_lists().get(offset);
             }else{
-                termPL = IOUtils.readPlFromIndexFile(dict.getBlock_number(), dict.getOffset_block(), term);
+                String path = IOUtils.PATH_TO_FINAL_BLOCKS+"/indexMerged" + dict.getBlock_number();
+                FileChannel channel = IOUtils.getFileChannel(path, "read");
+                termPL = IOUtils.readPlFromFile(channel, dict.getOffset_block(), term);
             }
             postingLists.add(termPL);
         }
