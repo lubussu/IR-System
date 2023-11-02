@@ -1,4 +1,4 @@
-package it.unipi.mircv.algorithm;
+package it.unipi.mircv.utils;
 
 import it.unipi.mircv.bean.CollectionInfo;
 import it.unipi.mircv.bean.Posting;

@@ -1,7 +1,8 @@
 package it.unipi.mircv;
 
-import it.unipi.mircv.algorithm.DAAT;
 import it.unipi.mircv.utils.Flags;
+import it.unipi.mircv.utils.TextPreprocesser;
+
 import java.util.*;
 
 public class Main {
@@ -12,7 +13,7 @@ public class Main {
 
         String query;
         ArrayList<String> tokens;
-        IndexConstruction.main(new String[]{"build"});
+        IndexConstruction.main(new String[]{"read"});
 
         String type;
         int k = 1;
@@ -72,7 +73,7 @@ public class Main {
                 }
 
                 // EXECUTE QUERY .......
-                DAAT.retrieveDocuments(tokens, k);
+                QueryProcesser.executeQueryProcesser(tokens, k);
 
                 long end = System.currentTimeMillis() - start;
                 System.out.println("\n(INFO) Query executed in: " + end + " ms");

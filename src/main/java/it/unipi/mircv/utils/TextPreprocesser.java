@@ -1,4 +1,4 @@
-package it.unipi.mircv;
+package it.unipi.mircv.utils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -10,7 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.tartarus.snowball.SnowballProgram;
+
 import org.tartarus.snowball.ext.EnglishStemmer;
 
 public class TextPreprocesser {

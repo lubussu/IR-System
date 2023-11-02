@@ -1,6 +1,6 @@
 package it.unipi.mircv.bean;
 
-import it.unipi.mircv.Utils.IOUtils;
+import it.unipi.mircv.utils.IOUtils;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;

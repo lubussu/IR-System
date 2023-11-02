@@ -1,8 +1,7 @@
 package it.unipi.mircv.bean;
 
-import it.unipi.mircv.IndexConstruction;
 import it.unipi.mircv.InvertedIndex;
-import it.unipi.mircv.Utils.IOUtils;
+import it.unipi.mircv.utils.IOUtils;
 import it.unipi.mircv.compression.Unary;
 import it.unipi.mircv.compression.VariableByte;
 import java.io.FileWriter;
@@ -13,26 +12,23 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 
 public class PostingList {
+
     private String term;
+
     private final ArrayList<Posting> pl;
 
-    public String getTerm() {
-        return term;
-    }
+    public Iterator<Posting> postingIterator = null;
 
-    public void setTerm(String term) {
-        this.term = term;
-    }
-
-    public ArrayList<Posting> getPl() {
-        return pl;
-    }
+    private Posting actualPosting;
 
     public PostingList(String term) {
         this.term = term;
         this.pl = new ArrayList<>();
+        this.actualPosting = null;
+        this.postingIterator = this.pl.iterator();
     }
 
     public PostingList(String term, Posting posting) {
@@ -40,8 +36,24 @@ public class PostingList {
         this.pl.add(posting);
     }
 
+
     public void addPosting(Posting p){
         this.pl.add(p);
+    }
+
+    public synchronized void next() {
+        ArrayList<Posting> copy = new ArrayList<>(pl);
+        postingIterator = copy.iterator();
+        if (!postingIterator.hasNext()) {
+            postingIterator = pl.iterator();
+            actualPosting = null;
+        }
+        actualPosting = postingIterator.next();
+    }
+
+    public void nextGEQ(int docID) {
+        while (postingIterator.hasNext() && actualPosting.getDocId() < docID)
+            actualPosting = postingIterator.next();
     }
 
     public boolean FromBinFile(FileChannel channel, boolean compressed) throws IOException {
@@ -175,7 +187,7 @@ public class PostingList {
     public void printPostingList() {
         System.out.printf("Posting List of %s:\n", this.term);
         for (Posting p : this.getPl()) {
-            System.out.printf("Docid: %d - Freq: %d\n", p.getDocId(), p.getTermFreq());
+            System.out.printf("(Docid: %d - Freq: %d)\t", p.getDocId(), p.getTermFreq());
         }
     }
 
@@ -192,12 +204,18 @@ public class PostingList {
         buffer.clear();
     }
 
-    public int compareTo(PostingList pl) {
-        if(this.pl.size() > pl.pl.size()){
-            return 1;
-        }else{
-            return -1;
-        }
+    public Posting getActualPosting() { return actualPosting; }
+
+    public String getTerm() {
+        return term;
+    }
+
+    public void setTerm(String term) {
+        this.term = term;
+    }
+
+    public ArrayList<Posting> getPl() {
+        return pl;
     }
 
 }

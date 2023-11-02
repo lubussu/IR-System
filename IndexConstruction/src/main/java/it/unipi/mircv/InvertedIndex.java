@@ -1,6 +1,7 @@
 package it.unipi.mircv;
-import it.unipi.mircv.Utils.IOUtils;
+import it.unipi.mircv.utils.IOUtils;
 import it.unipi.mircv.bean.*;
+import it.unipi.mircv.utils.TextPreprocesser;
 
 import java.io.*;
 import java.nio.channels.FileChannel;
@@ -203,6 +204,9 @@ public class InvertedIndex {
             posting_lists.add(posting_list);
             dictionary.get(term).setOffset_posting_lists(posting_lists.size()-1);
             dictionary.get(term).setBlock_number(pl_block);
+            dictionary.get(term).computeMaxTf(posting_list);
+            dictionary.get(term).computeMaxTFIDF();
+            dictionary.get(term).computeMaxBM25(posting_list);
 
             if (Runtime.getRuntime().totalMemory() > MaxUsableMemory) {
                 System.out.printf("(INFO) MAXIMUM PERMITTED USE OF MEMORY ACHIEVED.\nNumber of posting lists to write: %d\n",

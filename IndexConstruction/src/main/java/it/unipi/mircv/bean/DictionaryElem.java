@@ -1,6 +1,9 @@
 package it.unipi.mircv.bean;
 
-import it.unipi.mircv.Utils.IOUtils;
+import it.unipi.mircv.utils.IOUtils;
+import it.unipi.mircv.utils.Scorer;
+import it.unipi.mircv.utils.Flags;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -18,6 +21,9 @@ public class DictionaryElem {
     /* Number of times the term appears in the collection */
     private int cf;
 
+    /* Inverse document frequencies */
+    private double idf;
+
     /* Pointer to the beginning of posting list of term t */
     private int offset_posting_lists;
 
@@ -27,29 +33,28 @@ public class DictionaryElem {
     /* Pointer to the posting list on block */
     private long offset_block;
 
-    /* Offset of the term frequencies posting list */
-    private long offset_tf;
-
-    /* Length of the term frequencies posting list */
-    private int tf_len;
-
     /* Maximum term frequency of the term */
     private int maxTf;
-
-    /* Offset of the skipping information */
-    private int offset_skipInfo;
-
-    /* Length of the skipping information */
-    private int skipInfo_len;
-
-    /* Inverse document frequencies */
-    private double idf;
 
     /* Term upper bound for TF-IDF */
     private double maxTFIDF;
 
     /* Term upper bound for BM25 */
     private double maxBM25;
+
+
+
+    /* Offset of the term frequencies posting list */
+    private long offset_tf;
+
+    /* Length of the term frequencies posting list */
+    private int tf_len;
+
+    /* Offset of the skipping information */
+    private int offset_skipInfo;
+
+    /* Length of the skipping information */
+    private int skipInfo_len;
 
     public DictionaryElem(String term) {
         this(term, 0, 0);
@@ -59,17 +64,39 @@ public class DictionaryElem {
         this.term = term;
         this.df = df;
         this.cf = cf;
+        this.idf = 0;
         this.offset_posting_lists = 0;
         this.block_number = 0;
         this.offset_block = 0;
-        this.offset_tf = 0;
-        this.tf_len = 0;
         this.maxTf = 0;
-        this.offset_skipInfo = 0;
-        this.skipInfo_len = 0;
-        this.idf = 0;
         this.maxTFIDF = 0;
         this.maxBM25 = 0;
+
+        this.offset_tf = 0;
+        this.tf_len = 0;
+        this.offset_skipInfo = 0;
+        this.skipInfo_len = 0;
+
+    }
+
+    public void computeMaxBM25(PostingList pl) {
+        for (Posting p: pl.getPl()) {
+            double current_BM25 = Scorer.scoreDocument(p, this.getIdf(), Flags.isScoreMode());
+
+            if (current_BM25 > this.getMaxBM25())
+                this.setMaxBM25(current_BM25);
+        }
+    }
+
+    public void computeMaxTf(PostingList list) {
+        for (Posting posting : list.getPl()) {
+            if (posting.getTermFreq() > this.maxTf)
+                this.maxTf = posting.getTermFreq();
+        }
+    }
+
+    public void computeMaxTFIDF() {
+        this.maxTFIDF = (1 + Math.log10(this.maxTf)) * this.idf;
     }
 
     public boolean FromBinFile(FileChannel channel) throws IOException {
@@ -85,7 +112,7 @@ public class DictionaryElem {
     public void ToBinFile(FileChannel channel){
         try{
             byte[] descBytes = String.valueOf(this.term).getBytes(StandardCharsets.UTF_8);;
-            ByteBuffer buffer = ByteBuffer.allocate(4 + descBytes.length + 20);
+            ByteBuffer buffer = ByteBuffer.allocate(4 + descBytes.length + 48);
             // Populate the buffer
             buffer.putInt(descBytes.length);
             buffer.put(descBytes);
@@ -93,6 +120,11 @@ public class DictionaryElem {
             buffer.putInt(this.cf);
             buffer.putInt(this.block_number);
             buffer.putLong(this.offset_block);
+            buffer.putInt(this.maxTf);
+            buffer.putDouble(this.idf);
+            buffer.putDouble(this.maxTFIDF);
+            buffer.putDouble(this.maxBM25);
+
             buffer.flip();
             // Write the buffer to the file
             channel.write(buffer);
@@ -115,7 +147,7 @@ public class DictionaryElem {
     }
 
     public void updateFromBinFile(FileChannel channel) throws IOException {
-        ByteBuffer buffer = ByteBuffer.allocate(20);
+        ByteBuffer buffer = ByteBuffer.allocate(48);
         channel.read(buffer);
         buffer.flip();
         int df = buffer.getInt();
@@ -124,6 +156,10 @@ public class DictionaryElem {
         this.setCf(this.getCf() + cf);
         this.block_number = buffer.getInt();
         this.offset_block = buffer.getLong();
+        this.maxTf = buffer.getInt();
+        this.idf = buffer.getDouble();
+        this.maxTFIDF = buffer.getDouble();
+        this.maxBM25 = buffer.getDouble();
         buffer.clear();
     }
 
