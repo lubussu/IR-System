@@ -1,7 +1,7 @@
 package it.unipi.mircv;
 
 public class IndexConstruction {
-    public static final String PATH_TO_COLLECTION = "IndexConstruction/src/main/resources/collection.tsv";
+    public static final String PATH_TO_COLLECTION = "IndexConstruction/src/main/resources/collection.tar.gz";
 
     public static void main(String[] args) {
 

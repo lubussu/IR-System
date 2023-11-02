@@ -12,7 +12,7 @@ public class Main {
 
         String query;
         ArrayList<String> tokens;
-        IndexConstruction.main(new String[]{"read"});
+        IndexConstruction.main(new String[]{"build"});
 
         String type;
         int k = 1;

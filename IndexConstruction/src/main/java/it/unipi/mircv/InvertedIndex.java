@@ -12,6 +12,10 @@ import java.nio.file.StandardOpenOption;
 import java.util.*;
 import static java.lang.Math.log;
 
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
+
 public class InvertedIndex {
     private static HashMap<String, DictionaryElem> dictionary = new HashMap<>();
     private static ArrayList<DocumentElem> docTable = new ArrayList<>();
@@ -74,10 +78,14 @@ public class InvertedIndex {
 
         long start = System.currentTimeMillis();
         System.out.println("(INFO) Starting building index\n");
+
         //InputStreamReader permette di specificare la codifica da utilizzare
         //FileReader utilizza la codifica standard del SO usato
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(Files.newInputStream(Paths.get(filePath)), StandardCharsets.UTF_8))) {
+        try (TarArchiveInputStream collectionTar = new TarArchiveInputStream(new GzipCompressorInputStream(Files.newInputStream(Paths.get(filePath))));
+                BufferedReader br = new BufferedReader(new InputStreamReader(collectionTar, StandardCharsets.UTF_8))){
             String line;
+            TarArchiveEntry entry = collectionTar.getNextTarEntry();
+            System.out.println("Processing collection: " + entry.getName());
             while ((line = br.readLine()) != null) {
                 tokens = TextPreprocesser.executeTextPreprocessing(line);
 

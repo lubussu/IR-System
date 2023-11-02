@@ -31,5 +31,10 @@
           <artifactId>lucene-analysis-common</artifactId>
           <version>9.4.2</version>
       </dependency>
+      <dependency>
+          <groupId>org.apache.commons</groupId>
+          <artifactId>commons-compress</artifactId>
+          <version>1.21</version>
+      </dependency>
   </dependencies>
 </project>
