@@ -4,20 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="df94d5ac-57f6-4e1d-af20-d4cd43d3e36c" name="Changes" comment="Correzione errori, modifica BM25 e scrittura CollectionInfo e docTable">
-      <change afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/utils/IOUtils.java" afterDir="false" />
+    <list default="true" id="df94d5ac-57f6-4e1d-af20-d4cd43d3e36c" name="Changes" comment="Added stemming, posting list cached build-up and reading from disk file.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/InvertedIndex.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/InvertedIndex.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/TextPreprocesser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/mircv/utils/TextPreprocesser.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/DictionaryElem.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/DictionaryElem.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/DocumentElem.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/DocumentElem.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/Utils/IOUtils.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/PostingList.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/PostingList.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/QueryProcessing/src/main/java/it/unipi/mircv/algorithm/DAAT.java" beforeDir="false" afterPath="$PROJECT_DIR$/QueryProcessing/src/main/java/it/unipi/mircv/algorithm/DAAT.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/QueryProcessing/src/main/java/it/unipi/mircv/algorithm/Scorer.java" beforeDir="false" afterPath="$PROJECT_DIR$/QueryProcessing/src/main/java/it/unipi/mircv/utils/Scorer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/mircv/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/mircv/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/termList.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/termList.txt" beforeDir="false" afterPath="$PROJECT_DIR$/termList.txt" afterDir="false" />
     </list>
     <list id="401deacf-cbf0-4b59-b24c-8f1b64158506" name="Changes by luanabussu" comment="" />
+    <list id="a7cec896-e1d0-4a38-9286-bc3d2cbe40ce" name="Changes by ludav" comment="Changes by ludav" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -82,7 +77,7 @@
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
     &quot;jdk.selected.JAVA_MODULE&quot;: &quot;corretto-20&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/luanabussu/GitHub/MIRCV-project&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/luanabussu/GitHub/MIRCV-project/IndexConstruction/src/main/resources&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -103,7 +98,6 @@
       <recent name="$PROJECT_DIR$/IndexConstruction/src/main/resources" />
     </key>
     <key name="CopyClassDialog.RECENTS_KEY">
-      <recent name="it.unipi.mircv.algorithm" />
       <recent name="it.unipi.mircv" />
       <recent name="it.unipi.mircv.Utils" />
     </key>
@@ -178,11 +172,10 @@
       <workItem from="1697883475845" duration="2634000" />
       <workItem from="1697968463918" duration="439000" />
       <workItem from="1697971026901" duration="13310000" />
-      <workItem from="1698243868225" duration="24000" />
-      <workItem from="1698243898139" duration="187000" />
-      <workItem from="1698244246348" duration="19718000" />
-      <workItem from="1698353072271" duration="12421000" />
-      <workItem from="1698412527857" duration="14095000" />
+      <workItem from="1698261032985" duration="280000" />
+      <workItem from="1698327304602" duration="251000" />
+      <workItem from="1698327569201" duration="289000" />
+      <workItem from="1699202083288" duration="3470000" />
     </task>
     <task id="LOCAL-00001" summary="Added index blocks creation">
       <option name="closed" value="true" />
@@ -273,12 +266,13 @@
       <option name="project" value="LOCAL" />
       <updated>1698046908419</updated>
     </task>
-    <task id="LOCAL-00013" summary="Correzione errori, modifica BM25 e scrittura CollectionInfo e docTable">
-      <created>1698333746689</created>
+    <task id="LOCAL-00013" summary="Added stemming, posting list cached build-up and reading from disk file.">
+      <option name="closed" value="true" />
+      <created>1698239059230</created>
       <option name="number" value="00013" />
       <option name="presentableId" value="LOCAL-00013" />
       <option name="project" value="LOCAL" />
-      <updated>1698333746689</updated>
+      <updated>1698239059230</updated>
     </task>
     <option name="localTasksCounter" value="14" />
     <servers />
@@ -310,18 +304,7 @@
     <MESSAGE value="Correzioni" />
     <MESSAGE value="added read posting list from the block files and added offset on the block file to the dictionary" />
     <MESSAGE value="Checkpoint" />
-    <MESSAGE value="Correzione errori, modifica BM25 e scrittura CollectionInfo e docTable" />
-    <option name="LAST_COMMIT_MESSAGE" value="Correzione errori, modifica BM25 e scrittura CollectionInfo e docTable" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/QueryProcessing/src/main/java/it/unipi/mircv/algorithm/MaxScore.java</url>
-          <line>32</line>
-          <option name="timeStamp" value="14" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
+    <MESSAGE value="Added stemming, posting list cached build-up and reading from disk file." />
+    <option name="LAST_COMMIT_MESSAGE" value="Added stemming, posting list cached build-up and reading from disk file." />
   </component>
 </project>

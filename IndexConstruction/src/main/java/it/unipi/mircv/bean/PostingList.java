@@ -18,7 +18,7 @@ public class PostingList {
 
     private String term;
 
-    private final ArrayList<Posting> pl;
+    private ArrayList<Posting> pl;
 
     public Iterator<Posting> postingIterator = null;
 
@@ -28,7 +28,15 @@ public class PostingList {
         this.term = term;
         this.pl = new ArrayList<>();
         this.actualPosting = null;
-        this.postingIterator = this.pl.iterator();
+        this.postingIterator = pl.iterator();
+    }
+
+    public PostingList(String term, ArrayList<Posting> list) {
+        this.term = term;
+        this.pl = list;
+        this.postingIterator = pl.iterator();
+        assert (!list.isEmpty());
+        this.actualPosting = postingIterator.next();
     }
 
     public PostingList(String term, Posting posting) {
@@ -36,6 +44,11 @@ public class PostingList {
         this.pl.add(posting);
     }
 
+    public void initList(){
+        this.postingIterator = pl.iterator();
+        assert (!pl.isEmpty());
+        this.actualPosting = postingIterator.next();
+    }
 
     public void addPosting(Posting p){
         this.pl.add(p);
@@ -45,10 +58,10 @@ public class PostingList {
         ArrayList<Posting> copy = new ArrayList<>(pl);
         postingIterator = copy.iterator();
         if (!postingIterator.hasNext()) {
-            postingIterator = pl.iterator();
             actualPosting = null;
+        }else {
+            actualPosting = postingIterator.next();
         }
-        actualPosting = postingIterator.next();
     }
 
     public void nextGEQ(int docID) {
@@ -144,6 +157,8 @@ public class PostingList {
             this.addPosting(post);
         }
 
+        initList();
+
         buffer_pl.clear();
     }
 
@@ -160,12 +175,15 @@ public class PostingList {
             this.addPosting(post);
         }
 
+        initList();
+
         buffer_pl.clear();
 
         for (int j = 0; j < pl_size; j++) {
             int freq = buffer_pl.getInt();
             this.getPl().get(j + current_size).setTermFreq(freq);
         }
+
         buffer_pl.clear();
     }
 
