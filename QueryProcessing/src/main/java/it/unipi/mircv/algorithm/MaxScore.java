@@ -64,13 +64,11 @@ public class MaxScore {
                     DictionaryElem dict = InvertedIndex.getDictionary().get(term);
                     score += Scorer.scoreDocument(current_posting, dict.getIdf(), Flags.isScoreMode());
 
-                    System.out.println(postingLists.get(i).getActualPosting().getDocId());
                     postingLists.get(i).next();
                     if (postingLists.get(i).getActualPosting() == null) {
                         current = -1;
                         continue;
                     }
-                    System.out.println(postingLists.get(i).getActualPosting().getDocId());
                 }
 
                 if (postingLists.get(i).getActualPosting().getDocId() < next){
