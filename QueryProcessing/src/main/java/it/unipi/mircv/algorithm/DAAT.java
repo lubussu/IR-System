@@ -48,7 +48,7 @@ public class DAAT {
 //        return result;
         PriorityQueue<DocumentScore> result = new PriorityQueue<>(k);
         ArrayList<Posting> actual_postings = new ArrayList<>(postingLists.size());
-        int minDocId = 0;
+        int minDocId = Integer.MAX_VALUE;
         ArrayList<Boolean> finished = new ArrayList<>(postingLists.size()); // Creates a boolean array of the specified length
         for (int i = 0; i < postingLists.size(); i++) {
             finished.add(i, false); // Initialize each element to a specific value (e.g., true)
