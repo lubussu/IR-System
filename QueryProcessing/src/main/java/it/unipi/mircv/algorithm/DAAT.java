@@ -88,19 +88,24 @@ public class DAAT {
             }
 
             double score = 0;
+            int allPosting = 0;
 
             for(int i = 0; i < postingLists.size(); i++){
                 if(finished.get(i))
                     continue;
+
                 if(actual_postings.get(i).getDocId() == minDocId){
                     DictionaryElem dict = InvertedIndex.getDictionary().get(postingLists.get(i).getTerm());
                     score += Scorer.scoreDocument(actual_postings.get(i), dict.getIdf(), Flags.isScoreMode());
+                    allPosting++;
                     postingLists.get(i).next();
                     if(postingLists.get(i).getActualPosting() == null)
                         finished.set(i, true);
                 }
             }
-            result.offer(new DocumentScore(minDocId, score));
+
+            if ((Flags.isQueryMode() && allPosting == postingLists.size()) || (!Flags.isQueryMode() && score != 0))
+                result.offer(new DocumentScore(minDocId, score));
             if (result.size() > k)
                 result.poll();
             actual_postings.clear();
