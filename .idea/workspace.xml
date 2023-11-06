@@ -28,8 +28,14 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="82c189b32db08b5177ac1178f2f368d6e18380b9" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="RESET_MODE" value="HARD" />
+    <option name="SWAP_SIDES_IN_COMPARE_BRANCHES" value="true" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
   &quot;lastFilter&quot;: {
@@ -141,6 +147,9 @@
       <list>
         <item itemvalue="Application.Main" />
         <item itemvalue="Application.DAAT" />
+        <item itemvalue="Application.Main" />
+        <item itemvalue="Application.DAAT" />
+        <item itemvalue="Application.Main" />
       </list>
     </recent_temporary>
   </component>
@@ -278,6 +287,26 @@
     <option name="version" value="3" />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
+    <option name="RECENT_FILTERS">
+      <map>
+        <entry key="Branch">
+          <value>
+            <list>
+              <RecentGroup>
+                <option name="FILTER_VALUES">
+                  <option value="main" />
+                </option>
+              </RecentGroup>
+              <RecentGroup>
+                <option name="FILTER_VALUES">
+                  <option value="HEAD" />
+                </option>
+              </RecentGroup>
+            </list>
+          </value>
+        </entry>
+      </map>
+    </option>
     <option name="TAB_STATES">
       <map>
         <entry key="MAIN">
@@ -303,5 +332,12 @@
     <MESSAGE value="Checkpoint" />
     <MESSAGE value="Added stemming, posting list cached build-up and reading from disk file." />
     <option name="LAST_COMMIT_MESSAGE" value="Added stemming, posting list cached build-up and reading from disk file." />
+  </component>
+  <component name="XDebuggerManager">
+    <watches-manager>
+      <configuration name="Application">
+        <watch expression="postingLists.get(2)" language="JAVA" />
+      </configuration>
+    </watches-manager>
   </component>
 </project>
