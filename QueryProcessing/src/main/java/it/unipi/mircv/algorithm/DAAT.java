@@ -1,6 +1,7 @@
 package it.unipi.mircv.algorithm;
 
 import it.unipi.mircv.InvertedIndex;
+import it.unipi.mircv.bean.CollectionInfo;
 import it.unipi.mircv.bean.DictionaryElem;
 import it.unipi.mircv.bean.Posting;
 import it.unipi.mircv.bean.PostingList;
@@ -13,39 +14,60 @@ import java.util.*;
 
 public class DAAT {
 
+    private static int getMinimumDocId(ArrayList<PostingList> postingLists){
+        int minDocId = (int) (CollectionInfo.getCollection_size() + 1);
+
+        for (PostingList postingList : postingLists) {
+            if(postingList.getActualPosting()==null){
+                postingList.next();
+            }
+            minDocId = Math.min(postingList.getActualPosting().getDocId(), minDocId);
+        }
+        return minDocId;
+    }
+
     public static PriorityQueue<DocumentScore> executeDAAT(ArrayList<PostingList> postingLists,
+                                                            int k){
+        PriorityQueue<DocumentScore> result = new PriorityQueue<>(k);
+
+        int current = getMinimumDocId(postingLists);
+        while (current < CollectionInfo.getCollection_size()) {
+            double score = 0;
+            int next = (int) (CollectionInfo.getCollection_size()+1); //MAX docId in the collection + 1
+            boolean present = true;
+            for (PostingList list : postingLists) {
+                String term = list.getTerm();
+                Posting current_posting = list.getActualPosting();
+
+                if(current_posting != null) {
+                    if (current_posting.getDocId() != current && Flags.isQueryMode()) {
+                        present = false;
+                        continue;
+                    } else if (current_posting.getDocId() == current) {
+                        DictionaryElem dict = InvertedIndex.getDictionary().get(term);
+                        score += Scorer.scoreDocument(current_posting, dict.getIdf(), Flags.isScoreMode());
+                        list.next();
+                        if (list.getActualPosting() == null) {
+                            break;
+                        }
+                        if (list.getActualPosting().getDocId() < next){
+                            next = list.getActualPosting().getDocId();
+                        }
+                    }
+
+                    if ((Flags.isQueryMode() && present) || (!Flags.isQueryMode() && score != 0))
+                        result.offer(new DocumentScore(current, score));
+                    if (result.size() > k)
+                        result.poll(); // Rimuovi il documento con il punteggio più basso se supera k
+                }
+            }
+            current = next;
+        }
+        return result;
+    }
+
+    public static PriorityQueue<DocumentScore> executeDAAT2(ArrayList<PostingList> postingLists,
                                                            int k) {
-//        PriorityQueue<DocumentScore> result = new PriorityQueue<>(k);
-//        for (int docId = 0; docId < InvertedIndex.getDictionary().size(); docId++) {
-//            double score = 0;
-//            boolean present = true;
-//            for (PostingList list : postingLists) {
-//                String term = list.getTerm();
-//                Posting current_posting = list.getActualPosting();
-//                if(current_posting==null){
-//                    list.next();
-//                    current_posting = list.getActualPosting();
-//                }
-//                if(current_posting != null) {
-//                    if (current_posting.getDocId() != docId && Flags.isQueryMode()) {
-//                        present = false;
-//                        continue;
-//                    } else if (current_posting.getDocId() == docId) {
-//                        DictionaryElem dict = InvertedIndex.getDictionary().get(term);
-//                        score += Scorer.scoreDocument(current_posting, dict.getIdf(), Flags.isScoreMode());
-//                        list.next();
-//                        if (list.getActualPosting() == null)
-//                            break;
-//                    }
-//
-//                    if ((Flags.isQueryMode() && present) || (!Flags.isQueryMode() && score != 0))
-//                        result.offer(new DocumentScore(docId, score));
-//                    if (result.size() > k)
-//                        result.poll(); // Rimuovi il documento con il punteggio più basso se supera k
-//                }
-//            }
-//        }
-//        return result;
         PriorityQueue<DocumentScore> result = new PriorityQueue<>(k);
         ArrayList<Posting> actual_postings = new ArrayList<>(postingLists.size());
         int minDocId = Integer.MAX_VALUE;

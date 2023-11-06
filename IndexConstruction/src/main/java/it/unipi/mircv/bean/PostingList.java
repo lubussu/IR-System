@@ -54,9 +54,7 @@ public class PostingList {
         this.pl.add(p);
     }
 
-    public synchronized void next() {
-        ArrayList<Posting> copy = new ArrayList<>(pl);
-        postingIterator = copy.iterator();
+    public void next() {
         if (!postingIterator.hasNext()) {
             actualPosting = null;
         }else {
