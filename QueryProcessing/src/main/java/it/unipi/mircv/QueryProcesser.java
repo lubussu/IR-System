@@ -37,6 +37,7 @@ public class QueryProcesser {
                 termPL = IOUtils.readPlFromFile(channel, dict.getOffset_block(), term);
             }
             Double maxScore = Flags.isScoreMode() ? dict.getMaxBM25() : dict.getMaxTFIDF();
+            termPL.initList(); //posiziona l'iteratore all'inizio
             postingLists.add(termPL);
             maxScores.put(i, maxScore);
 

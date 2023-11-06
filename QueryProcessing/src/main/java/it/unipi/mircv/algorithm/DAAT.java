@@ -34,16 +34,12 @@ public class DAAT {
         while (current < CollectionInfo.getCollection_size()) {
             double score = 0;
             int next = (int) (CollectionInfo.getCollection_size()+1); //MAX docId in the collection + 1
-            boolean present = true;
             for (PostingList list : postingLists) {
                 String term = list.getTerm();
                 Posting current_posting = list.getActualPosting();
 
                 if(current_posting != null) {
-                    if (current_posting.getDocId() != current && Flags.isQueryMode()) {
-                        present = false;
-                        continue;
-                    } else if (current_posting.getDocId() == current) {
+                    if (current_posting.getDocId() == current) {
                         DictionaryElem dict = InvertedIndex.getDictionary().get(term);
                         score += Scorer.scoreDocument(current_posting, dict.getIdf(), Flags.isScoreMode());
                         list.next();
@@ -55,7 +51,7 @@ public class DAAT {
                         }
                     }
 
-                    if ((Flags.isQueryMode() && present) || (!Flags.isQueryMode() && score != 0))
+                    if (!Flags.isQueryMode() && score != 0)
                         result.offer(new DocumentScore(current, score));
                     if (result.size() > k)
                         result.poll(); // Rimuovi il documento con il punteggio più basso se supera k
@@ -63,6 +59,7 @@ public class DAAT {
             }
             current = next;
         }
+
         return result;
     }
 
