@@ -15,9 +15,6 @@ public class MaxScore {
         int minDocId = (int) (CollectionInfo.getCollection_size() + 1);
 
         for (PostingList postingList : postingLists) {
-            if(postingList.getActualPosting()==null){
-                postingList.next();
-            }
             minDocId = Math.min(postingList.getActualPosting().getDocId(), minDocId);
         }
         return minDocId;

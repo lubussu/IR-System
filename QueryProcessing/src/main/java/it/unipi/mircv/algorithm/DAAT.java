@@ -18,9 +18,6 @@ public class DAAT {
         int minDocId = (int) (CollectionInfo.getCollection_size() + 1);
 
         for (PostingList postingList : postingLists) {
-            if(postingList.getActualPosting()==null){
-                postingList.next();
-            }
             minDocId = Math.min(postingList.getActualPosting().getDocId(), minDocId);
         }
         return minDocId;
@@ -36,30 +33,28 @@ public class DAAT {
             int next = (int) (CollectionInfo.getCollection_size()+1); //MAX docId in the collection + 1
             for (PostingList list : postingLists) {
                 String term = list.getTerm();
-                Posting current_posting = list.getActualPosting();
 
-                if(current_posting != null) {
-                    if (current_posting.getDocId() == current) {
+                if(list.getActualPosting() != null) {
+                    if (list.getActualPosting().getDocId() == current) {
                         DictionaryElem dict = InvertedIndex.getDictionary().get(term);
-                        score += Scorer.scoreDocument(current_posting, dict.getIdf(), Flags.isScoreMode());
+                        score += Scorer.scoreDocument(list.getActualPosting(), dict.getIdf(), Flags.isScoreMode());
                         list.next();
                         if (list.getActualPosting() == null) {
-                            break;
-                        }
-                        if (list.getActualPosting().getDocId() < next){
-                            next = list.getActualPosting().getDocId();
+                            continue;
                         }
                     }
-
-                    if (!Flags.isQueryMode() && score != 0)
-                        result.offer(new DocumentScore(current, score));
-                    if (result.size() > k)
-                        result.poll(); // Rimuovi il documento con il punteggio più basso se supera k
+                    if (list.getActualPosting().getDocId() < next){
+                        next = list.getActualPosting().getDocId();
+                    }
                 }
             }
+            if (!Flags.isQueryMode() && score != 0)
+                result.offer(new DocumentScore(current, score));
+            if (result.size() > k)
+                result.poll(); // Rimuovi il documento con il punteggio più basso se supera k
+
             current = next;
         }
-
         return result;
     }
 

@@ -21,6 +21,13 @@ public class QueryProcesser {
     public static ArrayList<PostingList> orderedPLs = new ArrayList<>();
     public static ArrayList<Double> orderedMaxScores = new ArrayList<>();
 
+    public static void clearLists(){
+        postingLists.clear();
+        maxScores.clear();
+        orderedPLs.clear();
+        orderedMaxScores.clear();
+    }
+
     public static void executeQueryProcesser(ArrayList<String> queryTerms, int k){
 
         // Ottenere le posting list dei termini nella query
@@ -40,8 +47,6 @@ public class QueryProcesser {
             termPL.initList(); //posiziona l'iteratore all'inizio
             postingLists.add(termPL);
             maxScores.put(i, maxScore);
-
-
         }
         PriorityQueue<DocumentScore> retrievedDocs;
         if (Flags.isMaxScore()) {
@@ -57,11 +62,14 @@ public class QueryProcesser {
         }else {
             retrievedDocs = DAAT.executeDAAT(postingLists, k);
         }
+        clearLists();
         ArrayList<Integer> topKResults = new ArrayList<>();
+        String results = "";
         while(!retrievedDocs.isEmpty()){
             DocumentScore ds = retrievedDocs.poll();
-            System.out.println(ds.getDocId()+": " + ds.getScore());
-            topKResults.add(ds.getDocId());
+            results = "Document: "+ds.getDocId()+"\t\tScore: "+ds.getScore()+"\n" + results;
+            topKResults.add(0, ds.getDocId());
         }
+        System.out.println(results);
     }
 }

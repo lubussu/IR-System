@@ -11,7 +11,7 @@ public class DocumentScore implements Comparable<DocumentScore> {
 
     @Override
     public int compareTo(DocumentScore other) {
-        return Double.compare(other.score, this.score);
+        return Double.compare(this.score, other.score);
     }
 
     public int getDocId() {
