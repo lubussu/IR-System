@@ -4,13 +4,14 @@ public class Flags {
 
     private static boolean compression = true;
 
-    private static boolean maxScore;
+    /* TRUE: MaxScore  FALSE: DAAT */
+    private static boolean maxScore = true;
 
     /* TRUE: BM25  FALSE: TFIDF */
     private static boolean scoreMode = true;
 
     /* TRUE: Conjunctive Query  FALSE: Disjunctive Query */
-    private static boolean queryMode;
+    private static boolean queryMode = false;
 
 
     /* SETTER AND GETTER SECTION */

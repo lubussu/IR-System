@@ -28,26 +28,39 @@ public class QueryProcesser {
         orderedMaxScores.clear();
     }
 
-    public static void executeQueryProcesser(ArrayList<String> queryTerms, int k){
-
+    public static void executeQueryProcesser(ArrayList<String> queryTerms, int k, boolean testing){
         // Ottenere le posting list dei termini nella query
-        for (int i = 0; i<queryTerms.size(); i++){
+
+        for (int i=0; i<queryTerms.size();){
             String term = queryTerms.get(i);
             DictionaryElem dict = InvertedIndex.getDictionary().get(term);
+            if(dict == null) { //term not found
+                queryTerms.remove(i);
+                continue;
+            }
+
             PostingList termPL;
             int offset = dict.getOffset_posting_lists();
-            if(InvertedIndex.getPosting_lists().size() >= offset && InvertedIndex.getPosting_lists().get(offset).getTerm().equals(term)) {
+            if(offset!=-1 && InvertedIndex.getPosting_lists().size() > offset && InvertedIndex.getPosting_lists().get(offset).getTerm().equals(term)) {
                 termPL = InvertedIndex.getPosting_lists().get(offset);
             }else{
                 String path = IOUtils.PATH_TO_FINAL_BLOCKS+"/indexMerged" + dict.getBlock_number();
                 FileChannel channel = IOUtils.getFileChannel(path, "read");
                 termPL = IOUtils.readPlFromFile(channel, dict.getOffset_block(), term);
+                InvertedIndex.updateCachePostingList(termPL, queryTerms);
             }
             Double maxScore = Flags.isScoreMode() ? dict.getMaxBM25() : dict.getMaxTFIDF();
             termPL.initList(); //posiziona l'iteratore all'inizio
             postingLists.add(termPL);
             maxScores.put(i, maxScore);
+            i++;
         }
+
+        if(postingLists.size()==0) {
+            System.out.println("(ERROR) No documents found\n");
+            return;
+        }
+
         PriorityQueue<DocumentScore> retrievedDocs;
         if (Flags.isMaxScore()) {
 
@@ -63,6 +76,9 @@ public class QueryProcesser {
             retrievedDocs = DAAT.executeDAAT(postingLists, k);
         }
         clearLists();
+        if(testing) //don't print if testing mode
+            return;
+
         ArrayList<Integer> topKResults = new ArrayList<>();
         String results = "";
         while(!retrievedDocs.isEmpty()){

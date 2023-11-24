@@ -323,6 +323,41 @@ public class InvertedIndex {
         }
     }
 
+    public static void sortLastN(int n) {
+        if (n > posting_lists.size()) {
+            n = posting_lists.size();
+        }
+
+        ArrayList<PostingList> lastN = new ArrayList<>(posting_lists.subList(posting_lists.size() - n, posting_lists.size()));
+
+        Comparator<PostingList> comparator = Comparator.comparingInt(pl -> pl.getPl().size());
+        Collections.sort(lastN, comparator.reversed());
+
+        for (int i = 0; i < n; i++) {
+            posting_lists.set(posting_lists.size() - n + i, lastN.get(i));
+        }
+    }
+
+    public static void updateCachePostingList(PostingList termPL, ArrayList<String> queryTerms){
+        long MaxUsableMemory = Runtime.getRuntime().maxMemory() * 80 / 100;
+        if (Runtime.getRuntime().totalMemory() > MaxUsableMemory){
+            for(int i=posting_lists.size()-1; i>=0; i--){
+                if (!queryTerms.contains(posting_lists.get(i).getTerm())){
+                    PostingList old_PL = posting_lists.get(i);
+                    posting_lists.set(i, termPL);
+
+                    dictionary.get(old_PL.getTerm()).setOffset_posting_lists(-1);
+                    dictionary.get(termPL.getTerm()).setOffset_posting_lists(i);
+
+                    sortLastN(posting_lists.size()-i);
+                }
+            }
+        } else{
+            posting_lists.add(posting_lists.size(), termPL);
+            dictionary.get(termPL.getTerm()).setOffset_posting_lists(posting_lists.size());
+        }
+    }
+
     public static void writeTermList() {
         Collections.sort(termList);
         termList.add(0, Integer.toString(block_number));

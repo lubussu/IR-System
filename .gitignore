@@ -5,8 +5,6 @@ target/
 
 ### IntelliJ IDEA ###
 .idea/
-.idea/*.xml
-.idea/libraries/
 *.iws
 *.iml
 *.ipr
@@ -39,6 +37,7 @@ build/
 ### FIles ###
 src/main/resources/*
 IndexConstruction/src/main/resources/*
+QueryTesting/src/main/resources/*
 termList.txt
 
 ### block files ###
