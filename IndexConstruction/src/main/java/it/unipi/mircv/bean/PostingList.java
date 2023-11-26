@@ -134,6 +134,14 @@ public class PostingList {
                 buffer.putInt(docsCompressed.length + freqsCompressed.length);
                 buffer.put(docsCompressed);
                 buffer.put(freqsCompressed);
+
+                if(Flags.isSkipping && skipChannel != null){
+                    skipBlockToBinFile(skipChannel, docids.getLast(), channel.position());
+                }
+
+                buffer.flip();
+                // Write the buffer to the file
+                channel.write(buffer);
             } else {
                 buffer = ByteBuffer.allocate(pl.size() * 8);
                 int offset = (pl.size()-1)*4;
@@ -143,11 +151,10 @@ public class PostingList {
                     buffer.putInt(current_position + offset, post.getTermFreq());
                     buffer.position(current_position);
                 }
+                buffer.flip();
+                // Write the buffer to the file
+                channel.write(buffer);
             }
-
-            buffer.flip();
-            // Write the buffer to the file
-            channel.write(buffer);
         } catch (IOException e) {
             e.printStackTrace();
         }
