@@ -13,6 +13,8 @@ public class Flags {
     /* TRUE: Conjunctive Query  FALSE: Disjunctive Query */
     private static boolean queryMode = false;
 
+    private static boolean skipping = true;
+
 
     /* SETTER AND GETTER SECTION */
 
@@ -39,4 +41,6 @@ public class Flags {
     }
 
     public static boolean isQueryMode() {return queryMode;}
+
+    public static boolean isSkipping() {return skipping;}
 }

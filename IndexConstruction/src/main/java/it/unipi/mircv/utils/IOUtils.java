@@ -161,10 +161,14 @@ public class IOUtils {
         }
 
         try {
-            FileChannel channel = FileChannel.open(Paths.get(filename), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+            FileChannel channel = FileChannel.open(Paths.get(filename + ".bin"), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
             for (Object item : mergedData) {
                 if (item instanceof PostingList) {
-                    ((PostingList) item).ToBinFile(channel, true);
+                    FileChannel skipChannel = null;
+                    if(Flags.isSkipping){
+                        skipChannel = FileChannel.open(Paths.get(filename + "_skipping.bin"), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+                    }
+                    ((PostingList) item).ToBinFile(channel, skipChannel, true);
                 } else if (item instanceof DictionaryElem) {
                     ((DictionaryElem) item).ToBinFile(channel);
                 } // Add more cases for other data types if needed
@@ -177,12 +181,12 @@ public class IOUtils {
     }
 
     public static boolean writeMergedDictToDisk(ArrayList<DictionaryElem> mergedDictionary){
-        String filename = PATH_TO_FINAL_BLOCKS + "/dictionaryMerged.bin";
-        return writeMergedDataToDisk(mergedDictionary,filename);
+        String filename = PATH_TO_FINAL_BLOCKS + "/dictionaryMerged";
+        return writeMergedDataToDisk(mergedDictionary, filename);
     }
 
     public static boolean writeMergedPLToDisk(ArrayList<PostingList> mergedPostingList, int block){
-        String filename = PATH_TO_FINAL_BLOCKS + "/indexMerged" + block + ".bin";
+        String filename = PATH_TO_FINAL_BLOCKS + "/indexMerged" + block;
         return writeMergedDataToDisk(mergedPostingList, filename);
     }
 
