@@ -4,12 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="df94d5ac-57f6-4e1d-af20-d4cd43d3e36c" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="df94d5ac-57f6-4e1d-af20-d4cd43d3e36c" name="Changes" comment="Added writing of the skipping list to file">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/PostingList.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/PostingList.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/utils/IOUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/utils/IOUtils.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/mircv/utils/Flags.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/mircv/utils/Flags.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/SkipElem.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/SkipElem.java" afterDir="false" />
     </list>
     <list id="401deacf-cbf0-4b59-b24c-8f1b64158506" name="Changes by luanabussu" comment="" />
     <list id="a7cec896-e1d0-4a38-9286-bc3d2cbe40ce" name="Changes by ludav" comment="Changes by ludav" />
@@ -185,7 +183,9 @@
       <workItem from="1698327304602" duration="251000" />
       <workItem from="1698327569201" duration="289000" />
       <workItem from="1699202083288" duration="3470000" />
-      <workItem from="1701014148811" duration="2943000" />
+      <workItem from="1701014148811" duration="3167000" />
+      <workItem from="1701017648195" duration="1499000" />
+      <workItem from="1701019575564" duration="3510000" />
     </task>
     <task id="LOCAL-00001" summary="Added index blocks creation">
       <option name="closed" value="true" />
@@ -284,7 +284,31 @@
       <option name="project" value="LOCAL" />
       <updated>1698239059230</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="Added writing of the skipping list to file">
+      <option name="closed" value="true" />
+      <created>1701017225521</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1701017225521</updated>
+    </task>
+    <task id="LOCAL-00015" summary="Added writing of the skipping list to file">
+      <option name="closed" value="true" />
+      <created>1701017277382</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1701017277382</updated>
+    </task>
+    <task id="LOCAL-00016" summary="Added writing of the skipping list to file">
+      <option name="closed" value="true" />
+      <created>1701020645004</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1701020645004</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -335,7 +359,8 @@
     <MESSAGE value="added read posting list from the block files and added offset on the block file to the dictionary" />
     <MESSAGE value="Checkpoint" />
     <MESSAGE value="Added stemming, posting list cached build-up and reading from disk file." />
-    <option name="LAST_COMMIT_MESSAGE" value="Added stemming, posting list cached build-up and reading from disk file." />
+    <MESSAGE value="Added writing of the skipping list to file" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added writing of the skipping list to file" />
   </component>
   <component name="XDebuggerManager">
     <watches-manager>
