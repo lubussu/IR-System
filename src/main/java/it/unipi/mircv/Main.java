@@ -35,7 +35,7 @@ public class Main {
 
         String query;
         ArrayList<String> tokens;
-        IndexConstruction.main(new String[]{"read"});
+        IndexConstruction.main(new String[]{"build"});
 
         Scanner sc = new Scanner(System.in);
         String type;

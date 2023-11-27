@@ -84,7 +84,7 @@ public class PostingList {
             ByteBuffer buffer = ByteBuffer.allocate(4 + descBytes.length + 4);
             long start_position = channel.position();
             DictionaryElem dict = InvertedIndex.getDictionary().get(this.term);
-            dict.setOffset_block(start_position);
+            dict.setOffset_block_pl(start_position);
 
             // Populate the buffer for termLenght + term
             buffer.putInt(descBytes.length);
@@ -94,7 +94,7 @@ public class PostingList {
             // Write the buffer to the file
             channel.write(buffer);
 
-            if(Flags.isSkipping && skipChannel != null){
+            if(Flags.isSkipping() && skipChannel != null){
                 initSkipFile(skipChannel);
             }
 
@@ -106,7 +106,7 @@ public class PostingList {
                     docids.add(p.getDocId());
                     freqs.add(p.getTermFreq());
 
-                    if(Flags.isSkipping && skipChannel != null && this.pl.size() % Math.round(Math.sqrt(docids.size())) == 0) {
+                    if(Flags.isSkipping() && skipChannel != null && this.pl.size() % Math.round(Math.sqrt(docids.size())) == 0) {
                         byte[] freqsCompressed = Unary.fromIntToUnary(freqs);
                         byte[] docsCompressed = VariableByte.fromIntegersToVariableBytes(docids);
 
@@ -116,7 +116,7 @@ public class PostingList {
                         buffer.put(docsCompressed);
                         buffer.put(freqsCompressed);
 
-                        skipBlockToBinFile(skipChannel, docids.getLast(), channel.position(), docids.size());
+                        skipBlockToBinFile(skipChannel, docids.get(docids.size()-1), channel.position(), docids.size());
 
                         // Write the buffer to the file
                         buffer.flip();
@@ -135,8 +135,8 @@ public class PostingList {
                 buffer.put(docsCompressed);
                 buffer.put(freqsCompressed);
 
-                if(Flags.isSkipping && skipChannel != null){
-                    skipBlockToBinFile(skipChannel, docids.getLast(), channel.position(), docids.size());
+                if(Flags.isSkipping() && skipChannel != null){
+                    skipBlockToBinFile(skipChannel, docids.get(docids.size()-1), channel.position(), docids.size());
                 }
             } else {
                 int block_dim = (int) Math.round(Math.sqrt(pl.size()));
@@ -149,7 +149,7 @@ public class PostingList {
                     buffer.putInt(current_position + offset, post.getTermFreq());
                     buffer.position(current_position);
                     post_count++;
-                    if(Flags.isSkipping && skipChannel != null && post_count == block_dim){
+                    if(Flags.isSkipping() && skipChannel != null && post_count == block_dim){
                         skipBlockToBinFile(skipChannel, post.getDocId(), channel.position(), post_count);
                         post_count = 0;
 
@@ -160,8 +160,8 @@ public class PostingList {
                     }
                 }
 
-                if(Flags.isSkipping && skipChannel != null && post_count == block_dim) {
-                    skipBlockToBinFile(skipChannel, this.pl.getLast().getDocId(), channel.position(), post_count);
+                if(Flags.isSkipping() && skipChannel != null) {
+                    skipBlockToBinFile(skipChannel, this.pl.get(this.pl.size()-1).getDocId(), channel.position(), post_count);
                 }
             }
             buffer.flip();
@@ -265,14 +265,15 @@ public class PostingList {
     public void initSkipFile(FileChannel channel){
         try{
             byte[] descBytes = String.valueOf(term).getBytes(StandardCharsets.UTF_8);
-            ByteBuffer skip_buffer = ByteBuffer.allocate(4 + descBytes.length);
+            ByteBuffer skip_buffer = ByteBuffer.allocate(4 + descBytes.length + 4);
             long start_position = channel.position();
             DictionaryElem dict = InvertedIndex.getDictionary().get(this.term);
-            dict.setOffset_block(start_position);
+            dict.setOffset_block_sl(start_position);
 
             // Populate the buffer for termLenght + term
             skip_buffer.putInt(descBytes.length);
             skip_buffer.put(descBytes);
+            skip_buffer.putInt((int) Math.ceil(Math.sqrt(this.pl.size())));
             skip_buffer.flip();
             // Write the buffer to the file
             channel.write(skip_buffer);

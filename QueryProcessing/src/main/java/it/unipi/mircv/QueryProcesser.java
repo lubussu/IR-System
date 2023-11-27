@@ -6,7 +6,6 @@ import it.unipi.mircv.algorithm.DAAT;
 import it.unipi.mircv.algorithm.MaxScore;
 import it.unipi.mircv.bean.DictionaryElem;
 import it.unipi.mircv.bean.PostingList;
-import it.unipi.mircv.bean.Posting;
 import it.unipi.mircv.utils.Flags;
 
 import java.nio.channels.FileChannel;
@@ -46,7 +45,7 @@ public class QueryProcesser {
             }else{
                 String path = IOUtils.PATH_TO_FINAL_BLOCKS+"/indexMerged" + dict.getBlock_number();
                 FileChannel channel = IOUtils.getFileChannel(path, "read");
-                termPL = IOUtils.readPlFromFile(channel, dict.getOffset_block(), term);
+                termPL = IOUtils.readPlFromFile(channel, dict.getOffset_block_pl(), term);
                 InvertedIndex.updateCachePostingList(termPL, queryTerms);
             }
             Double maxScore = Flags.isScoreMode() ? dict.getMaxBM25() : dict.getMaxTFIDF();

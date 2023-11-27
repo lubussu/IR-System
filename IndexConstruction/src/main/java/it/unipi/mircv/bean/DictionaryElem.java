@@ -31,7 +31,7 @@ public class DictionaryElem {
     private int block_number;
 
     /* Pointer to the posting list on block */
-    private long offset_block;
+    private long offset_block_pl;
 
     /* Maximum term frequency of the term */
     private int maxTf;
@@ -41,6 +41,10 @@ public class DictionaryElem {
 
     /* Term upper bound for BM25 */
     private double maxBM25;
+
+    private int offset_skip_lists;
+
+    private long offset_block_sl;
 
 
 
@@ -67,7 +71,7 @@ public class DictionaryElem {
         this.idf = 0;
         this.offset_posting_lists = 0;
         this.block_number = 0;
-        this.offset_block = 0;
+        this.offset_block_pl = 0;
         this.maxTf = 0;
         this.maxTFIDF = 0;
         this.maxBM25 = 0;
@@ -119,7 +123,7 @@ public class DictionaryElem {
             buffer.putInt(this.df);
             buffer.putInt(this.cf);
             buffer.putInt(this.block_number);
-            buffer.putLong(this.offset_block);
+            buffer.putLong(this.offset_block_pl);
             buffer.putInt(this.maxTf);
             buffer.putDouble(this.idf);
             buffer.putDouble(this.maxTFIDF);
@@ -155,7 +159,7 @@ public class DictionaryElem {
         this.setDf(this.getDf() + df);
         this.setCf(this.getCf() + cf);
         this.block_number = buffer.getInt();
-        this.offset_block = buffer.getLong();
+        this.offset_block_pl = buffer.getLong();
         this.maxTf = buffer.getInt();
         this.idf = buffer.getDouble();
         this.maxTFIDF = buffer.getDouble();
@@ -203,12 +207,12 @@ public class DictionaryElem {
         this.block_number = block_number;
     }
 
-    public long getOffset_block() {
-        return offset_block;
+    public long getOffset_block_pl() {
+        return offset_block_pl;
     }
 
-    public void setOffset_block(long offset_block) {
-        this.offset_block = offset_block;
+    public void setOffset_block_pl(long offset_block_pl) {
+        this.offset_block_pl = offset_block_pl;
     }
 
     public long getOffset_tf() {
@@ -274,6 +278,14 @@ public class DictionaryElem {
     public void setMaxBM25(double maxBM25) {
         this.maxBM25 = maxBM25;
     }
+
+    public int getOffset_skip_lists(){ return offset_skip_lists; }
+
+    public void setOffset_skip_lists(int offset_skip_lists){ this.offset_skip_lists = offset_skip_lists; }
+
+    public long getOffset_block_sl(){ return this.offset_block_sl; }
+
+    public void setOffset_block_sl(long offset_block_sl){ this.offset_block_sl = offset_block_sl; }
 
     public int compareTo(DictionaryElem de) {
         if(this.getDf() > de.getDf()){

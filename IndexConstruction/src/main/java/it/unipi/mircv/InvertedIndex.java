@@ -1,4 +1,5 @@
 package it.unipi.mircv;
+import it.unipi.mircv.utils.Flags;
 import it.unipi.mircv.utils.IOUtils;
 import it.unipi.mircv.bean.*;
 import it.unipi.mircv.utils.TextPreprocesser;
@@ -21,6 +22,7 @@ public class InvertedIndex {
     private static HashMap<String, DictionaryElem> dictionary = new HashMap<>();
     private static ArrayList<DocumentElem> docTable = new ArrayList<>();
     private static ArrayList<PostingList> posting_lists = new ArrayList<>();
+    private static ArrayList<SkipList> skip_lists = new ArrayList<>();
     private static ArrayList<String> termList = new ArrayList<>();
     private static int block_number = 0;
 
@@ -46,10 +48,17 @@ public class InvertedIndex {
 
         while (!queue_dict.isEmpty()){
             DictionaryElem current_de = queue_dict.poll();
-            PostingList pl_to_cache = IOUtils.readPlFromFile(channels.get(current_de.getBlock_number()), current_de.getOffset_block(),
-                    current_de.getTerm());
-            posting_lists.add(pl_to_cache);
-            dictionary.get(pl_to_cache.getTerm()).setOffset_posting_lists(posting_lists.size()-1);
+            if(Flags.isSkipping()) {
+                SkipList sl_to_cache = IOUtils.readSLFromFile(channels.get(current_de.getBlock_number()), current_de.getOffset_block_sl(),
+                        current_de.getTerm());
+                skip_lists.add(sl_to_cache);
+                dictionary.get(sl_to_cache.getTerm()).setOffset_skip_lists(skip_lists.size() - 1);
+            }else{
+                PostingList pl_to_cache = IOUtils.readPlFromFile(channels.get(current_de.getBlock_number()), current_de.getOffset_block_pl(),
+                        current_de.getTerm());
+                posting_lists.add(pl_to_cache);
+                dictionary.get(pl_to_cache.getTerm()).setOffset_posting_lists(posting_lists.size() - 1);
+            }
 
             if (Runtime.getRuntime().totalMemory() > MaxUsableMemory){
                 break;
@@ -58,9 +67,13 @@ public class InvertedIndex {
 
         System.out.println("(INFO) MAXIMUM CACHE MEMORY ACHIEVED. SAVING CACHE ON DISK\n" +
                 "The number of posting list cached is " + posting_lists.size() + "\n");
-
-        String path = IOUtils.PATH_TO_FINAL_BLOCKS+"/PostingListCache.bin";
-        if (!IOUtils.writeMergedDataToDisk(posting_lists, path)) {
+        String path;
+        if(Flags.isSkipping()) {
+            path = IOUtils.PATH_TO_FINAL_BLOCKS + "/SkippingListCache.bin";
+        }else{
+            path = IOUtils.PATH_TO_FINAL_BLOCKS + "/PostingListCache.bin";
+        }
+        if (!IOUtils.writeMergedDataToDisk(Flags.isSkipping()? skip_lists : posting_lists, path)) {
             System.out.println("(ERROR): Cache write to disk failed\n");
         } else {
             System.out.println("(INFO) Writing cache completed\n");
@@ -284,7 +297,11 @@ public class InvertedIndex {
            readTermList();
 
         readDictionary(); //read final Dictionary from file
-        readPLsFromFile("PostingListCache.bin");
+        if(Flags.isSkipping()){
+            readSLsFromFile("SkippingListCache.bin");
+        }else {
+            readPLsFromFile("PostingListCache.bin");
+        }
         try {
             CollectionInfo.FromBinFile(IOUtils.getFileChannel("final/CollectionInfo", "read"));
         } catch (IOException e) {
@@ -306,6 +323,21 @@ public class InvertedIndex {
                 pl.updateFromBinFile(channel, true);
                 posting_lists.add(pl);
                 dictionary.get(current_term).setOffset_posting_lists(posting_lists.size()-1);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void readSLsFromFile(String filename){ //usata quando carico indice da file
+        Path path = Paths.get(IOUtils.PATH_TO_FINAL_BLOCKS, filename);
+        try (FileChannel channel = FileChannel.open(path, StandardOpenOption.READ)){
+            String current_term;
+            while((current_term = IOUtils.readTerm(channel))!=null){
+                SkipList sl = new SkipList(current_term);
+                sl.updateFromBinFile(channel);
+                skip_lists.add(sl);
+                dictionary.get(current_term).setOffset_skip_lists(skip_lists.size()-1);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

@@ -1,9 +1,7 @@
 package it.unipi.mircv.utils;
 
 import it.unipi.mircv.InvertedIndex;
-import it.unipi.mircv.bean.DictionaryElem;
-import it.unipi.mircv.bean.DocumentElem;
-import it.unipi.mircv.bean.PostingList;
+import it.unipi.mircv.bean.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -69,7 +67,12 @@ public class IOUtils {
         if(filename.isEmpty()){
             // Add FileChannel objects to the ArrayList
             for (int i = 0; i < block_number; i++) {
-                Path path = Paths.get(PATH_TO_FINAL_BLOCKS, "/indexMerged" + i + ".bin");
+                Path path;
+                if(Flags.isSkipping()) {
+                    path = Paths.get(PATH_TO_FINAL_BLOCKS, "/indexMerged" + i + "_skipping.bin");
+                }else{
+                    path = Paths.get(PATH_TO_FINAL_BLOCKS, "/indexMerged" + i + ".bin");
+                }
                 try {
                     FileChannel channel = FileChannel.open(path, StandardOpenOption.READ);
                     channels.add(channel);
@@ -112,6 +115,18 @@ public class IOUtils {
         return null;
     }
 
+    public static SkipList readSLFromFile(FileChannel channel, long offset, String term){
+        SkipList current_sl = new SkipList(term);
+        try {
+            channel.position(offset);
+            if(current_sl.FromBinFile(channel))
+                return current_sl;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public static String readTerm(FileChannel channel) throws IOException {
         ByteBuffer buffer = ByteBuffer.allocate(4);
         int byteRead = channel.read(buffer);
@@ -145,7 +160,7 @@ public class IOUtils {
                 DictionaryElem block_de = blockDictionary.get(term);
                 PostingList block_pl = blockPostingList.get(block_de.getOffset_posting_lists());
 
-                block_pl.ToBinFile(index_channel, true);
+                block_pl.ToBinFile(index_channel, null, true);
                 block_de.ToBinFile(dictionary_channel);
             }
         }catch (IOException e) {
@@ -165,13 +180,15 @@ public class IOUtils {
             for (Object item : mergedData) {
                 if (item instanceof PostingList) {
                     FileChannel skipChannel = null;
-                    if(Flags.isSkipping){
+                    if(Flags.isSkipping()){
                         skipChannel = FileChannel.open(Paths.get(filename + "_skipping.bin"), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
                     }
                     ((PostingList) item).ToBinFile(channel, skipChannel, true);
                 } else if (item instanceof DictionaryElem) {
                     ((DictionaryElem) item).ToBinFile(channel);
-                } // Add more cases for other data types if needed
+                } else if (item instanceof SkipList) {
+                    ((SkipList) item).ToBinFile(channel);
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
