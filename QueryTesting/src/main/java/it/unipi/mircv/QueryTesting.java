@@ -27,6 +27,7 @@ public class QueryTesting
         System.out.printf("%-22s %4s %s\n", "Score", " -> ", "BM25");
         System.out.printf("%-22s %4s %s\n", "QueryMode", " -> ", "Disjunctive");
         System.out.printf("%-22s %4s %s\n", "Documents to retrieve", " -> ", "5");
+        System.out.printf("%-22s %4s %s\n", "Skipping Mode", " -> ", "True");
         System.out.println("--------------------------------------------");
 
         ArrayList<String> tokens;

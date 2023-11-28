@@ -30,6 +30,8 @@ public class Flags {
 
     public static void setScoreMode(boolean scoreMode) { Flags.scoreMode = scoreMode;}
 
+    public static void setSkipping(boolean skipping) { Flags.skipping = skipping; }
+
     public static boolean isCompression() {
         return !compression;
     }
@@ -43,4 +45,5 @@ public class Flags {
     public static boolean isQueryMode() {return queryMode;}
 
     public static boolean isSkipping() {return skipping;}
+
 }

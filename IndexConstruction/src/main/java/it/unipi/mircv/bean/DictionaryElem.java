@@ -115,7 +115,7 @@ public class DictionaryElem {
 
     public void ToBinFile(FileChannel channel){
         try{
-            byte[] descBytes = String.valueOf(this.term).getBytes(StandardCharsets.UTF_8);;
+            byte[] descBytes = String.valueOf(this.term).getBytes(StandardCharsets.UTF_8);
             ByteBuffer buffer = ByteBuffer.allocate(4 + descBytes.length + 48);
             // Populate the buffer
             buffer.putInt(descBytes.length);

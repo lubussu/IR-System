@@ -1,10 +1,11 @@
 package it.unipi.mircv.bean;
 
 import it.unipi.mircv.InvertedIndex;
-import it.unipi.mircv.utils.IOUtils;
 import it.unipi.mircv.compression.Unary;
 import it.unipi.mircv.compression.VariableByte;
 import it.unipi.mircv.utils.Flags;
+import it.unipi.mircv.utils.IOUtils;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -21,9 +22,10 @@ public class PostingList {
 
     private ArrayList<Posting> pl;
 
-    public Iterator<Posting> postingIterator = null;
+    public Iterator<Posting> postingIterator;
 
     private Posting actualPosting;
+
 
     public PostingList(String term) {
         this.term = term;
@@ -80,99 +82,24 @@ public class PostingList {
 
     public void ToBinFile(FileChannel channel, FileChannel skipChannel, boolean compression) {
         try{
-            byte[] descBytes = String.valueOf(term).getBytes(StandardCharsets.UTF_8);
-            ByteBuffer buffer = ByteBuffer.allocate(4 + descBytes.length + 4);
-            long start_position = channel.position();
-            DictionaryElem dict = InvertedIndex.getDictionary().get(this.term);
-            dict.setOffset_block_pl(start_position);
-
-            // Populate the buffer for termLenght + term
-            buffer.putInt(descBytes.length);
-            buffer.put(descBytes);
-            buffer.putInt(pl.size());
-            buffer.flip();
-            // Write the buffer to the file
-            channel.write(buffer);
-
+            IOUtils.writeTerm(channel, term, pl.size());
             if(Flags.isSkipping() && skipChannel != null){
-                initSkipFile(skipChannel);
+                int size = (int) Math.ceil(Math.sqrt(this.pl.size()));
+                IOUtils.writeTerm(skipChannel, term, size);
             }
 
             if (compression) {
-                ArrayList<Integer> docids = new ArrayList<>();
-                ArrayList<Integer> freqs = new ArrayList<>();
-
-                for (Posting p : this.pl) {
-                    docids.add(p.getDocId());
-                    freqs.add(p.getTermFreq());
-
-                    if(Flags.isSkipping() && skipChannel != null && this.pl.size() % Math.round(Math.sqrt(docids.size())) == 0) {
-                        byte[] freqsCompressed = Unary.fromIntToUnary(freqs);
-                        byte[] docsCompressed = VariableByte.fromIntegersToVariableBytes(docids);
-
-                        buffer = ByteBuffer.allocate(4 + docsCompressed.length + freqsCompressed.length);
-
-                        buffer.putInt(docsCompressed.length + freqsCompressed.length);
-                        buffer.put(docsCompressed);
-                        buffer.put(freqsCompressed);
-
-                        skipBlockToBinFile(skipChannel, docids.get(docids.size()-1), channel.position(), docids.size());
-
-                        // Write the buffer to the file
-                        buffer.flip();
-                        channel.write(buffer);
-
-                        docids.clear();
-                        freqs.clear();
-                    }
-                }
-                byte[] freqsCompressed = Unary.fromIntToUnary(freqs);
-                byte[] docsCompressed = VariableByte.fromIntegersToVariableBytes(docids);
-
-                buffer = ByteBuffer.allocate(4 + docsCompressed.length + freqsCompressed.length);
-
-                buffer.putInt(docsCompressed.length + freqsCompressed.length);
-                buffer.put(docsCompressed);
-                buffer.put(freqsCompressed);
-
-                if(Flags.isSkipping() && skipChannel != null){
-                    skipBlockToBinFile(skipChannel, docids.get(docids.size()-1), channel.position(), docids.size());
-                }
+                writeCompressedPL(channel, skipChannel);
             } else {
-                int block_dim = (int) Math.round(Math.sqrt(pl.size()));
-                int post_count = 0;
-                buffer = ByteBuffer.allocate(block_dim * 8);
-                int offset = (block_dim-1)*4;
-                for (Posting post : this.pl) {
-                    buffer.putInt(post.getDocId());
-                    int current_position = buffer.position();
-                    buffer.putInt(current_position + offset, post.getTermFreq());
-                    buffer.position(current_position);
-                    post_count++;
-                    if(Flags.isSkipping() && skipChannel != null && post_count == block_dim){
-                        skipBlockToBinFile(skipChannel, post.getDocId(), channel.position(), post_count);
-                        post_count = 0;
-
-                        // Write the buffer to the file
-                        buffer.flip();
-                        channel.write(buffer);
-                        buffer.clear();
-                    }
-                }
-
-                if(Flags.isSkipping() && skipChannel != null) {
-                    skipBlockToBinFile(skipChannel, this.pl.get(this.pl.size()-1).getDocId(), channel.position(), post_count);
-                }
+                writePL(channel, skipChannel);
             }
-            buffer.flip();
-            // Write the buffer to the file
-            channel.write(buffer);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void readCompressedPL(FileChannel channel, int pl_size) throws IOException {
+    private void readCompressedPL(FileChannel channel, int pl_size) throws IOException {
         ByteBuffer buffer_pl = ByteBuffer.allocate(4);
         channel.read(buffer_pl);
         buffer_pl.flip();
@@ -202,7 +129,7 @@ public class PostingList {
         buffer_pl.clear();
     }
 
-    public void readPL(FileChannel channel, int pl_size) throws IOException {
+    private void readPL(FileChannel channel, int pl_size) throws IOException {
         ByteBuffer buffer_pl = ByteBuffer.allocate(pl_size * 4);
         channel.read(buffer_pl);
         buffer_pl.flip();
@@ -225,6 +152,76 @@ public class PostingList {
         }
 
         buffer_pl.clear();
+    }
+
+    private void writeCompressedBlock(FileChannel channel, ArrayList<Integer> docids, ArrayList<Integer> freqs) throws IOException {
+        byte[] freqsCompressed = Unary.fromIntToUnary(freqs);
+        byte[] docsCompressed = VariableByte.fromIntegersToVariableBytes(docids);
+
+        ByteBuffer buffer = ByteBuffer.allocate(4 + docsCompressed.length + freqsCompressed.length);
+
+        buffer.putInt(docsCompressed.length + freqsCompressed.length);
+        buffer.put(docsCompressed);
+        buffer.put(freqsCompressed);
+
+        // Write the buffer to the file
+        buffer.flip();
+        channel.write(buffer);
+    }
+
+    private void writeCompressedPL(FileChannel channel, FileChannel skipChannel) throws IOException {
+        ArrayList<Integer> docids = new ArrayList<>();
+        ArrayList<Integer> freqs = new ArrayList<>();
+
+        for (Posting p : this.pl) {
+            docids.add(p.getDocId());
+            freqs.add(p.getTermFreq());
+
+            if(Flags.isSkipping() && skipChannel != null && this.pl.size() % Math.round(Math.sqrt(docids.size())) == 0) {
+                writeCompressedBlock(channel, docids, freqs);
+
+                SkipElem se = new SkipElem(docids.get(docids.size()-1), channel.position(), docids.size());
+                se.ToBinFile(skipChannel);
+
+                docids.clear();
+                freqs.clear();
+            }
+        }
+        writeCompressedBlock(channel, docids, freqs);
+
+        if(Flags.isSkipping() && skipChannel != null){
+            SkipElem se = new SkipElem(docids.get(docids.size()-1), channel.position(), docids.size());
+            se.ToBinFile(skipChannel);
+        }
+    }
+
+    private void writePL(FileChannel channel, FileChannel skipChannel) throws IOException {
+        int block_dim = (int) Math.round(Math.sqrt(pl.size()));
+        int post_count = 0;
+        ByteBuffer buffer = ByteBuffer.allocate(block_dim * 8);
+        int offset = (block_dim-1)*4;
+        for (Posting post : this.pl) {
+            buffer.putInt(post.getDocId());
+            int current_position = buffer.position();
+            buffer.putInt(current_position + offset, post.getTermFreq());
+            buffer.position(current_position);
+            post_count++;
+            if(Flags.isSkipping() && skipChannel != null && post_count == block_dim){
+                SkipElem se = new SkipElem(post.getDocId(), channel.position(), post_count);
+                se.ToBinFile(skipChannel);
+                post_count = 0;
+
+                // Write the buffer to the file
+                buffer.flip();
+                channel.write(buffer);
+                buffer.clear();
+            }
+        }
+
+        if(Flags.isSkipping() && skipChannel != null && post_count == block_dim) {
+            SkipElem se = new SkipElem(this.pl.get(this.pl.size()-1).getDocId(), channel.position(), post_count);
+            se.ToBinFile(skipChannel);
+        }
     }
 
     public void ToTextFile(String filename) {
@@ -260,42 +257,6 @@ public class PostingList {
             readPL(channel, pl_size);
         }
         buffer.clear();
-    }
-
-    public void initSkipFile(FileChannel channel){
-        try{
-            byte[] descBytes = String.valueOf(term).getBytes(StandardCharsets.UTF_8);
-            ByteBuffer skip_buffer = ByteBuffer.allocate(4 + descBytes.length + 4);
-            long start_position = channel.position();
-            DictionaryElem dict = InvertedIndex.getDictionary().get(this.term);
-            dict.setOffset_block_sl(start_position);
-
-            // Populate the buffer for termLenght + term
-            skip_buffer.putInt(descBytes.length);
-            skip_buffer.put(descBytes);
-            skip_buffer.putInt((int) Math.ceil(Math.sqrt(this.pl.size())));
-            skip_buffer.flip();
-            // Write the buffer to the file
-            channel.write(skip_buffer);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void skipBlockToBinFile(FileChannel channel, int skipId, long offset, int dim){
-        try{
-            ByteBuffer skip_buffer = ByteBuffer.allocate(4 + 8 + 4);
-
-            // Populate the buffer for termLenght + term
-            skip_buffer.putInt(skipId);
-            skip_buffer.putLong(offset);
-            skip_buffer.putInt(dim);
-            skip_buffer.flip();
-            // Write the buffer to the file
-            channel.write(skip_buffer);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     public Posting getActualPosting() { return actualPosting; }

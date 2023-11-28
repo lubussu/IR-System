@@ -1,7 +1,10 @@
 package it.unipi.mircv.utils;
 
 import it.unipi.mircv.InvertedIndex;
-import it.unipi.mircv.bean.*;
+import it.unipi.mircv.bean.DictionaryElem;
+import it.unipi.mircv.bean.DocumentElem;
+import it.unipi.mircv.bean.PostingList;
+import it.unipi.mircv.bean.SkipList;
 
 import java.io.File;
 import java.io.IOException;
@@ -142,6 +145,22 @@ public class IOUtils {
         byte[] bytes = new byte[termSize];
         buffer.get(bytes);
         return new String(bytes, StandardCharsets.UTF_8);
+    }
+
+    public static void writeTerm(FileChannel channel, String term, int size) throws IOException {
+        byte[] descBytes = String.valueOf(term).getBytes(StandardCharsets.UTF_8);
+        ByteBuffer buffer = ByteBuffer.allocate(4 + descBytes.length + 4);
+        long start_position = channel.position();
+        DictionaryElem dict = InvertedIndex.getDictionary().get(term);
+        dict.setOffset_block_pl(start_position);
+
+        // Populate the buffer for termLenght + term
+        buffer.putInt(descBytes.length);
+        buffer.put(descBytes);
+        buffer.putInt(size);
+        buffer.flip();
+        // Write the buffer to the file
+        channel.write(buffer);
     }
 
     public static boolean writeBinBlockToDisk(HashMap<String, DictionaryElem> blockDictionary,

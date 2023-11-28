@@ -79,10 +79,10 @@ public class QueryProcesser {
             return;
 
         ArrayList<Integer> topKResults = new ArrayList<>();
-        String results = "";
+        StringBuilder results = new StringBuilder();
         while(!retrievedDocs.isEmpty()){
             DocumentScore ds = retrievedDocs.poll();
-            results = "Document: "+ds.getDocId()+"\t\tScore: "+ds.getScore()+"\n" + results;
+            results.insert(0, "Document: " + ds.getDocId() + "\t\tScore: " + ds.getScore() + "\n");
             topKResults.add(0, ds.getDocId());
         }
         System.out.println(results);
