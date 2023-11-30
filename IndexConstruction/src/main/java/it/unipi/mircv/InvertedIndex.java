@@ -36,7 +36,6 @@ public class InvertedIndex {
     public static void buildCachePostingList(){
         long MaxUsableMemory = Runtime.getRuntime().maxMemory() * 80 / 100;
         PriorityQueue<DictionaryElem> queue_dict = new PriorityQueue<>((a, b) -> b.compareTo(a));
-        ArrayList<FileChannel> channels = IOUtils.prepareChannels("", block_number);
 
         System.out.println("(INFO) Starting creation posting list cache\n");
         clearIndexMem();
@@ -46,13 +45,24 @@ public class InvertedIndex {
             queue_dict.add(entry.getValue());
         }
 
+        ArrayList<FileChannel> channels = new ArrayList<>();
+        if(Flags.isSkipping()) {
+            channels.add(IOUtils.getFileChannel(IOUtils.PATH_TO_FINAL_BLOCKS + "/SkipInfo", "read"));
+        } else{
+            IOUtils.prepareChannels("", block_number);
+        }
+
         while (!queue_dict.isEmpty()){
             DictionaryElem current_de = queue_dict.poll();
             if(Flags.isSkipping()) {
-                SkipList sl_to_cache = IOUtils.readSLFromFile(channels.get(current_de.getBlock_number()), current_de.getOffset_block_sl(),
-                        current_de.getTerm());
-                skip_lists.add(sl_to_cache);
-                dictionary.get(sl_to_cache.getTerm()).setOffset_skip_lists(skip_lists.size() - 1);
+                try{
+                    SkipList sl_to_cache = IOUtils.readSLFromFile(channels.get(0), current_de.getOffset_block_sl(),
+                            current_de.getTerm());
+                    skip_lists.add(sl_to_cache);
+                    dictionary.get(sl_to_cache.getTerm()).setOffset_skip_lists(skip_lists.size() - 1);
+                } catch (NullPointerException e){
+                    System.out.println(current_de.getTerm());
+                }
             }else{
                 PostingList pl_to_cache = IOUtils.readPlFromFile(channels.get(current_de.getBlock_number()), current_de.getOffset_block_pl(),
                         current_de.getTerm());
@@ -65,8 +75,8 @@ public class InvertedIndex {
             }
         }
 
-        System.out.println("(INFO) MAXIMUM CACHE MEMORY ACHIEVED. SAVING CACHE ON DISK\n" +
-                "The number of posting list cached is " + posting_lists.size() + "\n");
+        System.out.printf("(INFO) MAXIMUM CACHE MEMORY ACHIEVED. SAVING CACHE ON DISK\n" +
+                "The number of term lists cached is %d\n", Flags.isSkipping()?skip_lists.size():posting_lists.size());
         String path;
         if(Flags.isSkipping()) {
             path = IOUtils.PATH_TO_FINAL_BLOCKS + "/SkippingListCache.bin";
@@ -158,7 +168,7 @@ public class InvertedIndex {
                 tokens.clear();
             }
             /* Write the final block in memory */
-            System.out.println("(INFO) Proceed with writing the final block to disk in memory");
+            System.out.println("(INFO) Proceed with writing the final block to disk");
             if (!IOUtils.writeBinBlockToDisk(dictionary, posting_lists, block_number)) {
                 System.out.println("(ERROR): final block write to disk failed");
             }else {
@@ -211,7 +221,7 @@ public class InvertedIndex {
             for (int i = 0; i < block_number; i++) {
                 FileChannel channel = postingListChannels.get(i);
                 long current_position = channel.position(); //conservo la posizione per risettarla se non leggo il termine cercato
-                if (!posting_list.FromBinFile(channel, true))
+                if (!posting_list.FromBinFile(channel))
                     channel.position(current_position);
             }
             posting_lists.add(posting_list);
@@ -237,7 +247,7 @@ public class InvertedIndex {
             }
         }
         /* Write final block to disk */
-        System.out.println("(INFO) Proceed with writing the final block to disk in memory");
+        System.out.println("(INFO) Proceed with writing the final block to disk");
         if (!IOUtils.writeMergedPLToDisk(posting_lists, pl_block)) {
             System.out.println("(ERROR): Final block write to disk failed");
         } else {
@@ -320,7 +330,7 @@ public class InvertedIndex {
             String current_term;
             while((current_term = IOUtils.readTerm(channel))!=null){
                 PostingList pl = new PostingList(current_term);
-                pl.updateFromBinFile(channel, true);
+                pl.updateFromBinFile(channel);
                 posting_lists.add(pl);
                 dictionary.get(current_term).setOffset_posting_lists(posting_lists.size()-1);
             }
@@ -329,7 +339,7 @@ public class InvertedIndex {
         }
     }
 
-    public static void readSLsFromFile(String filename){ //usata quando carico indice da file
+    public static void readSLsFromFile(String filename){
         Path path = Paths.get(IOUtils.PATH_TO_FINAL_BLOCKS, filename);
         try (FileChannel channel = FileChannel.open(path, StandardOpenOption.READ)){
             String current_term;

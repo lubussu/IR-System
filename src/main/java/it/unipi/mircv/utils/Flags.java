@@ -2,7 +2,11 @@ package it.unipi.mircv.utils;
 
 public class Flags {
 
+    // Building parameters
     private static boolean compression = true;
+    private static boolean skipping = true;
+
+    //Query parameters
 
     /* TRUE: MaxScore  FALSE: DAAT */
     private static boolean maxScore = true;
@@ -13,8 +17,7 @@ public class Flags {
     /* TRUE: Conjunctive Query  FALSE: Disjunctive Query */
     private static boolean queryMode = false;
 
-    private static boolean skipping = true;
-
+    private static int numDocs = 5;
 
     /* SETTER AND GETTER SECTION */
 
@@ -32,8 +35,16 @@ public class Flags {
 
     public static void setSkipping(boolean skipping) { Flags.skipping = skipping; }
 
+    public static void setNumDocs(int numDocs) {
+        Flags.numDocs = numDocs;
+    }
+
+    public static int getNumDocs() {
+        return numDocs;
+    }
+
     public static boolean isCompression() {
-        return !compression;
+        return compression;
     }
 
     public static boolean isScoreMode() {return scoreMode;}
@@ -45,5 +56,16 @@ public class Flags {
     public static boolean isQueryMode() {return queryMode;}
 
     public static boolean isSkipping() {return skipping;}
+
+    public static void printOption(){
+        System.out.println("DEFAULT OPTIONS:");
+        System.out.println("--------------------------------------------");
+        System.out.printf("%-22s %4s %s\n", "Algorithm", " -> ", isMaxScore()?"MaxScore":"DAAT");
+        System.out.printf("%-22s %4s %s\n", "Score", " -> ", isScoreMode()?"BM25":"TFIDF");
+        System.out.printf("%-22s %4s %s\n", "QueryMode", " -> ", isQueryMode()?"Conjunctive":"Disjunctive");
+        System.out.printf("%-22s %4s %s\n", "SkippingMode", " -> ", isSkipping()?"True":"False");
+        System.out.printf("%-22s %4s %d\n", "Documents to retrieve", " -> ", getNumDocs());
+        System.out.println("--------------------------------------------");
+    }
 
 }

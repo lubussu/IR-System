@@ -24,14 +24,18 @@ public class DictionaryElem {
     /* Inverse document frequencies */
     private double idf;
 
-    /* Pointer to the beginning of posting list of term t */
-    private int offset_posting_lists;
-
     /* Number of block in which the PL is stored */
     private int block_number;
 
+    /* Pointer to the beginning of posting list of term t */
+    private int offset_posting_lists;
+
     /* Pointer to the posting list on block */
     private long offset_block_pl;
+
+    private int offset_skip_lists;
+
+    private long offset_block_sl;
 
     /* Maximum term frequency of the term */
     private int maxTf;
@@ -42,9 +46,6 @@ public class DictionaryElem {
     /* Term upper bound for BM25 */
     private double maxBM25;
 
-    private int offset_skip_lists;
-
-    private long offset_block_sl;
 
 
 

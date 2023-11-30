@@ -72,7 +72,7 @@ public class IOUtils {
             for (int i = 0; i < block_number; i++) {
                 Path path;
                 if(Flags.isSkipping()) {
-                    path = Paths.get(PATH_TO_FINAL_BLOCKS, "/indexMerged" + i + "_skipping.bin");
+                    path = Paths.get(PATH_TO_FINAL_BLOCKS, "/SkipInfo.bin");
                 }else{
                     path = Paths.get(PATH_TO_FINAL_BLOCKS, "/indexMerged" + i + ".bin");
                 }
@@ -110,7 +110,7 @@ public class IOUtils {
         PostingList current_pl = new PostingList(term);
         try {
             channel.position(offset);
-            if(current_pl.FromBinFile(channel, true))
+            if(current_pl.FromBinFile(channel))
                 return current_pl;
         } catch (IOException e) {
             e.printStackTrace();
@@ -147,12 +147,16 @@ public class IOUtils {
         return new String(bytes, StandardCharsets.UTF_8);
     }
 
-    public static void writeTerm(FileChannel channel, String term, int size) throws IOException {
+    public static void writeTerm(FileChannel channel, String term, int size, boolean offset_pl) throws IOException {
         byte[] descBytes = String.valueOf(term).getBytes(StandardCharsets.UTF_8);
         ByteBuffer buffer = ByteBuffer.allocate(4 + descBytes.length + 4);
         long start_position = channel.position();
         DictionaryElem dict = InvertedIndex.getDictionary().get(term);
-        dict.setOffset_block_pl(start_position);
+        if(offset_pl) {
+            dict.setOffset_block_pl(start_position);
+        }else{
+            dict.setOffset_block_sl(start_position);
+        }
 
         // Populate the buffer for termLenght + term
         buffer.putInt(descBytes.length);
@@ -179,7 +183,7 @@ public class IOUtils {
                 DictionaryElem block_de = blockDictionary.get(term);
                 PostingList block_pl = blockPostingList.get(block_de.getOffset_posting_lists());
 
-                block_pl.ToBinFile(index_channel, null, true);
+                block_pl.ToBinFile(index_channel,false); //during building phase write PL without skipping mode even if Flags.isSkipping() is true
                 block_de.ToBinFile(dictionary_channel);
             }
         }catch (IOException e) {
@@ -193,19 +197,14 @@ public class IOUtils {
         if (!folder.exists()) {
             folder.mkdirs();
         }
-
-        try {
-            FileChannel channel = FileChannel.open(Paths.get(filename + ".bin"), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+        try (FileChannel channel = FileChannel.open(Paths.get(filename + ".bin"), StandardOpenOption.CREATE, StandardOpenOption.APPEND))
+            {
             for (Object item : mergedData) {
                 if (item instanceof PostingList) {
-                    FileChannel skipChannel = null;
-                    if(Flags.isSkipping()){
-                        skipChannel = FileChannel.open(Paths.get(filename + "_skipping.bin"), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
-                    }
-                    ((PostingList) item).ToBinFile(channel, skipChannel, true);
+                    ((PostingList) item).ToBinFile(channel, Flags.isSkipping());
                 } else if (item instanceof DictionaryElem) {
                     ((DictionaryElem) item).ToBinFile(channel);
-                } else if (item instanceof SkipList) {
+                } else if (item instanceof SkipList) { //when you have to write the SkipList cache
                     ((SkipList) item).ToBinFile(channel);
                 }
             }

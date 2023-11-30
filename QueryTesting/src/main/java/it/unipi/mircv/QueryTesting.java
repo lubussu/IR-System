@@ -21,14 +21,7 @@ public class QueryTesting
         System.out.println("\n***** TESTING MODE *****\n");
         IndexConstruction.main(new String[]{"read"});
 
-        System.out.println("\nDEFAULT OPTIONS:");
-        System.out.println("--------------------------------------------");
-        System.out.printf("%-22s %4s %s\n", "Algorithm", " -> ", "MaxScore");
-        System.out.printf("%-22s %4s %s\n", "Score", " -> ", "BM25");
-        System.out.printf("%-22s %4s %s\n", "QueryMode", " -> ", "Disjunctive");
-        System.out.printf("%-22s %4s %s\n", "Documents to retrieve", " -> ", "5");
-        System.out.printf("%-22s %4s %s\n", "Skipping Mode", " -> ", "True");
-        System.out.println("--------------------------------------------");
+        Flags.printOption();
 
         ArrayList<String> tokens;
         long totTime = 0;

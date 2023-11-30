@@ -27,6 +27,18 @@ public class Main {
             type = sc.nextLine();
         } while (!type.equals("1") && !type.equals("2"));
         Flags.setScoreMode(type.equals("2"));
+
+        do {
+            System.out.println("Insert the number of document to retrieve: ");
+            type = sc.nextLine();
+
+            try {
+                Flags.setNumDocs(Integer.parseInt(type));
+                break;
+            } catch (NumberFormatException ex){
+                System.out.println("(ERROR) Number not valid.");
+            }
+        } while (true);
     }
 
     public static void main(String[] args){
@@ -35,36 +47,17 @@ public class Main {
 
         String query;
         ArrayList<String> tokens;
-        IndexConstruction.main(new String[]{"build"});
+        IndexConstruction.main(new String[]{"merge"});
 
         Scanner sc = new Scanner(System.in);
-        String type;
-        int k = 5;
 
-        System.out.println("DEFAULT OPTIONS:");
-        System.out.println("--------------------------------------------");
-        System.out.printf("%-22s %4s %s\n", "Algorithm", " -> ", "MaxScore");
-        System.out.printf("%-22s %4s %s\n", "Score", " -> ", "BM25");
-        System.out.printf("%-22s %4s %s\n", "QueryMode", " -> ", "Disjunctive");
-        System.out.printf("%-22s %4s %s\n", "Documents to retrieve", " -> ", "5");
-        System.out.println("--------------------------------------------");
+        Flags.printOption();
         System.out.println("Do you want to change? (y/n)");
-        type = sc.nextLine();
+        String type = sc.nextLine();
 
         while (true){
             if(type.equals("y")){
                 setOptions();
-                do {
-                    System.out.println("Insert the number of document to retrieve: ");
-                    type = sc.nextLine();
-
-                    try {
-                        k = Integer.parseInt(type);
-                        break;
-                    } catch (NumberFormatException ex){
-                        System.out.println("(ERROR) Number not valid.");
-                    }
-                } while (true);
             }
 
             /* Insert the query */
@@ -90,7 +83,7 @@ public class Main {
             }
 
             // EXECUTE QUERY .......
-            QueryProcesser.executeQueryProcesser(tokens, k, false);
+            QueryProcesser.executeQueryProcesser(tokens, Flags.getNumDocs(), false);
 
             long end = System.currentTimeMillis() - start;
             System.out.println("\n(INFO) Query executed in: " + end + " ms");

@@ -1,6 +1,5 @@
 package it.unipi.mircv.bean;
 
-import it.unipi.mircv.InvertedIndex;
 import it.unipi.mircv.utils.IOUtils;
 
 import java.io.IOException;
@@ -30,6 +29,10 @@ public class SkipList {
         this.skipList = skipList;
     }
 
+    public void addSkipElem(SkipElem se){
+        this.skipList.add(se);
+    }
+
     public boolean FromBinFile(FileChannel channel) throws IOException {
         String current_term = IOUtils.readTerm(channel);
         if (current_term==null || !current_term.equals(this.term)) { //non ho letto il termine cercato (so che non c'è)
@@ -44,48 +47,33 @@ public class SkipList {
         ByteBuffer buffer = ByteBuffer.allocate(4);
         channel.read(buffer);
         buffer.flip();
-        int sl_size = buffer.getInt(); // dimensione della posting_list salvata sul blocco
-        readSkipList(channel, sl_size);
-        buffer.clear();
-    }
+        int sl_size = buffer.getInt();
 
-    public void readSkipList(FileChannel channel, int sl_size) throws IOException {
-        ByteBuffer buffer_sl = ByteBuffer.allocate(sl_size * 16);
-        channel.read(buffer_sl);
-        buffer_sl.flip();
+        buffer = ByteBuffer.allocate(sl_size * 12);
+        channel.read(buffer);
+        buffer.flip();
 
         for (int j = 0; j < sl_size; j++) {
-            int max_docid = buffer_sl.getInt();
-            long block_start = buffer_sl.getLong();
-            int post_num = buffer_sl.getInt();
-            SkipElem elem = new SkipElem(max_docid, block_start, post_num);
+            int max_docid = buffer.getInt();
+            long block_start = buffer.getLong();
+            SkipElem elem = new SkipElem(max_docid, block_start);
             this.skipList.add(elem);
         }
-
-        buffer_sl.clear();
+        buffer.clear();
     }
 
     public void ToBinFile(FileChannel channel) {
         try {
-            byte[] descBytes = String.valueOf(term).getBytes(StandardCharsets.UTF_8);
-            ByteBuffer skip_buffer = ByteBuffer.allocate(4 + descBytes.length + 4);
-
-            // Populate the buffer for termLenght + term
-            skip_buffer.putInt(descBytes.length);
-            skip_buffer.put(descBytes);
-            skip_buffer.putInt(skipList.size());
-            skip_buffer.flip();
-            // Write the buffer to the file
-            channel.write(skip_buffer);
+            IOUtils.writeTerm(channel, term, skipList.size(), false);
+            ByteBuffer skip_buffer = ByteBuffer.allocate(12);
 
             for(SkipElem elem : this.skipList){
-                skip_buffer = ByteBuffer.allocate(16);
                 skip_buffer.putInt(elem.getMaxDocId());
                 skip_buffer.putLong(elem.getBlockStartingOffset());
-                skip_buffer.putInt(elem.getNumPostings());
                 skip_buffer.flip();
                 // Write the buffer to the file
                 channel.write(skip_buffer);
+                skip_buffer.clear();
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
