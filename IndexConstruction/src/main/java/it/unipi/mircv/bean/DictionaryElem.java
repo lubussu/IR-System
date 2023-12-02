@@ -30,7 +30,7 @@ public class DictionaryElem {
     /* Pointer to the beginning of posting list of term t */
     private int offset_posting_lists;
 
-    /* Pointer to the posting list on block */
+    /* Pointer to the posting list on block (in the file)*/
     private long offset_block_pl;
 
     private int offset_skip_lists;

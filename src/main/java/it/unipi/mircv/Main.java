@@ -42,15 +42,13 @@ public class Main {
     }
 
     public static void main(String[] args){
-
-        System.out.println("\n***** SEARCH ENGINE *****\n");
-
-        String query;
+                String query;
         ArrayList<String> tokens;
         IndexConstruction.main(new String[]{"merge"});
 
         Scanner sc = new Scanner(System.in);
 
+        System.out.println("\n***** SEARCH ENGINE *****\n");
         Flags.printOption();
         System.out.println("Do you want to change? (y/n)");
         String type = sc.nextLine();

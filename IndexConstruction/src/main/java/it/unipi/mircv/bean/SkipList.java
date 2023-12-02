@@ -49,14 +49,16 @@ public class SkipList {
         buffer.flip();
         int sl_size = buffer.getInt();
 
-        buffer = ByteBuffer.allocate(sl_size * 12);
+        buffer = ByteBuffer.allocate(sl_size * 20);
         channel.read(buffer);
         buffer.flip();
 
         for (int j = 0; j < sl_size; j++) {
             int max_docid = buffer.getInt();
+            int offset_pl = buffer.getInt();
             long block_start = buffer.getLong();
-            SkipElem elem = new SkipElem(max_docid, block_start);
+            int block_size = buffer.getInt();
+            SkipElem elem = new SkipElem(max_docid, offset_pl, block_start, block_size);
             this.skipList.add(elem);
         }
         buffer.clear();
@@ -65,11 +67,13 @@ public class SkipList {
     public void ToBinFile(FileChannel channel) {
         try {
             IOUtils.writeTerm(channel, term, skipList.size(), false);
-            ByteBuffer skip_buffer = ByteBuffer.allocate(12);
+            ByteBuffer skip_buffer = ByteBuffer.allocate(20);
 
             for(SkipElem elem : this.skipList){
                 skip_buffer.putInt(elem.getMaxDocId());
+                skip_buffer.putInt(elem.getSkipListOffset());
                 skip_buffer.putLong(elem.getBlockStartingOffset());
+                skip_buffer.putInt(elem.getBlock_size());
                 skip_buffer.flip();
                 // Write the buffer to the file
                 channel.write(skip_buffer);

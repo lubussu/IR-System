@@ -64,35 +64,18 @@ public class IOUtils {
         return channel;
     }
 
-    public static ArrayList<FileChannel> prepareChannels (String filename, int block_number){
+    public static ArrayList<FileChannel> prepareChannels (String filePath, String filename, int block_number){
         ArrayList<FileChannel> channels = new ArrayList<>();
 
-        if(filename.isEmpty()){
-            // Add FileChannel objects to the ArrayList
-            for (int i = 0; i < block_number; i++) {
-                Path path;
-                if(Flags.isSkipping()) {
-                    path = Paths.get(PATH_TO_FINAL_BLOCKS, "/SkipInfo.bin");
-                }else{
-                    path = Paths.get(PATH_TO_FINAL_BLOCKS, "/indexMerged" + i + ".bin");
-                }
-                try {
-                    FileChannel channel = FileChannel.open(path, StandardOpenOption.READ);
-                    channels.add(channel);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }else {
-            // Add FileChannel objects to the ArrayList
-            for (int i = 0; i < block_number; i++) {
-                Path path = Paths.get(PATH_TO_TEMP_BLOCKS, filename + i + ".bin");
-                try {
-                    FileChannel channel = FileChannel.open(path, StandardOpenOption.READ);
-                    channels.add(channel);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        // Add FileChannel objects to the ArrayList
+        for (int i = 0; i < block_number; i++) {
+            Path path = Paths.get(filePath, filename + i + ".bin");
+
+            try {
+                FileChannel channel = FileChannel.open(path, StandardOpenOption.READ);
+                channels.add(channel);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
         return channels;
@@ -110,7 +93,7 @@ public class IOUtils {
         PostingList current_pl = new PostingList(term);
         try {
             channel.position(offset);
-            if(current_pl.FromBinFile(channel))
+            if(current_pl.FromBinFile(channel, Flags.isSkipping()))
                 return current_pl;
         } catch (IOException e) {
             e.printStackTrace();

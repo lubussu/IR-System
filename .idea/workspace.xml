@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="df94d5ac-57f6-4e1d-af20-d4cd43d3e36c" name="Changes" comment="Riorganizzazione codice">
+    <list default="true" id="df94d5ac-57f6-4e1d-af20-d4cd43d3e36c" name="Changes" comment="Lettura SkippingList e PostingList a blocchi">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/InvertedIndex.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/InvertedIndex.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/DictionaryElem.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/DictionaryElem.java" afterDir="false" />
@@ -12,9 +12,7 @@
       <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/SkipElem.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/SkipElem.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/SkipList.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/SkipList.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/utils/IOUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/utils/IOUtils.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/QueryTesting/src/main/java/it/unipi/mircv/QueryTesting.java" beforeDir="false" afterPath="$PROJECT_DIR$/QueryTesting/src/main/java/it/unipi/mircv/QueryTesting.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/mircv/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/mircv/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/mircv/utils/Flags.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/mircv/utils/Flags.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/termList.txt" beforeDir="false" afterPath="$PROJECT_DIR$/termList.txt" afterDir="false" />
     </list>
     <list id="401deacf-cbf0-4b59-b24c-8f1b64158506" name="Changes by luanabussu" comment="" />
@@ -202,7 +200,8 @@
       <workItem from="1701247382489" duration="2200000" />
       <workItem from="1701249741488" duration="1615000" />
       <workItem from="1701265008489" duration="48000" />
-      <workItem from="1701265165319" duration="17504000" />
+      <workItem from="1701265165319" duration="18000000" />
+      <workItem from="1701350970761" duration="25227000" />
     </task>
     <task id="LOCAL-00001" summary="Added index blocks creation">
       <option name="closed" value="true" />
@@ -332,7 +331,14 @@
       <option name="project" value="LOCAL" />
       <updated>1701169604160</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="Correzione scrittura skipping (rivedere lettura)">
+      <created>1701345047431</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1701345047431</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -385,9 +391,24 @@
     <MESSAGE value="Added stemming, posting list cached build-up and reading from disk file." />
     <MESSAGE value="Added writing of the skipping list to file" />
     <MESSAGE value="Riorganizzazione codice" />
-    <option name="LAST_COMMIT_MESSAGE" value="Riorganizzazione codice" />
+    <MESSAGE value="Correzione scrittura skipping (rivedere lettura)" />
+    <option name="LAST_COMMIT_MESSAGE" value="Correzione scrittura skipping (rivedere lettura)" />
   </component>
   <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/compression/VariableByte.java</url>
+          <line>53</line>
+          <option name="timeStamp" value="9" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/compression/Unary.java</url>
+          <line>42</line>
+          <option name="timeStamp" value="10" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
     <watches-manager>
       <configuration name="Application">
         <watch expression="postingLists.get(2)" language="JAVA" />

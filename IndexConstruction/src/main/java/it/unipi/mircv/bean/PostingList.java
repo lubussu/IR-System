@@ -1,5 +1,6 @@
 package it.unipi.mircv.bean;
 
+import it.unipi.mircv.InvertedIndex;
 import it.unipi.mircv.compression.Unary;
 import it.unipi.mircv.compression.VariableByte;
 import it.unipi.mircv.utils.Flags;
@@ -66,33 +67,47 @@ public class PostingList {
     }
 
     public void nextGEQ(int docID) {
+
         while (postingIterator.hasNext() && actualPosting.getDocId() < docID)
             actualPosting = postingIterator.next();
     }
 
-    public boolean FromBinFile(FileChannel channel) throws IOException {
+    public boolean FromBinFile(FileChannel channel, boolean skipping) throws IOException {
         String current_term = IOUtils.readTerm(channel);
+
         if (current_term==null || !current_term.equals(this.term)) { //non ho letto il termine cercato (so che non c'è)
             return false;
         } else {
-            updateFromBinFile(channel);
+            updateFromBinFile(channel, skipping);
         }
         return true;
     }
 
-    public void updateFromBinFile(FileChannel channel) throws IOException {
+    public void updateFromBinFile(FileChannel channel, boolean skipping) throws IOException {
+        int num_blocks = 1;
+        SkipList sl = null;
+        if(skipping){
+            int se_index = InvertedIndex.getDictionary().get(this.term).getOffset_skip_lists();
+            sl = InvertedIndex.getSkip_lists().get(se_index);
+            num_blocks = sl.getSkipList().size();
+        }
         ByteBuffer buffer = ByteBuffer.allocate(4);
         channel.read(buffer);
         buffer.flip();
         int pl_size = buffer.getInt(); // dimensione della posting_list salvata sul blocco
         if (Flags.isCompression()) {
-            readCompressedPL(channel, pl_size);
+            for (int i=0; i<num_blocks; i++){
+                pl_size = skipping? sl.getSkipList().get(i).getBlock_size():pl_size;
+                readCompressedPL(channel, pl_size);
+            }
         } else {
-            readPL(channel, pl_size);
+            for (int i=0; i<num_blocks; i++){
+                pl_size = skipping? sl.getSkipList().get(i).getBlock_size():pl_size;
+                readPL(channel, pl_size);
+            }
         }
         buffer.clear();
     }
-
 
     private void readCompressedPL(FileChannel channel, int pl_size) throws IOException {
         ByteBuffer buffer_pl = ByteBuffer.allocate(4);
@@ -101,26 +116,25 @@ public class PostingList {
         int byteRead = buffer_pl.getInt();
         if(byteRead < 0)
             return;
+
         buffer_pl = ByteBuffer.allocate(byteRead);
         channel.read(buffer_pl);
         buffer_pl.flip();
 
         byte[] bytes = buffer_pl.array();
-
         ArrayList<Integer> docids = VariableByte.fromVariableBytesToIntegers(bytes,pl_size);
         int starting_unary = docids.remove(0);
         bytes = Arrays.copyOfRange(bytes, starting_unary, bytes.length);
         ArrayList<Integer> freqs = Unary.fromUnaryToInt(bytes);
 
+        assert docids.size() == freqs.size();
         for (int j = 0; j < pl_size; j++) {
             int docid = docids.get(j);
             int freq = freqs.get(j);
-            Posting post = new Posting(docid, freq);
-            this.addPosting(post);
+            this.addPosting(new Posting(docid, freq));
         }
 
         initList();
-
         buffer_pl.clear();
     }
 
@@ -129,23 +143,16 @@ public class PostingList {
         channel.read(buffer_pl);
         buffer_pl.flip();
 
-        int current_size = this.getPl().size();
-
         for (int j = 0; j < pl_size; j++) {
             int docid = buffer_pl.getInt();
-            Posting post = new Posting(docid, 0);
-            this.addPosting(post);
+            int current_position = buffer_pl.position();
+            int freq = buffer_pl.getInt(current_position + (pl_size - 1) * 4); //freq
+            buffer_pl.position(current_position);
+
+            this.addPosting(new Posting(docid, freq));
         }
 
         initList();
-
-        buffer_pl.clear();
-
-        for (int j = 0; j < pl_size; j++) {
-            int freq = buffer_pl.getInt();
-            this.getPl().get(j + current_size).setTermFreq(freq);
-        }
-
         buffer_pl.clear();
     }
 
@@ -174,11 +181,20 @@ public class PostingList {
             ByteBuffer buffer;
             int numBytes;
 
-            for (Posting p : this.pl) {
+            int blockSize = (int) Math.floor(Math.sqrt(this.pl.size()));
+            int offset_sl=0;
+
+            //for (Posting p : this.pl) {
+            for (int i = 0; i < this.pl.size(); i++) {
+                Posting p = this.pl.get(i);
                 docids.add(p.getDocId());
                 freqs.add(p.getTermFreq());
 
-                if (skipping && skipChannel != null && docids.size() != 1 && docids.size() % Math.floor(Math.sqrt(this.pl.size())) == 0) {
+                if (i % blockSize == 0) {
+                    offset_sl = i; // Aggiorna l'offset all'inizio di ogni blocco
+                }
+
+                if (skipping && skipChannel != null && docids.size() % blockSize == 0) {
                     byte[] freqsCompressed = Unary.fromIntToUnary(freqs);
                     byte[] docsCompressed = VariableByte.fromIntegersToVariableBytes(docids);
                     numBytes = freqsCompressed.length + docsCompressed.length;
@@ -193,19 +209,26 @@ public class PostingList {
                     buffer.flip();
                     channel.write(buffer);
 
-                    SkipElem se = new SkipElem(docids.get(docids.size() - 1), channel.position());
+                    //i is the startin position of the block inside the postingList
+                    SkipElem se = new SkipElem(docids.get(docids.size() - 1), offset_sl, channel.position(), docids.size());
                     sl.addSkipElem(se);
 
                     docids.clear();
                     freqs.clear();
                 }
             }
+            if (docids.isEmpty()) {
+                if (skipChannel != null) {
+                    sl.ToBinFile(skipChannel);
+                }
+                return;
+            }
+
             byte[] freqsCompressed = Unary.fromIntToUnary(freqs);
             byte[] docsCompressed = VariableByte.fromIntegersToVariableBytes(docids);
             numBytes = freqsCompressed.length + docsCompressed.length;
 
             buffer = ByteBuffer.allocate(4 + numBytes);
-
             buffer.putInt(numBytes);
             buffer.put(docsCompressed);
             buffer.put(freqsCompressed);
@@ -214,8 +237,8 @@ public class PostingList {
             buffer.flip();
             channel.write(buffer);
 
-            if (skipping && skipChannel != null && docids.size() != 0) {
-                SkipElem se = new SkipElem(docids.get(docids.size() - 1), channel.position());
+            if (skipping && skipChannel != null) {
+                SkipElem se = new SkipElem(docids.get(docids.size() - 1), offset_sl, channel.position(), docids.size());
                 sl.addSkipElem(se);
                 sl.ToBinFile(skipChannel);
             }
@@ -229,31 +252,29 @@ public class PostingList {
                 FileChannel.open(Paths.get(IOUtils.PATH_TO_FINAL_BLOCKS + "/SkipInfo.bin"), StandardOpenOption.CREATE, StandardOpenOption.APPEND):null)
         {
             SkipList sl = new SkipList(this.term);
-            int size;
+            int size = skipping ? (int) Math.floor(Math.sqrt(pl.size())) : this.pl.size();
+            ByteBuffer buffer = skipping ? ByteBuffer.allocate(4 + size * 8) : ByteBuffer.allocate(size * 8);
+
             int post_count = 0;
-            ByteBuffer buffer;
-            if (skipping) {
-                size = (int) Math.floor(Math.sqrt(pl.size()));
-                buffer = ByteBuffer.allocate(4 + size * 8);
-            } else {
-                size = this.pl.size();
-                buffer = ByteBuffer.allocate(size * 8);
-            }
-            int offset = (size - 1) * 4;
+            int offset = (size - 1) * 4; //freqs starting position in the buffer
+            int offset_pl = 0;
+
             for (Posting post : this.pl) {
                 if (skipping) {
-                    buffer.putInt(size);
+                    buffer.putInt(size); //
                 }
-                buffer.putInt(post.getDocId());
+                buffer.putInt(post.getDocId()); //docId
                 int current_position = buffer.position();
-                buffer.putInt(current_position + offset, post.getTermFreq());
+                buffer.putInt(current_position + offset, post.getTermFreq()); //freq
                 buffer.position(current_position);
-                post_count++;
-                if (skipping && skipChannel != null && post_count == size) {
-                    SkipElem se = new SkipElem(post.getDocId(), channel.position());
-                    sl.addSkipElem(se);
 
-                    post_count = 0;
+                if(post_count % size == 0){
+                    offset_pl = post_count;
+                }
+                post_count++;
+                if (skipping && post_count % size == 0) {
+                    SkipElem se = new SkipElem(post.getDocId(), offset_pl, channel.position(), size);
+                    sl.addSkipElem(se);
 
                     // Write the buffer to the file
                     buffer.flip();
@@ -261,10 +282,14 @@ public class PostingList {
                     buffer.clear();
                 }
             }
-
-            if (skipping) {
-                buffer.putInt(post_count);
-                SkipElem se = new SkipElem(this.pl.get(this.pl.size() - 1).getDocId(), channel.position());
+            if (post_count % size == 0) { //non ho un altro skipElem da aggiungere ma devo scrivere la skipList
+                if (skipChannel != null) {
+                    sl.ToBinFile(skipChannel);
+                }
+                return;
+            } else if (skipping) {
+                buffer.putInt(post_count-offset_pl-1);
+                SkipElem se = new SkipElem(this.pl.get(this.pl.size() - 1).getDocId(), offset_pl, channel.position(), post_count%size);
                 sl.addSkipElem(se);
                 sl.ToBinFile(skipChannel);
             }

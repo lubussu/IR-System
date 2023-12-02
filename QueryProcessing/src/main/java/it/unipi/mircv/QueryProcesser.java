@@ -29,7 +29,6 @@ public class QueryProcesser {
 
     public static void executeQueryProcesser(ArrayList<String> queryTerms, int k, boolean testing){
         // Ottenere le posting list dei termini nella query
-
         for (int i=0; i<queryTerms.size();){
             String term = queryTerms.get(i);
             DictionaryElem dict = InvertedIndex.getDictionary().get(term);
