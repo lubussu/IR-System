@@ -10,7 +10,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Scanner;
 
 public class QueryTesting
 {
@@ -38,7 +37,7 @@ public class QueryTesting
                 }
 
                 // EXECUTE QUERY .......
-                QueryProcesser.executeQueryProcesser(tokens, 5, true);
+                QueryProcesser.executeQueryProcesser(tokens, true);
 
                 long end = System.currentTimeMillis() - start;
                 numQueries++;

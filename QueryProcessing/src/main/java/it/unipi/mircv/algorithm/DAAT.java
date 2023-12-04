@@ -47,7 +47,7 @@ public class DAAT {
                     }
                 }
             }
-            if (!Flags.isQueryMode() && score != 0)
+            if (!Flags.isDisjunctive() && score != 0)
                 result.offer(new DocumentScore(current, score));
             if (result.size() > k)
                 result.poll(); // Rimuovi il documento con il punteggio più basso se supera k

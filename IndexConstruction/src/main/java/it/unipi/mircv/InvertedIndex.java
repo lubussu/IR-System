@@ -68,12 +68,8 @@ public class InvertedIndex {
         }
 
         System.out.printf("(INFO) The number of term lists cached is %d\n\n", Flags.isSkipping()?skip_lists.size():posting_lists.size());
-        String path;
-        if(Flags.isSkipping()) {
-            path = IOUtils.PATH_TO_FINAL_BLOCKS + "/SkippingListCache";
-        }else{
-            path = IOUtils.PATH_TO_FINAL_BLOCKS + "/PostingListCache";
-        }
+        String path = IOUtils.PATH_TO_FINAL_BLOCKS + "/PostingListCache";
+
         if (!IOUtils.writeMergedDataToDisk(Flags.isSkipping()? skip_lists : posting_lists, path)) {
             System.out.println("(ERROR): Cache write to disk failed\n");
         } else {

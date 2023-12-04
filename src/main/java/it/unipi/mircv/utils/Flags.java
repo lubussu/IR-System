@@ -15,7 +15,7 @@ public class Flags {
     private static boolean scoreMode = true;
 
     /* TRUE: Conjunctive Query  FALSE: Disjunctive Query */
-    private static boolean queryMode = false;
+    private static boolean disjunctive = false;
 
     private static int numDocs = 5;
 
@@ -29,7 +29,7 @@ public class Flags {
         Flags.maxScore = maxScore;
     }
 
-    public static void setQueryMode(boolean queryMode) {Flags.queryMode = queryMode;    }
+    public static void setDisjunctive(boolean disjunctive) {Flags.disjunctive = disjunctive;    }
 
     public static void setScoreMode(boolean scoreMode) { Flags.scoreMode = scoreMode;}
 
@@ -53,7 +53,7 @@ public class Flags {
         return maxScore;
     }
 
-    public static boolean isQueryMode() {return queryMode;}
+    public static boolean isDisjunctive() {return disjunctive;}
 
     public static boolean isSkipping() {return skipping;}
 
@@ -62,7 +62,7 @@ public class Flags {
         System.out.println("--------------------------------------------");
         System.out.printf("%-22s %4s %s\n", "Algorithm", " -> ", isMaxScore()?"MaxScore":"DAAT");
         System.out.printf("%-22s %4s %s\n", "Score", " -> ", isScoreMode()?"BM25":"TFIDF");
-        System.out.printf("%-22s %4s %s\n", "QueryMode", " -> ", isQueryMode()?"Conjunctive":"Disjunctive");
+        System.out.printf("%-22s %4s %s\n", "QueryMode", " -> ", isDisjunctive()?"Conjunctive":"Disjunctive");
         System.out.printf("%-22s %4s %s\n", "SkippingMode", " -> ", isSkipping()?"True":"False");
         System.out.printf("%-22s %4s %d\n", "Documents to retrieve", " -> ", getNumDocs());
         System.out.println("--------------------------------------------");

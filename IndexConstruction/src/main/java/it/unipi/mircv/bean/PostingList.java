@@ -67,6 +67,24 @@ public class PostingList {
     }
 
     public void nextGEQ(int docID) {
+        if(Flags.isSkipping() && this.pl.get(this.pl.size()-1).getDocId() < docID){
+            int offset_sl = InvertedIndex.getDictionary().get(term).getOffset_skip_lists();
+            SkipList sl = InvertedIndex.getSkip_lists().get(offset_sl);
+
+            for(SkipElem se : sl.getSkipList()){
+                if(se.getMaxDocId() >= docID){
+                    try {
+                        int starting_point = this.pl.size();
+                        readSkippingBlock(se);
+                        initList();
+                        postingIterator = this.pl.listIterator(starting_point);
+                        actualPosting = postingIterator.next();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        }
 
         while (postingIterator.hasNext() && actualPosting.getDocId() < docID)
             actualPosting = postingIterator.next();
@@ -94,19 +112,29 @@ public class PostingList {
         ByteBuffer buffer = ByteBuffer.allocate(4);
         channel.read(buffer);
         buffer.flip();
-        int pl_size = buffer.getInt(); // dimensione della posting_list salvata sul blocco
-        if (Flags.isCompression()) {
-            for (int i=0; i<num_blocks; i++){
-                pl_size = skipping? sl.getSkipList().get(i).getBlock_size():pl_size;
+        int pl_size = buffer.getInt(); // dimensione della posting_list salvata completa
+
+        for(int i=0; i<num_blocks; i++){
+            pl_size = skipping? sl.getSkipList().get(i).getBlock_size():pl_size;
+            if (Flags.isCompression()) {
                 readCompressedPL(channel, pl_size);
-            }
-        } else {
-            for (int i=0; i<num_blocks; i++){
-                pl_size = skipping? sl.getSkipList().get(i).getBlock_size():pl_size;
+            } else{
                 readPL(channel, pl_size);
             }
         }
-        buffer.clear();
+    }
+
+    public void readSkippingBlock(SkipElem se) throws IOException {
+        int block_number = InvertedIndex.getDictionary().get(term).getBlock_number();
+        String filename = IOUtils.PATH_TO_FINAL_BLOCKS+"/indexMerged"+block_number;
+        FileChannel channel = IOUtils.getFileChannel(filename, "read");
+
+        channel.position(se.getBlockStartingOffset());
+        if (Flags.isCompression()) {
+            readCompressedPL(channel, se.getBlock_size());
+        } else{
+            readPL(channel, se.getBlock_size());
+        }
     }
 
     private void readCompressedPL(FileChannel channel, int pl_size) throws IOException {

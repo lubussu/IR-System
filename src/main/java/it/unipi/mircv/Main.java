@@ -14,7 +14,7 @@ public class Main {
             System.out.println("SELECT QUERY TYPE:\n1: To execute Conjunctive Query\n2: To execute Disjunctive Query");
             type = sc.nextLine();
         } while (!type.equals("1") && !type.equals("2"));
-        Flags.setQueryMode(type.equals("1"));
+        Flags.setDisjunctive(type.equals("1"));
 
         do {
             System.out.println("SELECT EXECUTION MODE:\n1: To execute DAAT\n2: To execute MaxScore");
@@ -44,7 +44,7 @@ public class Main {
     public static void main(String[] args){
                 String query;
         ArrayList<String> tokens;
-        IndexConstruction.main(new String[]{"merge"});
+        IndexConstruction.main(new String[]{"read"});
 
         Scanner sc = new Scanner(System.in);
 
@@ -81,7 +81,7 @@ public class Main {
             }
 
             // EXECUTE QUERY .......
-            QueryProcesser.executeQueryProcesser(tokens, Flags.getNumDocs(), false);
+            QueryProcesser.executeQueryProcesser(tokens, false);
 
             long end = System.currentTimeMillis() - start;
             System.out.println("\n(INFO) Query executed in: " + end + " ms");
