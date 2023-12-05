@@ -291,8 +291,10 @@ public class DictionaryElem {
     public int compareTo(DictionaryElem de) {
         if(this.getDf() > de.getDf()){
             return 1;
-        }else{
+        }else if(this.getDf() < de.getDf()){
             return -1;
+        }else{
+            return 0;
         }
     }
 }

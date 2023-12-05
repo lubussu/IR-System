@@ -120,12 +120,18 @@ public class QueryProcesser {
 
     public static void executeQueryProcesser2(ArrayList<String> queryTerms, boolean testing){
         // Ottenere le posting list dei termini nella query
+        PriorityQueue<DictionaryElem> term_df_inc = new PriorityQueue<>(queryTerms.size(), ((a, b) -> a.compareTo(b)));
         for (int i=0; i<queryTerms.size();){
             String term = queryTerms.get(i);
             DictionaryElem dict = InvertedIndex.getDictionary().get(term);
-            if(dict == null) { //term not found
-                queryTerms.remove(i);
-                continue;
+
+            if(dict == null){//term not found
+                if(Flags.isDisjunctive()){
+                    queryTerms.remove(i);
+                    continue;
+                } else{
+                    break;
+                }
             }
 
             if(!Flags.isDisjunctive()){
