@@ -37,6 +37,7 @@ public class InvertedIndex {
 
         System.out.println("(INFO) Starting Cache creation\n");
         posting_lists.clear();
+        skip_lists.clear();
         System.gc();
 
         FileChannel skipChannel = Flags.isSkipping()? IOUtils.getFileChannel(IOUtils.PATH_TO_FINAL_BLOCKS + "/SkipInfo", "read"): null;
@@ -70,7 +71,8 @@ public class InvertedIndex {
         System.out.printf("(INFO) The number of term lists cached is %d\n\n", Flags.isSkipping()?skip_lists.size():posting_lists.size());
         String path = IOUtils.PATH_TO_FINAL_BLOCKS + "/PostingListCache";
 
-        if (!IOUtils.writeMergedDataToDisk(Flags.isSkipping()? skip_lists : posting_lists, path)) {
+
+        if (!IOUtils.writeMergedDataToDisk(posting_lists, path)) {
             System.out.println("(ERROR): Cache write to disk failed\n");
         } else {
             System.out.println("(INFO) Writing cache completed\n");

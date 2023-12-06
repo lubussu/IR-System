@@ -67,7 +67,7 @@ public class PostingList {
     }
 
     public void nextGEQ(int docID) {
-        if(Flags.isSkipping() && this.pl.get(this.pl.size()-1).getDocId() < docID){
+        if(Flags.isSkipping() && (this.pl.isEmpty() || this.pl.get(this.pl.size()-1).getDocId() < docID)){
             int offset_sl = InvertedIndex.getDictionary().get(term).getOffset_skip_lists();
             SkipList sl = InvertedIndex.getSkip_lists().get(offset_sl);
 
@@ -79,6 +79,7 @@ public class PostingList {
                         initList();
                         postingIterator = this.pl.listIterator(starting_point);
                         actualPosting = postingIterator.next();
+                        break;
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -86,8 +87,9 @@ public class PostingList {
             }
         }
 
-        while (postingIterator.hasNext() && actualPosting.getDocId() < docID)
+        while (postingIterator.hasNext() && actualPosting.getDocId() < docID) {
             actualPosting = postingIterator.next();
+        }
     }
 
     public boolean FromBinFile(FileChannel channel, boolean skipping) throws IOException {
@@ -227,6 +229,10 @@ public class PostingList {
                     byte[] docsCompressed = VariableByte.fromIntegersToVariableBytes(docids);
                     numBytes = freqsCompressed.length + docsCompressed.length;
 
+                    //i is the startin position of the block inside the postingList
+                    SkipElem se = new SkipElem(docids.get(docids.size() - 1), offset_sl, channel.position(), docids.size());
+                    sl.addSkipElem(se);
+
                     buffer = ByteBuffer.allocate(4 + numBytes);
 
                     buffer.putInt(numBytes);
@@ -236,10 +242,6 @@ public class PostingList {
                     // Write the buffer to the file
                     buffer.flip();
                     channel.write(buffer);
-
-                    //i is the startin position of the block inside the postingList
-                    SkipElem se = new SkipElem(docids.get(docids.size() - 1), offset_sl, channel.position(), docids.size());
-                    sl.addSkipElem(se);
 
                     docids.clear();
                     freqs.clear();
@@ -256,6 +258,12 @@ public class PostingList {
             byte[] docsCompressed = VariableByte.fromIntegersToVariableBytes(docids);
             numBytes = freqsCompressed.length + docsCompressed.length;
 
+            if (skipping && skipChannel != null) {
+                SkipElem se = new SkipElem(docids.get(docids.size() - 1), offset_sl, channel.position(), docids.size());
+                sl.addSkipElem(se);
+                sl.ToBinFile(skipChannel);
+            }
+
             buffer = ByteBuffer.allocate(4 + numBytes);
             buffer.putInt(numBytes);
             buffer.put(docsCompressed);
@@ -265,11 +273,6 @@ public class PostingList {
             buffer.flip();
             channel.write(buffer);
 
-            if (skipping && skipChannel != null) {
-                SkipElem se = new SkipElem(docids.get(docids.size() - 1), offset_sl, channel.position(), docids.size());
-                sl.addSkipElem(se);
-                sl.ToBinFile(skipChannel);
-            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -337,6 +340,7 @@ public class PostingList {
             for (Posting posting : this.pl) {
                 writer.write(" " + posting.getDocId());
                 writer.write(":" + posting.getTermFreq());
+                writer.write("\n");
             }
             writer.write("\n");
 
@@ -348,7 +352,7 @@ public class PostingList {
     public void printPostingList() {
         System.out.printf("Posting List of %s:\n", this.term);
         for (Posting p : this.getPl()) {
-            System.out.printf("(Docid: %d - Freq: %d)\t", p.getDocId(), p.getTermFreq());
+            System.out.printf("(Docid: %d - Freq: %d)\n", p.getDocId(), p.getTermFreq());
         }
     }
 

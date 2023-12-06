@@ -1,18 +1,17 @@
 package it.unipi.mircv.algorithm;
 
 import it.unipi.mircv.InvertedIndex;
-import it.unipi.mircv.bean.DictionaryElem;
-import it.unipi.mircv.bean.Posting;
-import it.unipi.mircv.bean.PostingList;
-import it.unipi.mircv.bean.SkipList;
+import it.unipi.mircv.bean.*;
 import it.unipi.mircv.utils.DocumentScore;
 import it.unipi.mircv.utils.Flags;
 import it.unipi.mircv.utils.Scorer;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.PriorityQueue;
 
 public class ConjunctiveQuery {
+
     public static PriorityQueue<DocumentScore> executeConjunctiveQuery(ArrayList<PostingList> postingLists){
 
         PriorityQueue<DocumentScore> result = new PriorityQueue<>(Flags.getNumDocs());
@@ -23,11 +22,13 @@ public class ConjunctiveQuery {
             DictionaryElem dict = InvertedIndex.getDictionary().get(first_pl.getTerm());
             double score = Scorer.scoreDocument(post, dict.getIdf(), Flags.isScoreMode());
             boolean present = true;
+
             for(int i = 1; i<postingLists.size(); i++){
                 dict = InvertedIndex.getDictionary().get(postingLists.get(i).getTerm());
                 PostingList current_pl = postingLists.get(i);
                 current_pl.nextGEQ(post.getDocId());
-                if(current_pl.getActualPosting() != null && current_pl.getActualPosting().getDocId() == post.getDocId()){
+                Posting actualPosting = current_pl.getActualPosting();
+                if(actualPosting != null && actualPosting.getDocId() == post.getDocId()){
                     score += Scorer.scoreDocument(current_pl.getActualPosting(), dict.getIdf(), Flags.isScoreMode());
                 }else{
                     present = false;

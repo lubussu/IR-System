@@ -187,8 +187,6 @@ public class IOUtils {
                     ((PostingList) item).ToBinFile(channel, Flags.isSkipping());
                 } else if (item instanceof DictionaryElem) {
                     ((DictionaryElem) item).ToBinFile(channel);
-                } else if (item instanceof SkipList) { //when you have to write the SkipList cache
-                    ((SkipList) item).ToBinFile(channel);
                 }
             }
         } catch (IOException e) {
