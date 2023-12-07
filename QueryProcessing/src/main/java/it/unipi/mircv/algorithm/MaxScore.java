@@ -15,7 +15,8 @@ public class MaxScore {
         int minDocId = (int) (CollectionInfo.getCollection_size() + 1);
 
         for (PostingList postingList : postingLists) {
-            minDocId = Math.min(postingList.getActualPosting().getDocId(), minDocId);
+            if(!postingList.getPl().isEmpty())
+                minDocId = Math.min(postingList.getActualPosting().getDocId(), minDocId);
         }
         return minDocId;
     }
@@ -26,8 +27,8 @@ public class MaxScore {
      * @param maxScores -> lista ordinata di maxScores per i termini della query
      * @return
      */
-    public static PriorityQueue<DocumentScore> executeMaxScore(ArrayList<PostingList> postingLists, ArrayList<Double> maxScores, int k) {
-        PriorityQueue<DocumentScore> result = new PriorityQueue<>(k);
+    public static PriorityQueue<DocumentScore> executeMaxScore(ArrayList<PostingList> postingLists, ArrayList<Double> maxScores) {
+        PriorityQueue<DocumentScore> result = new PriorityQueue<>(Flags.getNumDocs());
 
         /* Inizializzazione upper_bound */
         ArrayList<Double> ub = new ArrayList<>();
@@ -105,7 +106,7 @@ public class MaxScore {
                 minScore = Math.min(score, minScore);
                 threshold = minScore;
 
-                if (result.size() > k) {
+                if (result.size() > Flags.getNumDocs()) {
                     result.poll();
                 }
 

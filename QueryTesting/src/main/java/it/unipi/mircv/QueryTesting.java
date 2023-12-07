@@ -1,15 +1,12 @@
 package it.unipi.mircv;
 
 import it.unipi.mircv.utils.Flags;
-import it.unipi.mircv.utils.TextPreprocesser;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 
 public class QueryTesting
 {
@@ -22,7 +19,6 @@ public class QueryTesting
 
         Flags.printOption();
 
-        ArrayList<String> tokens;
         long totTime = 0;
         int numQueries = 0;
 
@@ -30,19 +26,13 @@ public class QueryTesting
             String line;
             while ((line = br.readLine()) != null) {
                 long start = System.currentTimeMillis();
-                tokens = TextPreprocesser.executeTextPreprocessing(line);
-                if (tokens.size() == 0) {
-                    System.out.println("(ERROR) Query not valid!");
-                    continue;
-                }
 
                 // EXECUTE QUERY .......
-                QueryProcesser.executeQueryProcesser(tokens, true);
+                QueryProcesser.executeQueryProcesser(line, true);
 
                 long end = System.currentTimeMillis() - start;
                 numQueries++;
                 totTime += end;
-                tokens.clear();
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

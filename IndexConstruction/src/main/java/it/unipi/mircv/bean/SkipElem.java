@@ -5,9 +5,6 @@ public class SkipElem {
     /* Maximum DocId of the block */
     private int maxDocId;
 
-    /* Starting offset of the block in the PostingList */
-    private int skipListOffset;
-
     /* Starting offset of the skipElem in the SkipInfo file */
     private long blockStartingOffset;
 
@@ -15,16 +12,15 @@ public class SkipElem {
 
 
     public SkipElem() {
-        this(0, 0, 0, 0);
+        this(0, 0, 0);
     }
 
     public SkipElem(int maxDocId) {
-        this(maxDocId, 0, 0, 0);
+        this(maxDocId, 0, 0);
     }
 
-    public SkipElem(int maxDocId, int skipListOffset, long blockStartingOffset, int block_size) {
+    public SkipElem(int maxDocId, long blockStartingOffset, int block_size) {
         this.maxDocId = maxDocId;
-        this.skipListOffset = skipListOffset;
         this.blockStartingOffset = blockStartingOffset;
         this.block_size = block_size;
     }
@@ -33,16 +29,8 @@ public class SkipElem {
 
     public long getBlockStartingOffset() { return blockStartingOffset; }
 
-    public int getSkipListOffset() {
-        return skipListOffset;
-    }
-
     public int getBlock_size() {
         return block_size;
-    }
-
-    public void setSkipListOffset(int skipListOffset) {
-        this.skipListOffset = skipListOffset;
     }
 
     public void setMaxDocId(int maxDocId) {

@@ -17,14 +17,14 @@ public class DAAT {
         int minDocId = (int) (CollectionInfo.getCollection_size() + 1);
 
         for (PostingList postingList : postingLists) {
-            minDocId = Math.min(postingList.getActualPosting().getDocId(), minDocId);
+            if(!postingList.getPl().isEmpty())
+                minDocId = Math.min(postingList.getActualPosting().getDocId(), minDocId);
         }
         return minDocId;
     }
 
-    public static PriorityQueue<DocumentScore> executeDAAT(ArrayList<PostingList> postingLists,
-                                                            int k){
-        PriorityQueue<DocumentScore> result = new PriorityQueue<>(k);
+    public static PriorityQueue<DocumentScore> executeDAAT(ArrayList<PostingList> postingLists){
+        PriorityQueue<DocumentScore> result = new PriorityQueue<>(Flags.getNumDocs());
 
         int current = getMinimumDocId(postingLists);
         while (current < CollectionInfo.getCollection_size()) {
@@ -47,9 +47,9 @@ public class DAAT {
                     }
                 }
             }
-            if (!Flags.isDisjunctive() && score != 0)
+            if (score != 0)
                 result.offer(new DocumentScore(current, score));
-            if (result.size() > k)
+            if (result.size() > Flags.getNumDocs())
                 result.poll(); // Rimuovi il documento con il punteggio più basso se supera k
 
             current = next;

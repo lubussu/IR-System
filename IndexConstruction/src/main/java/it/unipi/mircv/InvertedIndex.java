@@ -308,7 +308,7 @@ public class InvertedIndex {
 
         long end = System.currentTimeMillis() - start;
         long time = (end/1000)/60;
-        System.out.println("\nReading operation executed in: " + time + " minutes");
+        System.out.println("\nReading operation executed in: " + time + " minutes\n");
     }
 
     public static void readPLsFromFile(String filename){ //usata quando carico indice da file
