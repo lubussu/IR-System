@@ -2,6 +2,7 @@ package it.unipi.mircv;
 
 import it.unipi.mircv.utils.Flags;
 
+import java.io.IOException;
 import java.util.*;
 
 public class Main {
@@ -42,7 +43,7 @@ public class Main {
         } while (true);
     }
 
-    public static void main(String[] args){
+    public static void main(String[] args) throws IOException {
         String query;
         ArrayList<String> tokens;
         IndexConstruction.main(new String[]{"merge"});

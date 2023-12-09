@@ -14,7 +14,7 @@ import java.nio.file.StandardOpenOption;
 
 public class SkipListTest {
 
-    public void readWriteTest(SkipList skipList) throws IOException {
+    public static void readWriteTest(SkipList skipList) throws IOException {
         File folder = new File("/test");
         if (!folder.exists()) {
             folder.mkdirs();
@@ -40,7 +40,7 @@ public class SkipListTest {
             int size = InvertedIndex.getSkip_lists().size() - 1;
             SkipList skipList = InvertedIndex.getSkip_lists().get((int) Math.floor(Math.random() * size));
 
-            this.readWriteTest(skipList);
+            readWriteTest(skipList);
         }
 
     }
