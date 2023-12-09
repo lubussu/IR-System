@@ -4,19 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="df94d5ac-57f6-4e1d-af20-d4cd43d3e36c" name="Changes" comment="Lettura SkippingList e PostingList a blocchi">
+    <list default="true" id="df94d5ac-57f6-4e1d-af20-d4cd43d3e36c" name="Changes" comment="Correzione errori esecuzione query">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/IndexConstruction.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/IndexConstruction.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/InvertedIndex.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/InvertedIndex.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/DictionaryElem.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/DictionaryElem.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/PostingList.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/PostingList.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/SkipElem.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/SkipElem.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/SkipList.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/bean/SkipList.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/utils/IOUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/utils/IOUtils.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/mircv/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/mircv/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/mircv/utils/TextPreprocesser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/mircv/utils/TextPreprocesser.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/termList.txt" beforeDir="false" afterPath="$PROJECT_DIR$/termList.txt" afterDir="false" />
     </list>
     <list id="401deacf-cbf0-4b59-b24c-8f1b64158506" name="Changes by luanabussu" comment="" />
-    <list id="a7cec896-e1d0-4a38-9286-bc3d2cbe40ce" name="Changes by ludav" comment="Changes by ludav" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -92,10 +88,10 @@
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Global Libraries&quot;,
     &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
     &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;editor.preferences.fonts.default&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.keymap&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
@@ -114,12 +110,12 @@
     </key>
   </component>
   <component name="RunManager" selected="Application.Main">
-    <configuration name="DAAT" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="it.unipi.mircv.algorithm.DAAT" />
-      <module name="QueryProcessing" />
+    <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="it.unipi.mircv.Main" />
+      <module name="MIRCV-project" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="it.unipi.mircv.algorithm.*" />
+          <option name="PATTERN" value="it.unipi.mircv.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
@@ -127,9 +123,9 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="it.unipi.mircv.Main" />
-      <module name="MIRCV-project" />
+    <configuration name="QueryTesting" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="it.unipi.mircv.QueryTesting" />
+      <module name="QueryTesting" />
       <extension name="coverage">
         <pattern>
           <option name="PATTERN" value="it.unipi.mircv.*" />
@@ -152,15 +148,13 @@
       </method>
     </configuration>
     <list>
-      <item itemvalue="Application.DAAT" />
+      <item itemvalue="Application.QueryTesting" />
       <item itemvalue="Application.Main" />
     </list>
     <recent_temporary>
       <list>
         <item itemvalue="Application.Main" />
-        <item itemvalue="Application.DAAT" />
-        <item itemvalue="Application.Main" />
-        <item itemvalue="Application.DAAT" />
+        <item itemvalue="Application.QueryTesting" />
         <item itemvalue="Application.Main" />
       </list>
     </recent_temporary>
@@ -202,6 +196,12 @@
       <workItem from="1701265008489" duration="48000" />
       <workItem from="1701265165319" duration="18000000" />
       <workItem from="1701350970761" duration="25227000" />
+      <workItem from="1701518097459" duration="17886000" />
+      <workItem from="1701698540481" duration="928000" />
+      <workItem from="1701795288123" duration="24492000" />
+      <workItem from="1701884219592" duration="2111000" />
+      <workItem from="1701943219698" duration="4564000" />
+      <workItem from="1702120048989" duration="7468000" />
     </task>
     <task id="LOCAL-00001" summary="Added index blocks creation">
       <option name="closed" value="true" />
@@ -338,7 +338,42 @@
       <option name="project" value="LOCAL" />
       <updated>1701345047431</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="Lettura SkippingList e PostingList a blocchi">
+      <created>1701523560139</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1701523560139</updated>
+    </task>
+    <task id="LOCAL-00020" summary="Query con skipping list (da rivedere)">
+      <created>1701702918202</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1701702918202</updated>
+    </task>
+    <task id="LOCAL-00021" summary="Changes by ludav">
+      <created>1701795311530</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1701795311530</updated>
+    </task>
+    <task id="LOCAL-00022" summary="correzione errori">
+      <created>1701875137536</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1701875137536</updated>
+    </task>
+    <task id="LOCAL-00023" summary="Correzione errori esecuzione query">
+      <created>1701947193451</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1701947193451</updated>
+    </task>
+    <option name="localTasksCounter" value="24" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -383,7 +418,6 @@
     <MESSAGE value="Riorganizzazione codice e aggiunta moduli" />
     <MESSAGE value="workspace settings" />
     <MESSAGE value="Modifiche e correzioni" />
-    <MESSAGE value="Changes by ludav" />
     <MESSAGE value="Unione funzione simili e scrittura dizionario completo" />
     <MESSAGE value="Correzioni" />
     <MESSAGE value="added read posting list from the block files and added offset on the block file to the dictionary" />
@@ -392,20 +426,20 @@
     <MESSAGE value="Added writing of the skipping list to file" />
     <MESSAGE value="Riorganizzazione codice" />
     <MESSAGE value="Correzione scrittura skipping (rivedere lettura)" />
-    <option name="LAST_COMMIT_MESSAGE" value="Correzione scrittura skipping (rivedere lettura)" />
+    <MESSAGE value="Lettura SkippingList e PostingList a blocchi" />
+    <MESSAGE value="Query con skipping list (da rivedere)" />
+    <MESSAGE value="Changes by ludav" />
+    <MESSAGE value="correzione errori" />
+    <MESSAGE value="Correzione errori esecuzione query" />
+    <option name="LAST_COMMIT_MESSAGE" value="Correzione errori esecuzione query" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/compression/VariableByte.java</url>
-          <line>53</line>
-          <option name="timeStamp" value="9" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/IndexConstruction/src/main/java/it/unipi/mircv/compression/Unary.java</url>
-          <line>42</line>
-          <option name="timeStamp" value="10" />
+          <url>file://$PROJECT_DIR$/QueryProcessing/src/main/java/it/unipi/mircv/algorithm/DAAT.java</url>
+          <line>26</line>
+          <option name="timeStamp" value="23" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

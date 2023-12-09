@@ -399,12 +399,16 @@ public class InvertedIndex {
         }
     }
 
-    public static void test() throws IOException {
-        CollectionInfoTest.doTest();
-        DictionaryElemTest.doTest();
-        DocumentElemTest.doTest();
-        PostingListTest.doTest();
-        SkipListTest.doTest();
+    public static void test(){
+        try {
+            CollectionInfoTest.doTest();
+            DictionaryElemTest.doTest();
+            DocumentElemTest.doTest();
+            PostingListTest.doTest();
+            SkipListTest.doTest();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static HashMap<String, DictionaryElem> getDictionary() {

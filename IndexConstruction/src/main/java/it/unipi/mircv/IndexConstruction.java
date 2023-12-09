@@ -5,7 +5,7 @@ import java.io.IOException;
 public class IndexConstruction {
     public static final String PATH_TO_COLLECTION = "IndexConstruction/src/main/resources/collection.tar.gz";
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
 
         String operation = "build"; // Imposta il valore predefinito come "build" se nessun argomento è passato
 

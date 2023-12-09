@@ -17,23 +17,6 @@ public class TextPreprocesser {
 
     public static List<String> stopwords_global;
 
-    private static String removeUnicodeChars(String s) {
-
-        String str;
-        byte[] strBytes = s.getBytes(StandardCharsets.UTF_8);
-
-        str = new String(strBytes, StandardCharsets.UTF_8);
-
-        Pattern unicodeOutliers = Pattern.compile("[^\\x00-\\x7F]",
-                Pattern.UNICODE_CASE | Pattern.CANON_EQ
-                        | Pattern.CASE_INSENSITIVE);
-
-        Matcher unicodeOutlierMatcher = unicodeOutliers.matcher(str);
-        str = unicodeOutlierMatcher.replaceAll(" ");
-
-        return str;
-    }
-
     public static String cleanText(String str){
 
         /* Remove URLs */
@@ -47,9 +30,6 @@ public class TextPreprocesser {
 
         /* Remove punctuation */
         str = str.replaceAll("\\p{Punct}", " ");
-
-        /* Remove Unicode chars */
-        //str = removeUnicodeChars(str);   rivedi metodo
 
         /* Remove extra whitespaces with a single one */
         str = str.replaceAll("\\s+", " ");

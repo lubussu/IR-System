@@ -43,7 +43,7 @@ public class Main {
         } while (true);
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         String query;
         ArrayList<String> tokens;
         IndexConstruction.main(new String[]{"merge"});
