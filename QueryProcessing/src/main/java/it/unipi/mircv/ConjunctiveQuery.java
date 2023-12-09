@@ -66,9 +66,10 @@ public class ConjunctiveQuery {
                     break;
                 }
             }
-            if(present && score != 0){
+            if (present) {
                 result.offer(new DocumentScore(post.getDocId(), score));
-            }if (result.size() > Flags.getNumDocs()) {
+            }
+            if (result.size() > Flags.getNumDocs()) {
                 result.poll(); // Rimuovi il documento con il punteggio più basso se supera k
             }
         }

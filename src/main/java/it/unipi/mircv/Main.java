@@ -14,7 +14,7 @@ public class Main {
             System.out.println("SELECT QUERY TYPE:\n1: To execute Conjunctive Query\n2: To execute Disjunctive Query");
             type = sc.nextLine();
         } while (!type.equals("1") && !type.equals("2"));
-        Flags.setConjunctive(!type.equals("1"));
+        Flags.setConjunctive(type.equals("1"));
 
         if(!Flags.isConjunctive()){
             do {
@@ -42,11 +42,10 @@ public class Main {
             }
         } while (true);
     }
-
+    //which hormone increases calcium levels in the blood?
     public static void main(String[] args) {
         String query;
-        ArrayList<String> tokens;
-        IndexConstruction.main(new String[]{"merge"});
+        IndexConstruction.main(new String[]{"read"});
 
         Scanner sc = new Scanner(System.in);
 

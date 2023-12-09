@@ -16,17 +16,20 @@ import java.nio.file.StandardOpenOption;
 public class PostingListTest {
 
     public static void readWriteTest(PostingList postingList) throws IOException {
-        File folder = new File("/test");
+        File folder = new File("test");
         if (!folder.exists()) {
             folder.mkdirs();
         }
 
-        File testFile = new File (folder + "PostingListTest.bin");
+        File testFile = new File (folder + "/PostingListTest.bin");
 
         FileChannel bin_channel = FileChannel.open(Paths.get(testFile.toURI()), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
         postingList.ToBinFile(bin_channel, false);
+        bin_channel.close();
+        bin_channel = FileChannel.open(Paths.get(testFile.toURI()), StandardOpenOption.READ);
         PostingList test = new PostingList(postingList.getTerm());
         test.FromBinFile(bin_channel.position(0), false);
+        bin_channel.close();
 
         assert test.getPl().size() == postingList.getPl().size() : "(ERROR) Posting List [From/To]BinFile(): The posting list wrote to file has" +
                 "different dimension from the passed one. Maybe a compression problem?\n\n";

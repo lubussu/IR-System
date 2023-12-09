@@ -69,7 +69,7 @@ public class InvertedIndex {
             }
         }
 
-        System.out.printf("(INFO) The number of term lists cached is %d\n\n", Flags.isSkipping()?skip_lists.size():posting_lists.size());
+        System.out.printf("(INFO) The number of term lists cached is %d\n\n", posting_lists.size());
         String path = IOUtils.PATH_TO_FINAL_BLOCKS + "/PostingListCache";
 
 

@@ -13,17 +13,20 @@ import java.nio.file.StandardOpenOption;
 public class DocumentElemTest {
 
     public static void readWriteTest(DocumentElem documentElem) throws IOException {
-        File folder = new File("/test");
+        File folder = new File("test");
         if (!folder.exists()) {
             folder.mkdirs();
         }
 
-        File testFile = new File (folder + "DocumentElemTest.bin");
+        File testFile = new File (folder + "/DocumentElemTest.bin");
 
         FileChannel bin_channel = FileChannel.open(Paths.get(testFile.toURI()), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
         documentElem.ToBinFile(bin_channel);
+        bin_channel.close();
         DocumentElem test = new DocumentElem();
-        test.FromBinFile(bin_channel.position(0));
+        bin_channel = FileChannel.open(Paths.get(testFile.toURI()), StandardOpenOption.READ);
+        test.FromBinFile(bin_channel);
+        bin_channel.close();
         assert documentElem.getDocNo().equals(test.getDocNo()) : "(ERROR) Document Element [From/To]BinFile: different wrote and read Document number.\n\n";
         assert documentElem.getDocId() == test.getDocId() : "(ERROR) Document Element [From/To]BinFile: different wrote and read Document Id.\n\n";
         assert documentElem.getLength() == test.getLength() : "(ERROR) Document Element [From/To]BinFile: different wrote and read Document length.\n\n";

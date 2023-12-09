@@ -14,16 +14,19 @@ import java.nio.file.StandardOpenOption;
 public class DictionaryElemTest {
 
     public static void readWriteTest(DictionaryElem dictionaryElem, String term) throws IOException {
-        File folder = new File("/test");
+        File folder = new File("test");
         if (!folder.exists()) {
             folder.mkdirs();
         }
-        File testFile = new File (folder + "DictionaryElemTest.bin");
+        File testFile = new File (folder + "/DictionaryElemTest.bin");
 
         FileChannel bin_channel = FileChannel.open(Paths.get(testFile.toURI()), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
         dictionaryElem.ToBinFile(bin_channel);
+        bin_channel.close();
         DictionaryElem test = new DictionaryElem(term);
-        test.FromBinFile(bin_channel.position(0));
+        bin_channel = FileChannel.open(Paths.get(testFile.toURI()), StandardOpenOption.READ);
+        test.FromBinFile(bin_channel);
+        bin_channel.close();
         assert dictionaryElem.getDf() == test.getDf() : "(ERROR) Dictionary Element [From/To]BinFile(): different wrote and read Document frequency.\n\n";
         assert dictionaryElem.getCf() == test.getCf() : "(ERROR) Dictionary Element [From/To]BinFile(): different wrote and read Collection frequency.\n\n";
         assert dictionaryElem.getBlock_number() == test.getBlock_number() : "(ERROR) Dictionary Element [From/To]BinFile(): different wrote and read Block number.\n\n";

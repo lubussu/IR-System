@@ -26,7 +26,7 @@ public class QueryTesting
             String line;
             while ((line = br.readLine()) != null) {
                 long start = System.currentTimeMillis();
-
+                System.out.println(line);
                 // EXECUTE QUERY .......
                 QueryProcesser.executeQueryProcesser(line, true);
 

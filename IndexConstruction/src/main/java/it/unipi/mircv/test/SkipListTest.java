@@ -15,17 +15,20 @@ import java.nio.file.StandardOpenOption;
 public class SkipListTest {
 
     public static void readWriteTest(SkipList skipList) throws IOException {
-        File folder = new File("/test");
+        File folder = new File("test");
         if (!folder.exists()) {
             folder.mkdirs();
         }
 
-        File testFile = new File (folder + "SkipListTest.bin");
+        File testFile = new File (folder + "/SkipListTest.bin");
 
         FileChannel bin_channel = FileChannel.open(Paths.get(testFile.toURI()), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
         skipList.ToBinFile(bin_channel);
+        bin_channel.close();
+        bin_channel = FileChannel.open(Paths.get(testFile.toURI()), StandardOpenOption.READ);
         SkipList test = new SkipList(skipList.getTerm());
         test.FromBinFile(bin_channel.position(0));
+        bin_channel.close();
 
         for(int i = 0; i < skipList.getSl().size(); i++){
             assert test.getSl().get(i).getMaxDocId() == skipList.getSl().get(i).getMaxDocId() : "(ERROR) Skipping List [From/To]BinFile(): Different wrote and read Block max DocId found in skipping list.\n\n";
