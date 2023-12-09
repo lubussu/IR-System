@@ -1,9 +1,11 @@
 package it.unipi.mircv;
 
+import java.io.IOException;
+
 public class IndexConstruction {
     public static final String PATH_TO_COLLECTION = "IndexConstruction/src/main/resources/collection.tar.gz";
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         String operation = "build"; // Imposta il valore predefinito come "build" se nessun argomento è passato
 
@@ -18,10 +20,12 @@ public class IndexConstruction {
             InvertedIndex.buildIndexFromFile(PATH_TO_COLLECTION);
             InvertedIndex.mergeIndexes();
             InvertedIndex.buildCachePostingList();
+            InvertedIndex.test();
         } else if (operation.equals("merge")) {
             /* Merge index blocks from file*/
             InvertedIndex.mergeIndexes();
             InvertedIndex.buildCachePostingList();
+            InvertedIndex.test();
         } else if (operation.equals("read")) {
             /* read Merged Index from files*/
             InvertedIndex.readIndexFromFile();

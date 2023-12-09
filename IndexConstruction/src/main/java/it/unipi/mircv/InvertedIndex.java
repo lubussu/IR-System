@@ -1,4 +1,5 @@
 package it.unipi.mircv;
+import it.unipi.mircv.test.*;
 import it.unipi.mircv.utils.Flags;
 import it.unipi.mircv.utils.IOUtils;
 import it.unipi.mircv.bean.*;
@@ -396,6 +397,14 @@ public class InvertedIndex {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static void test() throws IOException {
+        CollectionInfoTest.doTest();
+        DictionaryElemTest.doTest();
+        DocumentElemTest.doTest();
+        PostingListTest.doTest();
+        SkipListTest.doTest();
     }
 
     public static HashMap<String, DictionaryElem> getDictionary() {
