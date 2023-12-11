@@ -1,11 +1,9 @@
 package it.unipi.mircv.test;
 
 import it.unipi.mircv.InvertedIndex;
-import it.unipi.mircv.bean.DocumentElem;
-import it.unipi.mircv.bean.Posting;
-import it.unipi.mircv.bean.PostingList;
-import it.unipi.mircv.bean.SkipElem;
+import it.unipi.mircv.bean.*;
 import it.unipi.mircv.utils.Flags;
+import it.unipi.mircv.utils.IOUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,7 +14,7 @@ import java.nio.file.StandardOpenOption;
 public class PostingListTest {
 
     public static void readWriteTest(PostingList postingList) throws IOException {
-        File folder = new File("test");
+        File folder = new File(IOUtils.PATH_TO_TEST);
         if (!folder.exists()) {
             folder.mkdirs();
         }
@@ -56,8 +54,8 @@ public class PostingListTest {
     }
 
     public static void readSkippingBlockTest(PostingList postingList) throws IOException {
-        int size = (int) Math.floor(Math.random() * (postingList.getSkipList().getSl().size() - 1));
-        SkipElem se = postingList.getSkipList().getSl().get(size);
+        int index = (int) Math.floor(Math.random() * (postingList.getSkipList().getSl().size() - 1));
+        SkipElem se = postingList.getSkipList().getSl().get(index);
         PostingList test = new PostingList(postingList.getTerm());
         test.readSkippingBlock(se);
         for(Posting post_test : test.getPl()){
@@ -73,8 +71,14 @@ public class PostingListTest {
 
     public static void doTest() throws IOException {
 
-        int size = InvertedIndex.getPosting_lists().size() - 1;
-        PostingList postingList = InvertedIndex.getPosting_lists().get((int) Math.floor(Math.random() * size));
+        //int size = InvertedIndex.getPosting_lists().size() - 1;
+        //PostingList postingList = InvertedIndex.getPosting_lists().get((int) Math.floor(Math.random() * size));
+
+        DictionaryElem de = InvertedIndex.getDictionary().get("000000000001");
+        FileChannel channel = FileChannel.open(Paths.get(IOUtils.PATH_TO_FINAL_BLOCKS + "/indexMerged" + de.getBlock_number()+".bin"));
+        PostingList postingList = IOUtils.readPlFromFile(channel, de.getOffset_block_pl(), "000000000001");
+        postingList.printPostingList();
+        System.out.println(postingList.getSkipList().getSl().size());
 
         readWriteTest(postingList);
         testInitList(postingList);

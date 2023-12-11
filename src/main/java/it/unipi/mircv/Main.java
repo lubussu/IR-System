@@ -1,8 +1,6 @@
 package it.unipi.mircv;
 
 import it.unipi.mircv.utils.Flags;
-
-import java.io.IOException;
 import java.util.*;
 
 public class Main {
@@ -42,10 +40,10 @@ public class Main {
             }
         } while (true);
     }
-    //which hormone increases calcium levels in the blood?
+
     public static void main(String[] args) {
         String query;
-        IndexConstruction.main(new String[]{"read"});
+        IndexConstruction.main(new String[]{"merge"});
 
         Scanner sc = new Scanner(System.in);
 

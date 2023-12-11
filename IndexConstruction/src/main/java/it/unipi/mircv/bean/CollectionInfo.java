@@ -23,13 +23,17 @@ public class CollectionInfo {
         }
     }
 
-    public static void FromBinFile(FileChannel channel) throws IOException {
-        ByteBuffer buffer = ByteBuffer.allocate(16);
-        channel.read(buffer);
-        buffer.flip();
-        collection_size = buffer.getLong();
-        collection_total_len = buffer.getLong();
-        buffer.clear();
+    public static void FromBinFile(FileChannel channel){
+        try {
+            ByteBuffer buffer = ByteBuffer.allocate(16);
+            channel.read(buffer);
+            buffer.flip();
+            collection_size = buffer.getLong();
+            collection_total_len = buffer.getLong();
+            buffer.clear();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static long getCollection_size() {

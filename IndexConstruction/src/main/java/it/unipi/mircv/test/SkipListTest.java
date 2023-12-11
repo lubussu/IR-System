@@ -1,10 +1,9 @@
 package it.unipi.mircv.test;
 
 import it.unipi.mircv.InvertedIndex;
-import it.unipi.mircv.bean.DocumentElem;
-import it.unipi.mircv.bean.PostingList;
 import it.unipi.mircv.bean.SkipList;
 import it.unipi.mircv.utils.Flags;
+import it.unipi.mircv.utils.IOUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,7 +14,7 @@ import java.nio.file.StandardOpenOption;
 public class SkipListTest {
 
     public static void readWriteTest(SkipList skipList) throws IOException {
-        File folder = new File("test");
+        File folder = new File(IOUtils.PATH_TO_TEST);
         if (!folder.exists()) {
             folder.mkdirs();
         }

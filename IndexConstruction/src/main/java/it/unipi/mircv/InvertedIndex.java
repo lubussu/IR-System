@@ -45,16 +45,15 @@ public class InvertedIndex {
         for (Map.Entry<String, DictionaryElem> entry : dictionary.entrySet()) {
             queue_dict.add(entry.getValue());
 
-            if(Flags.isSkipping()) {
-                SkipList sl_to_cache = IOUtils.readSLFromFile(skipChannel, entry.getValue().getOffset_block_sl(),
+            if(Flags.isSkipping()) { /* Read skip list of the term*/
+                SkipList sl = IOUtils.readSLFromFile(skipChannel, entry.getValue().getOffset_block_sl(),
                         entry.getValue().getTerm());
-                skip_lists.add(sl_to_cache);
-                dictionary.get(sl_to_cache.getTerm()).setOffset_skip_lists(skip_lists.size() - 1);
+                skip_lists.add(sl);
+                dictionary.get(sl.getTerm()).setOffset_skip_lists(skip_lists.size() - 1);
             }
         }
 
         ArrayList<FileChannel> channels = IOUtils.prepareChannels(IOUtils.PATH_TO_FINAL_BLOCKS, "/indexMerged", block_number);
-
         while (!queue_dict.isEmpty()){
             DictionaryElem current_de = queue_dict.poll();
 
@@ -192,7 +191,8 @@ public class InvertedIndex {
                 long current_position = channel.position(); //conservo la posizione per risettarla se non leggo il termine cercato
                 if (!dict.FromBinFile(channel))
                     channel.position(current_position);
-                dict.setIdf(log(((double) dictionary.size()/dict.getDf())));
+                dict.setIdf(log(((double) CollectionInfo.getCollection_size() /dict.getDf()))); //??
+                // dict.setIdf(log(((double) dictionary.size()/dict.getDf())));
                 dictionary.put(term, dict);
             }
         }
@@ -255,6 +255,8 @@ public class InvertedIndex {
         if(termList == null || termList.isEmpty())
             readTermList();
         try {
+            CollectionInfo.FromBinFile(IOUtils.getFileChannel("final/CollectionInfo", "read")); //??
+
             mergeDictionary(termList);
             mergePostingList(termList);
             IOUtils.readDocTable();
@@ -280,7 +282,8 @@ public class InvertedIndex {
             while((current_term = IOUtils.readTerm(channel))!=null){
                 DictionaryElem dict = new DictionaryElem(current_term);
                 dict.updateFromBinFile(channel);
-                dict.setIdf(log(((double) dictionary.size()/dict.getDf())));
+                dict.setIdf(log(((double) CollectionInfo.getCollection_size()/dict.getDf()))); //??
+                // dict.setIdf(log(((double) dictionary.size()/dict.getDf())));
                 dictionary.put(current_term, dict);
             }
         } catch (IOException e) {
@@ -294,18 +297,14 @@ public class InvertedIndex {
         if(termList == null || termList.isEmpty())
            readTermList();
 
+        CollectionInfo.FromBinFile(IOUtils.getFileChannel("final/CollectionInfo", "read"));
+        IOUtils.readDocTable();
+
         readDictionary(); //read final Dictionary from file
         if(Flags.isSkipping()) {
             readSLsFromFile("SkipInfo.bin");
         }
         readPLsFromFile("PostingListCache.bin");
-
-        try {
-            CollectionInfo.FromBinFile(IOUtils.getFileChannel("final/CollectionInfo", "read"));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        IOUtils.readDocTable();
 
         long end = System.currentTimeMillis() - start;
         long time = (end/1000)/60;
@@ -409,6 +408,7 @@ public class InvertedIndex {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        Flags.setTesting(false);
     }
 
     public static HashMap<String, DictionaryElem> getDictionary() {

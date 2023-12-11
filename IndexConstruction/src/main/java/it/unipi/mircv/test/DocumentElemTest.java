@@ -1,8 +1,8 @@
 package it.unipi.mircv.test;
 
 import it.unipi.mircv.InvertedIndex;
-import it.unipi.mircv.bean.CollectionInfo;
 import it.unipi.mircv.bean.DocumentElem;
+import it.unipi.mircv.utils.IOUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,7 +13,7 @@ import java.nio.file.StandardOpenOption;
 public class DocumentElemTest {
 
     public static void readWriteTest(DocumentElem documentElem) throws IOException {
-        File folder = new File("test");
+        File folder = new File(IOUtils.PATH_TO_TEST);
         if (!folder.exists()) {
             folder.mkdirs();
         }

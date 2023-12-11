@@ -33,9 +33,25 @@ public class ConjunctiveQuery {
         String path = IOUtils.PATH_TO_FINAL_BLOCKS+"/indexMerged" + first_dict.getBlock_number();
         FileChannel channel = IOUtils.getFileChannel(path, "read");
         PostingList pl = IOUtils.readPlFromFile(channel, first_dict.getOffset_block_pl(), first_dict.getTerm());
+        IOUtils.closeChannel(channel);
         postingLists.add(pl);
         while(!term_df_inc.isEmpty()){
-            pl = new PostingList(term_df_inc.poll().getTerm());
+            DictionaryElem dict = term_df_inc.poll();
+            int offset = dict.getOffset_posting_lists();
+            if(offset!=-1 && InvertedIndex.getPosting_lists().size() > offset
+                    && InvertedIndex.getPosting_lists().get(offset).getTerm().equals(dict.getTerm())) {
+
+                pl = InvertedIndex.getPosting_lists().get(offset);
+            } else {
+                if (Flags.isSkipping()) {
+                    pl = new PostingList(dict.getTerm());
+                } else {
+                    path = IOUtils.PATH_TO_FINAL_BLOCKS + "/indexMerged" + dict.getBlock_number();
+                    channel = IOUtils.getFileChannel(path, "read");
+                    pl = IOUtils.readPlFromFile(channel, dict.getOffset_block_pl(), dict.getTerm());
+                }
+            }
+            pl.initList();
             postingLists.add(pl);
         }
 
@@ -55,8 +71,8 @@ public class ConjunctiveQuery {
             boolean present = true;
 
             for(int i = 1; i<postingLists.size(); i++){
-                dict = InvertedIndex.getDictionary().get(postingLists.get(i).getTerm());
                 PostingList current_pl = postingLists.get(i);
+                dict = InvertedIndex.getDictionary().get(current_pl.getTerm());
                 current_pl.nextGEQ(post.getDocId());
                 Posting actualPosting = current_pl.getActualPosting();
                 if(actualPosting != null && actualPosting.getDocId() == post.getDocId()){

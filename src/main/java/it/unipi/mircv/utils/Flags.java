@@ -2,12 +2,13 @@ package it.unipi.mircv.utils;
 
 public class Flags {
 
-    // Building parameters
+    /* Building parameters */
     private static boolean compression = true;
     private static boolean skipping = true;
     private static int minBlockSize = 512;
+    private static boolean testing = false;
 
-    //Query parameters
+    /* Query parameters */
 
     /* TRUE: Conjunctive Query FALSE: Disjunctive Query */
     private static boolean conjunctive = true;
@@ -20,7 +21,6 @@ public class Flags {
 
     private static int numDocs = 5;
 
-    /* SETTER AND GETTER SECTION */
 
     public static void setCompression(boolean compression) {
         Flags.compression = compression;
@@ -44,6 +44,10 @@ public class Flags {
         Flags.minBlockSize = minBlockSize;
     }
 
+    public static void setTesting(boolean testing) {
+        Flags.testing = testing;
+    }
+
     public static int getNumDocs() {
         return numDocs;
     }
@@ -65,6 +69,10 @@ public class Flags {
     public static boolean isConjunctive() {return conjunctive;}
 
     public static boolean isSkipping() {return skipping;}
+
+    public static boolean isTesting() {
+        return testing;
+    }
 
     public static void printOption(){
         System.out.println("DEFAULT OPTIONS:");

@@ -48,19 +48,6 @@ public class DictionaryElem {
 
 
 
-
-    /* Offset of the term frequencies posting list */
-    private long offset_tf;
-
-    /* Length of the term frequencies posting list */
-    private int tf_len;
-
-    /* Offset of the skipping information */
-    private int offset_skipInfo;
-
-    /* Length of the skipping information */
-    private int skipInfo_len;
-
     public DictionaryElem(String term) {
         this(term, 0, 0);
     }
@@ -76,12 +63,6 @@ public class DictionaryElem {
         this.maxTf = 0;
         this.maxTFIDF = 0;
         this.maxBM25 = 0;
-
-        this.offset_tf = 0;
-        this.tf_len = 0;
-        this.offset_skipInfo = 0;
-        this.skipInfo_len = 0;
-
     }
 
     public void computeMaxBM25(PostingList pl) {
@@ -216,44 +197,12 @@ public class DictionaryElem {
         this.offset_block_pl = offset_block_pl;
     }
 
-    public long getOffset_tf() {
-        return offset_tf;
-    }
-
-    public void setOffset_tf(long offset_tf) {
-        this.offset_tf = offset_tf;
-    }
-
-    public int getTf_len() {
-        return tf_len;
-    }
-
-    public void setTf_len(int tf_len) {
-        this.tf_len = tf_len;
-    }
-
     public int getMaxTf() {
         return maxTf;
     }
 
     public void setMaxTf(int maxTf) {
         this.maxTf = maxTf;
-    }
-
-    public int getOffset_skipInfo() {
-        return offset_skipInfo;
-    }
-
-    public void setOffset_skipInfo(int offset_skipInfo) {
-        this.offset_skipInfo = offset_skipInfo;
-    }
-
-    public int getSkipInfo_len() {
-        return skipInfo_len;
-    }
-
-    public void setSkipInfo_len(int skipInfo_len) {
-        this.skipInfo_len = skipInfo_len;
     }
 
     public double getIdf() {

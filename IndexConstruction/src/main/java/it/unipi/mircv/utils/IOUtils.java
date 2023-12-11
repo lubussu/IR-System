@@ -22,6 +22,7 @@ import java.util.Objects;
 public class IOUtils {
     public static final String PATH_TO_TEMP_BLOCKS = "temp/index";
     public static final String PATH_TO_FINAL_BLOCKS = "final/index";
+    public static final String PATH_TO_TEST = "test";
 
     public static void cleanDirectory(String directory){
         File folder = new File(directory);
@@ -30,6 +31,14 @@ public class IOUtils {
         else
             for (File file : Objects.requireNonNull(folder.listFiles()))
                 file.delete();
+    }
+
+    public static void closeChannel(FileChannel channel){
+        try {
+            channel.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static FileChannel getFileChannel(String filename, String mode) {
@@ -130,21 +139,21 @@ public class IOUtils {
         return new String(bytes, StandardCharsets.UTF_8);
     }
 
-    public static void writeTerm(FileChannel channel, String term, int size, boolean offset_pl) throws IOException {
+    public static void writeTerm(FileChannel channel, String term, int size, boolean writing_pl) throws IOException {
         byte[] descBytes = String.valueOf(term).getBytes(StandardCharsets.UTF_8);
         ByteBuffer buffer = ByteBuffer.allocate(4 + descBytes.length + 4);
         long start_position = channel.position();
         DictionaryElem dict = InvertedIndex.getDictionary().get(term);
-        if(offset_pl) {
+        if(writing_pl) { // writing a posting_list
             dict.setOffset_block_pl(start_position);
-        }else{
+        }else{ // writing a skipping_list
             dict.setOffset_block_sl(start_position);
         }
 
         // Populate the buffer for termLenght + term
         buffer.putInt(descBytes.length);
         buffer.put(descBytes);
-        buffer.putInt(size);
+        buffer.putInt(size); //pl_size if writing PL, sl_size if writing SL
         buffer.flip();
         // Write the buffer to the file
         channel.write(buffer);
