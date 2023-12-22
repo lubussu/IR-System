@@ -32,6 +32,12 @@ public class SkipList {
         this.sl.add(se);
     }
 
+    /**
+     * Read the skipping list term and calls the updateFromBinFIle() to read the full skipping list.
+     *
+     * @param channel Channel to the file to read
+     * @throws IOException Error while opening the file channel
+     */
     public boolean FromBinFile(FileChannel channel) throws IOException {
         String current_term = IOUtils.readTerm(channel);
         if (current_term==null || !current_term.equals(this.term)) { //non ho letto il termine cercato (so che non c'è)
@@ -42,16 +48,26 @@ public class SkipList {
         return true;
     }
 
+    /**
+     * Read the skipping list length and then reads all the skipping elements with their parameters.
+     *
+     * @param channel Channel to the file to read
+     * @throws IOException Error while opening the file channel
+     */
     public void updateFromBinFile(FileChannel channel) throws IOException {
+
+        // Read the skipping list length
         ByteBuffer buffer = ByteBuffer.allocate(4);
         channel.read(buffer);
         buffer.flip();
         int sl_size = buffer.getInt();
 
+        // Allocate a buffer to store each parameter of each skipping element
         buffer = ByteBuffer.allocate(sl_size * 16);
         channel.read(buffer);
         buffer.flip();
 
+        // Iterate the skipping lists to read al the skipping elements
         for (int j = 0; j < sl_size; j++) {
             int max_docid = buffer.getInt();
             long block_start = buffer.getLong();
@@ -62,6 +78,12 @@ public class SkipList {
         buffer.clear();
     }
 
+    /**
+     * Write the parameters of a skipping list to the SkipInfo.bin file
+     *
+     * @param channel Channel to the file to read
+     * @throws RuntimeException Error while opening the file channel
+     */
     public void ToBinFile(FileChannel channel) {
         try {
             IOUtils.writeTerm(channel, term, sl.size(), false);

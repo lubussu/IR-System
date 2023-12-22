@@ -32,9 +32,13 @@ public class PostingListTest {
         assert test.getPl().size() == postingList.getPl().size() : "(ERROR) Posting List [From/To]BinFile(): The posting list wrote to file has" +
                 "different dimension from the passed one. Maybe a compression problem?\n\n";
 
-        for(int i = 0; i < postingList.getPl().size(); i++){
-            assert test.getPl().get(i).getDocId() == postingList.getPl().get(i).getDocId() : "(ERROR) Posting List [From/To]BinFile(): Different wrote and read DocId found in posting list.\n\n";
-            assert test.getPl().get(i).getTermFreq() == postingList.getPl().get(i).getTermFreq() : "(ERROR) Posting List [From/To]BinFile(): Different Frequency wrote and read found in posting list.\n\n";
+        postingList.initList();
+        test.initList();
+        while(postingList.getActualPosting() != null){
+            assert test.getActualPosting() == postingList.getActualPosting() : "(ERROR) Posting List [From/To]BinFile(): Different wrote and read DocId found in posting list.\n\n";
+            assert test.getActualPosting() == postingList.getActualPosting() : "(ERROR) Posting List [From/To]BinFile(): Different Frequency wrote and read found in posting list.\n\n";
+            postingList.next();
+            test.next();
         }
 
         testFile.delete();
@@ -58,14 +62,18 @@ public class PostingListTest {
         SkipElem se = postingList.getSkipList().getSl().get(index);
         PostingList test = new PostingList(postingList.getTerm());
         test.readSkippingBlock(se);
-        for(Posting post_test : test.getPl()){
+        test.initList();
+        postingList.initList();
+        while(test.getActualPosting() != null){
             boolean found = false;
-            for(Posting post : postingList.getPl()){
-                if (post_test.getDocId() == post.getDocId()) {
+            while(postingList.getActualPosting() != null){
+                if (test.getActualPosting() == postingList.getActualPosting()) {
                     found = true;
                 }
+                postingList.next();
             }
             assert found : "(ERROR) readSkippingBlock(): Posting List readSkippingBlock(): All the DocIds of a block were not found in the posting list.\n\n";
+            test.next();
         }
     }
 
@@ -77,6 +85,7 @@ public class PostingListTest {
         DictionaryElem de = InvertedIndex.getDictionary().get("000000000001");
         FileChannel channel = FileChannel.open(Paths.get(IOUtils.PATH_TO_FINAL_BLOCKS + "/indexMerged" + de.getBlock_number()+".bin"));
         PostingList postingList = IOUtils.readPlFromFile(channel, de.getOffset_block_pl(), "000000000001");
+        assert postingList != null : "(ERROR) Read posting list is empty.";
         postingList.printPostingList();
         System.out.println(postingList.getSkipList().getSl().size());
 

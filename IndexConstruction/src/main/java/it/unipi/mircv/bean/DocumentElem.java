@@ -26,16 +26,8 @@ public class DocumentElem {
         return docNo;
     }
 
-    public void setDocNo(String docNo) {
-        this.docNo = docNo;
-    }
-
     public int getDocId() {
         return docId;
-    }
-
-    public void setDocId(int docId) {
-        this.docId = docId;
     }
 
     public int getLength() {
@@ -46,6 +38,12 @@ public class DocumentElem {
         this.length = length;
     }
 
+    /**
+     * Write the object to a file in binary code.
+     *
+     * @param channel Channel to the file to write
+     * @throws IOException Error while opening the file channel
+     */
     public void ToBinFile(FileChannel channel) {
         try{
             byte[] descBytes = String.valueOf(this.docNo).getBytes(StandardCharsets.UTF_8);
@@ -64,6 +62,12 @@ public class DocumentElem {
         }
     }
 
+    /**
+     * Read the object from a file in binary code.
+     *
+     * @param channel Channel to the file to read
+     * @throws IOException Error while opening the file channel
+     */
     public boolean FromBinFile(FileChannel channel)  {
         try {
             this.docNo = IOUtils.readTerm(channel);

@@ -6,7 +6,7 @@ public class Flags {
     private static boolean compression = true;
     private static boolean skipping = true;
     private static int minBlockSize = 512;
-    private static boolean testing = false;
+    private static boolean testing = true;
 
     /* Query parameters */
 

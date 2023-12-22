@@ -8,6 +8,7 @@ public class SkipElem {
     /* Starting offset of the skipElem in the SkipInfo file */
     private long blockStartingOffset;
 
+    /* Number of postings in the block */
     private int block_size;
 
 

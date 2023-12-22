@@ -8,6 +8,12 @@ public class CollectionInfo {
     private static long collection_size = 0;
     private static long collection_total_len = 0;
 
+    /**
+     * Write the object to a file in binary code.
+     *
+     * @param channel Channel to the file to write
+     * @throws IOException Error while opening the file channel
+     */
     public static void ToBinFile(FileChannel channel){
         try {
             ByteBuffer buffer = ByteBuffer.allocate(16);
@@ -23,6 +29,12 @@ public class CollectionInfo {
         }
     }
 
+    /**
+     * Read the object from a file in binary code.
+     *
+     * @param channel Channel to the file to read
+     * @throws IOException Error while opening the file channel
+     */
     public static void FromBinFile(FileChannel channel){
         try {
             ByteBuffer buffer = ByteBuffer.allocate(16);

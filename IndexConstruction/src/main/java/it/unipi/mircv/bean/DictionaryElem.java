@@ -27,14 +27,16 @@ public class DictionaryElem {
     /* Number of block in which the PL is stored */
     private int block_number;
 
-    /* Pointer to the beginning of posting list of term t */
+    /* Pointer to the beginning of posting list of term t in cache*/
     private int offset_posting_lists;
 
     /* Pointer to the posting list on block (in the file)*/
     private long offset_block_pl;
 
+    /* Pointer to the beginning of skipping list of term t in memory*/
     private int offset_skip_lists;
 
+    /* Pointer to the skipping list (in the file)*/
     private long offset_block_sl;
 
     /* Maximum term frequency of the term */
@@ -65,6 +67,11 @@ public class DictionaryElem {
         this.maxBM25 = 0;
     }
 
+    /**
+     * Compute the MaxBM25 score for the term of the posting list.
+     *
+     * @param pl Channel to the file to read
+     */
     public void computeMaxBM25(PostingList pl) {
         for (Posting p: pl.getPl()) {
             double current_BM25 = Scorer.scoreDocument(p, this.getIdf(), Flags.isScoreMode());
@@ -74,6 +81,11 @@ public class DictionaryElem {
         }
     }
 
+    /**
+     * Compute the maximum term frequency for the term of the posting list.
+     *
+     * @param list Channel to the file to read
+     */
     public void computeMaxTf(PostingList list) {
         for (Posting posting : list.getPl()) {
             if (posting.getTermFreq() > this.maxTf)
@@ -81,10 +93,19 @@ public class DictionaryElem {
         }
     }
 
+    /**
+     * Compute the TFIDF score for the term of the posting list.
+     */
     public void computeMaxTFIDF() {
         this.maxTFIDF = (1 + Math.log10(this.maxTf)) * this.idf;
     }
 
+    /**
+     * Read the object from a file in binary code.
+     *
+     * @param channel Channel to the file to read
+     * @throws IOException Error while opening the file channel
+     */
     public boolean FromBinFile(FileChannel channel) throws IOException {
         String current_term = IOUtils.readTerm(channel);
         if (current_term==null || !current_term.equals(this.term)) { //non ho letto il termine cercato (so che non c'è)
@@ -95,6 +116,12 @@ public class DictionaryElem {
         return true;
     }
 
+    /**
+     * Write the object to a file in binary code.
+     *
+     * @param channel Channel to the file to write
+     * @throws IOException Error while opening the file channel
+     */
     public void ToBinFile(FileChannel channel){
         try{
             byte[] descBytes = String.valueOf(this.term).getBytes(StandardCharsets.UTF_8);
@@ -119,6 +146,12 @@ public class DictionaryElem {
         }
     }
 
+    /**
+     * Write the object to a file in text format.
+     *
+     * @param filename Path of the file to write
+     * @throws IOException Error while opening the file channel
+     */
     public void ToTextFile(String filename) {
         try (FileWriter fileWriter = new FileWriter(filename, true);
              PrintWriter writer = new PrintWriter(fileWriter)) {
@@ -132,6 +165,12 @@ public class DictionaryElem {
         }
     }
 
+    /**
+     * Read the object parameters from a file in binary code.
+     *
+     * @param channel Channel to the file to read
+     * @throws IOException Error while opening the file channel
+     */
     public void updateFromBinFile(FileChannel channel) throws IOException {
         ByteBuffer buffer = ByteBuffer.allocate(48);
         channel.read(buffer);
@@ -151,10 +190,6 @@ public class DictionaryElem {
 
     public String getTerm() {
         return term;
-    }
-
-    public void setTerm(String term) {
-        this.term = term;
     }
 
     public int getDf() {
@@ -201,10 +236,6 @@ public class DictionaryElem {
         return maxTf;
     }
 
-    public void setMaxTf(int maxTf) {
-        this.maxTf = maxTf;
-    }
-
     public double getIdf() {
         return idf;
     }
@@ -215,10 +246,6 @@ public class DictionaryElem {
 
     public double getMaxTFIDF() {
         return maxTFIDF;
-    }
-
-    public void setMaxTFIDF(double maxTFIDF) {
-        this.maxTFIDF = maxTFIDF;
     }
 
     public double getMaxBM25() {
@@ -237,6 +264,11 @@ public class DictionaryElem {
 
     public void setOffset_block_sl(long offset_block_sl){ this.offset_block_sl = offset_block_sl; }
 
+    /**
+     * Comparator of two Dictionary elements.
+     *
+     * @param de The element to compare.
+     */
     public int compareTo(DictionaryElem de) {
         if(this.getDf() > de.getDf()){
             return 1;

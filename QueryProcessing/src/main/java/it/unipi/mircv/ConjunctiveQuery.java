@@ -65,7 +65,9 @@ public class ConjunctiveQuery {
 
         // Get the skipping lists of the terms in the query
         PostingList first_pl = postingLists.get(0);
-        for(Posting post : first_pl.getPl()){
+        first_pl.initList();
+        while(first_pl.getActualPosting() != null){
+            Posting post = first_pl.getActualPosting();
             DictionaryElem dict = InvertedIndex.getDictionary().get(first_pl.getTerm());
             double score = Scorer.scoreDocument(post, dict.getIdf(), Flags.isScoreMode());
             boolean present = true;
@@ -79,6 +81,7 @@ public class ConjunctiveQuery {
                     score += Scorer.scoreDocument(current_pl.getActualPosting(), dict.getIdf(), Flags.isScoreMode());
                 }else{
                     present = false;
+                    first_pl.next();
                     break;
                 }
             }
@@ -88,6 +91,7 @@ public class ConjunctiveQuery {
             if (result.size() > Flags.getNumDocs()) {
                 result.poll(); // Rimuovi il documento con il punteggio più basso se supera k
             }
+            first_pl.next();
         }
         return result;
     }
