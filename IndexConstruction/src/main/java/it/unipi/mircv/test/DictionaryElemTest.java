@@ -12,6 +12,9 @@ import java.nio.file.StandardOpenOption;
 
 public class DictionaryElemTest {
 
+    /**
+     * Write the object to a temporary test file and read to check if both the operations return the equal objects.
+     */
     public static void readWriteTest(DictionaryElem dictionaryElem, String term) throws IOException {
         File folder = new File(IOUtils.PATH_TO_TEST);
         if (!folder.exists()) {
@@ -39,6 +42,9 @@ public class DictionaryElemTest {
         testFile.delete();
     }
 
+    /**
+     * Takes a dummy dictionary element to execute the test.
+     */
     public static void doTest() throws IOException {
 
         int size = InvertedIndex.getTermList().size() - 1;

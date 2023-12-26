@@ -4,16 +4,25 @@ import java.util.ArrayList;
 
 public class VariableByte {
 
+    /**
+     * Takes in input an array of integers and returns them in a compressed VariableBytes format.
+     *
+     * @param integers Array of integers to compress
+     * @throws IllegalArgumentException Error while opening the file channel
+     * @return ArrayList of bytes containing the new codification for the integers passed
+     */
     public static byte[] fromIntegersToVariableBytes(ArrayList<Integer> integers) {
         ArrayList<Byte> encodedBytes = new ArrayList<>();
 
         for (int docId : integers) {
             do {
-                byte b = (byte) (docId & 0x7F); // Ultimi 7 bit di docId e converti in byte
-                docId >>= 7; // Sposta i 7 bit verso destra
+                // Takes the las 7 bits of the DocID and convert them in bytes
+                byte b = (byte) (docId & 0x7F);
+                // Move the 7 bits to the right
+                docId >>= 7;
 
                 if (docId != 0) {
-                    // Imposta il bit più significativo di b a 1
+                    // Set the most significant bit to 1
                     b |= 0x80;
                 }
 
@@ -29,12 +38,19 @@ public class VariableByte {
         return result;
     }
 
-    public static ArrayList<Integer> fromVariableBytesToIntegers(byte[] bytes, int lenght) {
+    /**
+     * Takes in input an array of bytes and returns the decode integers from VariableBytes encoding.
+     *
+     * @param bytes Array of bytes to decompress
+     * @throws IllegalArgumentException Error while opening the file channel
+     * @return ArrayList containing decompressed integers
+     */
+    public static ArrayList<Integer> fromVariableBytesToIntegers(byte[] bytes, int length) {
         ArrayList<Integer> integers = new ArrayList<>();
 
         int currentIndex = 0;
 
-        while (currentIndex < bytes.length && lenght > 0) {
+        while (currentIndex < bytes.length && length > 0) {
             int result = 0;
             int shift = 0;
 
@@ -49,7 +65,7 @@ public class VariableByte {
                 }
             }
             integers.add(result);
-            lenght --;
+            length --;
         }
         integers.add(0, currentIndex);
         return integers;

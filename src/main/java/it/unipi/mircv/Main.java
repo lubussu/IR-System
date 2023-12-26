@@ -5,6 +5,9 @@ import java.util.*;
 
 public class Main {
 
+    /**
+     * Let the user change the default parameters for the query execution.
+     */
     public static void setOptions(){
         Scanner sc = new Scanner(System.in);
         String type;
@@ -41,6 +44,10 @@ public class Main {
         } while (true);
     }
 
+    /**
+     * Start the execution of the search engine ("read" to read the index, "merge" to merge the temporary file (useful to
+     * choose build or remove skipping lists, "build" to rebuild the index from scratch).
+     */
     public static void main(String[] args) {
         String query;
         IndexConstruction.main(new String[]{"read"});

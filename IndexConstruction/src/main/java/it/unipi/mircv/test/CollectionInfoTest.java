@@ -11,6 +11,9 @@ import java.nio.file.StandardOpenOption;
 
 public class CollectionInfoTest {
 
+    /**
+     * Write the object to a temporary test file and read to check if both the operations return the equal objects.
+     */
     public static void readWriteTest() throws IOException {
         File folder = new File(IOUtils.PATH_TO_TEST);
         if (!folder.exists()) {

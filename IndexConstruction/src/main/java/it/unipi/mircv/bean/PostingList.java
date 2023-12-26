@@ -122,6 +122,7 @@ public class PostingList {
      * @param channel Channel to the file to read
      * @param skipping Flag if skipping lists are present
      * @throws IOException Error while opening the file channel
+     * @return true if the term is found, false otherwise
      */
     public boolean FromBinFile(FileChannel channel, boolean skipping) throws IOException {
         String current_term = IOUtils.readTerm(channel);

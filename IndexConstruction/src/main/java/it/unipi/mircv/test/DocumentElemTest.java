@@ -12,6 +12,9 @@ import java.nio.file.StandardOpenOption;
 
 public class DocumentElemTest {
 
+    /**
+     * Write the object to a temporary test file and read to check if both the operations return the equal objects.
+     */
     public static void readWriteTest(DocumentElem documentElem) throws IOException {
         File folder = new File(IOUtils.PATH_TO_TEST);
         if (!folder.exists()) {
@@ -34,6 +37,9 @@ public class DocumentElemTest {
         testFile.delete();
     }
 
+    /**
+     * Takes a random dummy document element to execute the test.
+     */
     public static void doTest() throws IOException {
 
         int size = InvertedIndex.getDocTable().size() - 1;

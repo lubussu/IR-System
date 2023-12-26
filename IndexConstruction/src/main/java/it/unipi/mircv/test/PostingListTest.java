@@ -13,6 +13,9 @@ import java.nio.file.StandardOpenOption;
 
 public class PostingListTest {
 
+    /**
+     * Write the object to a temporary test file and read to check if both the operations return the equal objects.
+     */
     public static void readWriteTest(PostingList postingList) throws IOException {
         File folder = new File(IOUtils.PATH_TO_TEST);
         if (!folder.exists()) {
@@ -44,12 +47,18 @@ public class PostingListTest {
         testFile.delete();
     }
 
+    /**
+     * Test the initialization of the posting list iterator.
+     */
     public static void testInitList(PostingList postingList) {
         postingList.initList();
         assert postingList.getActualPosting() == postingList.getPl().get(0) : "(ERROR) Posting List InitList(): Posting list iterator." +
                 " not initialized correctly.\n\n";
     }
 
+    /**
+     * Test the nextGEQ() by searching and returning the found DocID and if it is greater or equal than the passed DocId
+     */
     public static void testNextGEQ(PostingList postingList){
         int id = (int) Math.floor(Math.random()*postingList.getPl().get(postingList.getPl().size()-1).getDocId());
         postingList.nextGEQ(id);
@@ -57,6 +66,9 @@ public class PostingListTest {
                 " There could be a problem reading the SkipInfo File.\n\n";
     }
 
+    /**
+     * Test the readSkippingBlock() by checking if all the ordered posting of a given block are present in the posting list.
+     */
     public static void readSkippingBlockTest(PostingList postingList) throws IOException {
         int index = (int) Math.floor(Math.random() * (postingList.getSkipList().getSl().size() - 1));
         SkipElem se = postingList.getSkipList().getSl().get(index);
@@ -77,6 +89,9 @@ public class PostingListTest {
         }
     }
 
+    /**
+     * Execute the testing by passing a dummy posting list.
+     */
     public static void doTest() throws IOException {
 
         //int size = InvertedIndex.getPosting_lists().size() - 1;
@@ -86,8 +101,6 @@ public class PostingListTest {
         FileChannel channel = FileChannel.open(Paths.get(IOUtils.PATH_TO_FINAL_BLOCKS + "/indexMerged" + de.getBlock_number()+".bin"));
         PostingList postingList = IOUtils.readPlFromFile(channel, de.getOffset_block_pl(), "000000000001");
         assert postingList != null : "(ERROR) Read posting list is empty.";
-        postingList.printPostingList();
-        System.out.println(postingList.getSkipList().getSl().size());
 
         readWriteTest(postingList);
         testInitList(postingList);

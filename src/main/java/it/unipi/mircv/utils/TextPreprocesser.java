@@ -15,36 +15,54 @@ import org.tartarus.snowball.ext.EnglishStemmer;
 
 public class TextPreprocesser {
 
+    // File containing the stopwords
     public static List<String> stopwords_global;
 
+    /**
+     * Execute text preprocessing on the query.
+     * @param str String containing the query to process
+     * @return The processed query
+     */
     public static String cleanText(String str){
 
-        /* Remove URLs */
+        // Remove URLs
         str = str.replaceAll("https?://\\S+\\s?", " ");
 
-        /* Reduce to lower case */
+        // Reduce to lower case
         str = str.toLowerCase();
 
-        /* Remove HTML tags */
+        // Remove HTML tags
         str = str.replaceAll("<[^>]*>", "");
 
-        /* Remove punctuation */
+        // Remove punctuation
         str = str.replaceAll("\\p{Punct}", " ");
 
-        /* Remove extra whitespaces with a single one */
+        // Remove extra whitespaces with a single one
         str = str.replaceAll("\\s+", " ");
 
         return str;
     }
 
+    /**
+     * Execute the tokenization of the query.
+     * @param str String containing the query to process
+     * @return An array list containing tokenized query
+     */
     public static ArrayList<String> tokenizeLine(String str) {
 
         return Stream.of(str.toLowerCase().split(" "))
                 .collect(Collectors.toCollection(ArrayList<String>::new));
     }
 
+    /**
+     * Execute the stemming of the query tokens.
+     * @param tokens Array list containing the query tokens to process
+     * @return An array list containing stemmed tokens
+     */
     public static ArrayList<String> stemmingToken(ArrayList<String> tokens) {
         ArrayList<String> stemmedTokens = new ArrayList<>();
+
+        // Use the Tartarus Snowball English Stemmer
         EnglishStemmer stemmer = new EnglishStemmer();
 
         for (String token : tokens) {
@@ -52,19 +70,30 @@ public class TextPreprocesser {
             if (stemmer.stem()) {
                 stemmedTokens.add(stemmer.getCurrent());
             } else {
-                stemmedTokens.add(token); // If stemming fails, keep the original token
+
+                // If stemming fails, keep the original token
+                stemmedTokens.add(token);
             }
         }
 
         return stemmedTokens;
     }
 
-
+    /**
+     * Execute stopword removal of the query tokens.
+     * @param tokens Array list containing the query tokens to process
+     * @return An array list containing stemmed tokens
+     */
     public static ArrayList<String> removeStopwords(ArrayList<String> tokens) {
         tokens.removeAll(stopwords_global);
         return tokens;
     }
 
+    /**
+     * Execute the full pipeline for query preprocessing (Text Cleaning, Tokenization, Stopword Removal and Stemming).
+     * @param line String containing the query to process
+     * @return An array list containing preprocessed tokens
+     */
     public static ArrayList<String> executeTextPreprocessing(String line) {
         TextPreprocesser.setStopwords_global("IndexConstruction/src/main/resources/stopwords.txt");
 

@@ -28,36 +28,57 @@ public class DisjunctiveQuery {
         orderedMaxScores.clear();
     }
 
+    /**
+     * Execute the disjunctive query algorithm, with DAAT or MaxScore algorithms.
+     * @param queryTerms Array list of the query's terms, in increasing length order
+     * @return An array list of document scores ordered in decreasing order
+     */
     public static PriorityQueue<DocumentScore> executeQueryProcesser(ArrayList<String> queryTerms){
 
-        //Retrieve postingList of query terms
+        // Retrieve postingList of query terms
         for (int i=0; i<queryTerms.size();){
             String term = queryTerms.get(i);
             DictionaryElem dict = InvertedIndex.getDictionary().get(term);
 
-            if(dict == null){ //term not in the Dictionary
+            // Term not in the Dictionary
+            if(dict == null){
                 queryTerms.remove(i);
                 continue;
             }
 
             PostingList termPL;
+
+            // Get the posting list offset in memory
             int offset = dict.getOffset_posting_lists();
-            if(offset!=-1 && InvertedIndex.getPosting_lists().size() > offset && InvertedIndex.getPosting_lists().get(offset).getTerm().equals(term)) {
+
+            // If it is in memory read the posting
+            if(offset!=-1 && InvertedIndex.getPosting_lists().size() > offset &&
+                    InvertedIndex.getPosting_lists().get(offset).getTerm().equals(term)) {
+
+                // If it is in memory read the posting list
                 termPL = InvertedIndex.getPosting_lists().get(offset);
-            }else{ //read PostingList from file
+            }else{
+
+                // Else read the posting list from file
                 String path = IOUtils.PATH_TO_FINAL_BLOCKS+"/indexMerged" + dict.getBlock_number();
                 FileChannel channel = IOUtils.getFileChannel(path, "read");
                 if(Flags.isSkipping() && Flags.isMaxScore()){
+
+                    // If there are skipping lists initialize the posting list with the first block
                     termPL = new PostingList(term);
                     SkipElem se = termPL.getSkipList().getSl().get(0);
                     termPL.readSkippingBlock(se);
                 } else {
+
+                    // Else read the full posting list from file and update the cache
                     termPL = IOUtils.readPlFromFile(channel, dict.getOffset_block_pl(), term);
                     InvertedIndex.updateCachePostingList(termPL, queryTerms);
                 }
             }
+
+            // Get the score to use for retrieval
             Double maxScore = Flags.isScoreMode() ? dict.getMaxBM25() : dict.getMaxTFIDF();
-            termPL.initList(); //posiziona l'iteratore all'inizio
+            termPL.initList();
             postingLists.add(termPL);
             maxScores.put(i, maxScore);
             i++;
@@ -68,7 +89,11 @@ public class DisjunctiveQuery {
         }
 
         PriorityQueue<DocumentScore> retrievedDocs;
+
+
         if (Flags.isMaxScore()) {
+
+            // If the using MaxScore order the posting lists as per the algorithm and execute it
             maxScores.entrySet().stream()
                     .sorted(Map.Entry.comparingByValue())
                     .forEach(entry -> {
@@ -78,6 +103,8 @@ public class DisjunctiveQuery {
 
             retrievedDocs = MaxScore.executeMaxScore(orderedPLs, orderedMaxScores);
         }else {
+
+            // Else execute the DAAT algorithm
             retrievedDocs = DAAT.executeDAAT(postingLists);
         }
         clearLists();

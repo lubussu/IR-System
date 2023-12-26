@@ -23,7 +23,10 @@ public class IOUtils {
     public static final String PATH_TO_TEMP_BLOCKS = "temp/index";
     public static final String PATH_TO_FINAL_BLOCKS = "final/index";
     public static final String PATH_TO_TEST = "test";
-
+    /**
+     * Called at every index reconstruction to clean old index files in the directories.
+     * @param directory Directory to clean
+     */
     public static void cleanDirectory(String directory){
         File folder = new File(directory);
         if (!folder.exists())
@@ -33,6 +36,10 @@ public class IOUtils {
                 file.delete();
     }
 
+    /**
+     * Close the passed file channel.
+     * @param channel File channel to close
+     */
     public static void closeChannel(FileChannel channel){
         try {
             channel.close();
@@ -41,10 +48,23 @@ public class IOUtils {
         }
     }
 
+    /**
+     * Get the file channel of a file and opens it with the specified mode.
+     * @param filename File to open
+     * @param mode Mode with which the file channel is opened
+     * @return The opened file channel
+     */
     public static FileChannel getFileChannel(String filename, String mode) {
         return getFileChannel(filename, mode, "bin");
     }
 
+    /**
+     * Get the file channel of a file and opens it with the specified mode of the specified file type.
+     * @param filename File to open
+     * @param mode Mode with which the file channel is opened
+     * @param fileType Extension of the file to open
+     * @return The opened file channel
+     */
     public static FileChannel getFileChannel(String filename, String mode, String fileType){
         Path path = Paths.get( filename+ "." + fileType);
         File file = path.toFile();
@@ -73,6 +93,13 @@ public class IOUtils {
         return channel;
     }
 
+    /**
+     * Open file channels for all the files in a directory, usually called to open all index blocks.
+     * @param filePath Folder where the files are stored
+     * @param filename File to open
+     * @param block_number Block number of the file to open
+     * @return An array list containing the file channels of the different blocks
+     */
     public static ArrayList<FileChannel> prepareChannels (String filePath, String filename, int block_number){
         ArrayList<FileChannel> channels = new ArrayList<>();
 
@@ -90,6 +117,9 @@ public class IOUtils {
         return channels;
     }
 
+    /**
+     * Read the file containing the Document Table.
+     */
     public static void readDocTable(){
         FileChannel channel = getFileChannel("final/DocumentTable", "read");
         DocumentElem doc = new DocumentElem();
@@ -98,6 +128,13 @@ public class IOUtils {
         }
     }
 
+    /**
+     * Read the posting list from file saved at the specified offset.
+     * @param channel Folder where the block file is stored
+     * @param offset Offset on file of the posting list
+     * @param term Term of the posting list to read
+     * @return The read posting list
+     */
     public static PostingList readPlFromFile(FileChannel channel, long offset, String term){
         PostingList current_pl = new PostingList(term);
         try {
@@ -110,6 +147,13 @@ public class IOUtils {
         return null;
     }
 
+    /**
+     * Read the skipping list from file saved at the specified offset.
+     * @param channel Folder where the block file is stored
+     * @param offset Offset on file of the skipping list
+     * @param term Term of the skipping list to read
+     * @return The current skipping list
+     */
     public static SkipList readSLFromFile(FileChannel channel, long offset, String term){
         SkipList current_sl = new SkipList(term);
         try {
@@ -122,13 +166,22 @@ public class IOUtils {
         return null;
     }
 
+    /**
+     * Read the term at the start of the posting list.
+     * @param channel Folder where the block file is stored
+     * @return The term read of the posting list
+     */
     public static String readTerm(FileChannel channel) throws IOException {
+
+        // Read the dimension in bytes of the term
         ByteBuffer buffer = ByteBuffer.allocate(4);
         int byteRead = channel.read(buffer);
         if(byteRead < 0)
             return null;
 
         buffer.flip();
+
+        // Read the term bytes
         int termSize = buffer.getInt();
         buffer.clear();
         buffer = ByteBuffer.allocate(termSize);
@@ -139,26 +192,46 @@ public class IOUtils {
         return new String(bytes, StandardCharsets.UTF_8);
     }
 
+    /**
+     * Write the term at the start of the posting list.
+     * @param channel Folder where the block file is stored
+     */
     public static void writeTerm(FileChannel channel, String term, int size, boolean writing_pl) throws IOException {
+
+        // Allocate a buffer for the term dimension in byte, the term itself and the length of the posting list
         byte[] descBytes = String.valueOf(term).getBytes(StandardCharsets.UTF_8);
         ByteBuffer buffer = ByteBuffer.allocate(4 + descBytes.length + 4);
         long start_position = channel.position();
         DictionaryElem dict = InvertedIndex.getDictionary().get(term);
-        if(writing_pl) { // writing a posting_list
+        if(writing_pl) {
+
+            // writing a posting_list
             dict.setOffset_block_pl(start_position);
-        }else{ // writing a skipping_list
+        }else{
+
+            // writing a skipping_list
             dict.setOffset_block_sl(start_position);
         }
 
         // Populate the buffer for termLenght + term
         buffer.putInt(descBytes.length);
         buffer.put(descBytes);
-        buffer.putInt(size); //pl_size if writing PL, sl_size if writing SL
+
+        // pl_size if writing PL, sl_size if writing SL
+        buffer.putInt(size);
         buffer.flip();
         // Write the buffer to the file
         channel.write(buffer);
     }
 
+    /**
+     * Write an index block to disk with the current partial posting lists and dictionary in memory, usually used when building
+     * the temporary Inverted Index.
+     * @param blockDictionary Partial dictionary stored in memory
+     * @param blockPostingList Partial posting lists stored in memory
+     * @param block Number of the block to be stored on the disk
+     * @throws IOException Error while opening the file channel
+     */
     public static boolean writeBinBlockToDisk(HashMap<String, DictionaryElem> blockDictionary,
                                               ArrayList<PostingList> blockPostingList, int block) throws IOException{
 
@@ -175,7 +248,8 @@ public class IOUtils {
                 DictionaryElem block_de = blockDictionary.get(term);
                 PostingList block_pl = blockPostingList.get(block_de.getOffset_posting_lists());
 
-                block_pl.ToBinFile(index_channel,false); //during building phase write PL without skipping mode even if Flags.isSkipping() is true
+                // During building phase write PL without skipping mode even if Flags.isSkipping() is true
+                block_pl.ToBinFile(index_channel,false);
                 block_de.ToBinFile(dictionary_channel);
             }
         }catch (IOException e) {
@@ -184,6 +258,11 @@ public class IOUtils {
         return true;
     }
 
+    /**
+     * Write the final object to disk after merging the temporary files.
+     * @param mergedData Array list of objects to write
+     * @param filename File where to store the Array list
+     */
     public static boolean writeMergedDataToDisk(ArrayList<?> mergedData, String filename) {
         File folder = new File(PATH_TO_FINAL_BLOCKS);
         if (!folder.exists()) {
@@ -205,16 +284,28 @@ public class IOUtils {
         return true;
     }
 
+    /**
+     * Utility function that calls the writeMergedDataToDisk() for a Dictionary object.
+     * @param mergedDictionary Array list of Dictionary elements to write
+     */
     public static boolean writeMergedDictToDisk(ArrayList<DictionaryElem> mergedDictionary){
         String filename = PATH_TO_FINAL_BLOCKS + "/dictionaryMerged";
         return writeMergedDataToDisk(mergedDictionary, filename);
     }
 
+    /**
+     * Utility function that calls the writeMergedDataToDisk() for a Posting list array object.
+     * @param mergedPostingList Array list of complete posting lists to write
+     */
     public static boolean writeMergedPLToDisk(ArrayList<PostingList> mergedPostingList, int block){
         String filename = PATH_TO_FINAL_BLOCKS + "/indexMerged" + block;
         return writeMergedDataToDisk(mergedPostingList, filename);
     }
 
+    /**
+     * Write the document table elements to file.
+     * @param docTable Document Table to store
+     */
     public static void writeDocTable(ArrayList<DocumentElem> docTable){
         FileChannel channel = getFileChannel("final/DocumentTable", "append");
         for(DocumentElem doc: docTable)

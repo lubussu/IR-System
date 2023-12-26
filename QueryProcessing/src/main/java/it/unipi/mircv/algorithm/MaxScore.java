@@ -11,6 +11,10 @@ import java.util.*;
 
 public class MaxScore {
 
+    /**
+     * Get the minimum DocID of the query's posting lists.
+     * @param postingLists Array list of the posting lists of the query
+     */
     private static int getMinimumDocId(ArrayList<PostingList> postingLists){
         int minDocId = (int) (CollectionInfo.getCollection_size() + 1);
 
@@ -21,16 +25,15 @@ public class MaxScore {
         return minDocId;
     }
 
-    /***
-     *
-     * @param postingLists lista di posting lists per i termini della query (stesso ordinamento di maxScores)
-     * @param maxScores -> lista ordinata di maxScores per i termini della query
-     * @return
+    /**
+     * Execute the MaxScore algorithm on the query's posting lists.
+     * @param postingLists Array list of the posting lists of the query
+     * @return The top k scored documents
      */
     public static PriorityQueue<DocumentScore> executeMaxScore(ArrayList<PostingList> postingLists, ArrayList<Double> maxScores) {
         PriorityQueue<DocumentScore> result = new PriorityQueue<>(Flags.getNumDocs());
 
-        /* Inizializzazione upper_bound */
+        // Initialization of the upper bound
         ArrayList<Double> ub = new ArrayList<>();
         ub.add(maxScores.get(0));
         for (int i = 1; i<postingLists.size(); i++)
@@ -45,18 +48,20 @@ public class MaxScore {
         int current = getMinimumDocId(postingLists);
         double minScore = Double.MAX_VALUE;
 
-        /* While there is at least an essential list and there are documents to process */
+        // While there is at least an essential list and there are documents to process
         while (pivot < postingLists.size() && current != -1){
             score = 0;
             next = (int) (CollectionInfo.getCollection_size()+1); //MAX docId in the collection + 1
 
-            /* Liste essenziali */
+            // Essential lists
             for (int i = pivot; i < postingLists.size(); i++){
 
                 if (postingLists.get(i).getActualPosting() == null)
                     continue;
 
                 String term = postingLists.get(i).getTerm();
+
+                // Basically execute the DAAT algorithm for the essential posting lists
                 if (postingLists.get(i).getActualPosting().getDocId() == current){
                     Posting current_posting = postingLists.get(i).getActualPosting();
                     DictionaryElem dict = InvertedIndex.getDictionary().get(term);
@@ -74,19 +79,18 @@ public class MaxScore {
                 }
             }
 
-            /* Liste non essenziali */
+            // Non-essential posting lists
             for (int i = pivot - 1; i > 0; i--) {
 
                 if (postingLists.get(i).getActualPosting() == null)
                     continue;
 
                 if (score + ub.get(i) <= threshold)
-                    /* We are sure that the candidate docID cannot be in the final top k documents, and the remaining
-                        posting lists can be skipped completely
-                    */
+                    // We are sure that the candidate docID cannot be in the final top k documents, and the remaining
+                    //   posting lists can be skipped completely
                     break;
 
-                /* Return -1 if the posting list doesn't have a docID grater or equal 'current' */
+                // Return -1 if the posting list doesn't have a docID grater or equal 'current'
                 postingLists.get(i).nextGEQ(current);
 
                 if (postingLists.get(i).getActualPosting() == null) {
@@ -101,7 +105,7 @@ public class MaxScore {
                 }
             }
 
-            /* Aggiornamento del pivot */
+            // Update the pivot
             if(result.offer(new DocumentScore(current, score))){
                 minScore = Math.min(score, minScore);
                 threshold = minScore;

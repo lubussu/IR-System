@@ -12,16 +12,21 @@ public class QueryTesting
 {
     public static final String PATH_TO_QUERIES_TEST = "QueryTesting/src/main/resources/queries-test2020.tsv";
 
+    /**
+     * Executes the testing using the TREC-eval queries and results as reference.
+     */
     public static void main( String[] args )
     {
         System.out.println("\n***** TESTING MODE *****\n");
         IndexConstruction.main(new String[]{"read"});
 
+        // Print on terminal the parameter for testing
         Flags.printOption();
 
         long totTime = 0;
         int numQueries = 0;
 
+        // Execute the retrieval for each query and print the obtained results
         try (BufferedReader br = new BufferedReader(new InputStreamReader(Files.newInputStream(Paths.get(PATH_TO_QUERIES_TEST)), StandardCharsets.UTF_8))) {
             String line;
             while ((line = br.readLine()) != null) {

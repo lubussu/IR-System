@@ -2,21 +2,23 @@ package it.unipi.mircv.utils;
 
 public class Flags {
 
-    /* Building parameters */
+    // Building parameters
     private static boolean compression = true;
     private static boolean skipping = true;
+
+    // Minimum skipping list block size
     private static int minBlockSize = 512;
     private static boolean testing = true;
 
     /* Query parameters */
 
-    /* TRUE: Conjunctive Query FALSE: Disjunctive Query */
+    // TRUE: Conjunctive Query FALSE: Disjunctive Query
     private static boolean conjunctive = true;
 
-    /* TRUE: MaxScore  FALSE: DAAT */
+    // TRUE: MaxScore  FALSE: DAAT
     private static boolean maxScore = true;
 
-    /* TRUE: BM25  FALSE: TFIDF */
+    // TRUE: BM25  FALSE: TFIDF
     private static boolean scoreMode = false;
 
     private static int numDocs = 5;

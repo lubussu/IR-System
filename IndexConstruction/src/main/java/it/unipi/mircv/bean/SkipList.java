@@ -37,6 +37,7 @@ public class SkipList {
      *
      * @param channel Channel to the file to read
      * @throws IOException Error while opening the file channel
+     * @return true if the term is found, false otherwise
      */
     public boolean FromBinFile(FileChannel channel) throws IOException {
         String current_term = IOUtils.readTerm(channel);
