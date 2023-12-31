@@ -14,7 +14,6 @@ Performance Evaluation
 
 Index Building
 
-
 To generate the index, the file "collection.tsv", available at https://microsoft.github.io/msmarco/TREC-Deep-Learning-2020, must be placed inside InvertedIndex/src/main/resources. The index building starts executing the IndexConstruction.java file in the path InvertedIndex/src/java/it/unipi/mircv. The program launch with default parameters:
 
 compression = true
@@ -53,7 +52,6 @@ All these files are used in the query phase.
 
 Query Processing
 
-
 Executing the file Main.java, after the index building, the user can modify the parameters and execute the queries:
 
 
@@ -71,4 +69,5 @@ the number of documents to obtain
 Subsequently the top k documents are returned.
 
 Performance Evaluation
+
 To evaluate the performance of the system, the msmarco-test2020-queries.tsv, that can be downloaded from https://microsoft.github.io/msmarco/TREC-Deep-Learning-2020 must be added to src/main/resources. The performance test starts with the execution of the file QueryTesting.java in QueryTesting/src/main/java/it/unipi/mircv/test.
