@@ -128,7 +128,7 @@ public class PostingList {
         String current_term = IOUtils.readTerm(channel);
 
         // Check if the term is in the Index or if is correct
-        if (current_term==null || !current_term.equals(this.term)) {
+        if (current_term==null || !current_term.equals(this.term)) { //non ho letto il termine cercato (so che non c'è)
             return false;
         } else {
             updateFromBinFile(channel, skipping);
@@ -165,13 +165,11 @@ public class PostingList {
 
         // Iterate all the blocks (one time if is there are no skipping lists or if the block is only one)
         for(int i=0; i<num_blocks; i++){
-
-            // Set the pl_size passed to the effective dimension of the block or to the length of the full posting list
             pl_size = skipping? sl.getSl().get(i).getBlock_size():pl_size;
             if (Flags.isCompression()) {
                 readCompressedPL(channel, pl_size);
             } else{
-                readPL(channel, pl_size, skipping);
+                readPL(channel, pl_size);
             }
         }
     }
@@ -197,7 +195,7 @@ public class PostingList {
             if (Flags.isCompression()) {
                 readCompressedPL(channel, se.getBlock_size());
             } else{
-                readPL(channel, se.getBlock_size(), Flags.isSkipping());
+                readPL(channel, se.getBlock_size());
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -257,15 +255,7 @@ public class PostingList {
      * @param pl_size Size of the posting list to read, be it a full posting list or a block
      * @throws IOException Error while opening the file channel
      */
-    private void readPL(FileChannel channel, int pl_size, boolean skipping) throws IOException {
-
-        // If there are skipping lists first read the dimension of the block
-        if(skipping){
-            ByteBuffer buffer_size = ByteBuffer.allocate(4);
-            channel.read(buffer_size);
-            buffer_size.flip();
-            pl_size = buffer_size.getInt();
-        }
+    private void readPL(FileChannel channel, int pl_size) throws IOException {
         ByteBuffer buffer_pl = ByteBuffer.allocate(pl_size * 8);
         channel.read(buffer_pl);
         buffer_pl.flip();
@@ -275,6 +265,7 @@ public class PostingList {
             int docid = buffer_pl.getInt();
             int current_position = buffer_pl.position();
             int freq = buffer_pl.getInt(current_position + (pl_size - 1) * 4); //freq
+            buffer_pl.position(current_position);
 
             this.addPosting(new Posting(docid, freq));
         }
@@ -331,7 +322,7 @@ public class PostingList {
             int numBytes;
 
             // Checks if the block size of the skipping list regarding this posting list is bigger of the minimum default size
-            int blockSize = Math.max((int) Math.floor(Math.sqrt(this.pl.size())), Flags.getMinBlockSize());
+            int blockSize = Math.max( (int) Math.floor(Math.sqrt(this.pl.size())), Flags.getMinBlockSize() );
 
             // For each posting of the posting list
             for (Posting p : this.pl) {
@@ -417,24 +408,15 @@ public class PostingList {
                 FileChannel.open(Paths.get(IOUtils.PATH_TO_FINAL_BLOCKS + "/SkipInfo.bin"), StandardOpenOption.CREATE, StandardOpenOption.APPEND):null)
         {
             SkipList sl = new SkipList(this.term);
-
             // Check if the block size of the posting list (sqrt(pl.size()) is less then MinBlockSize() to avoid lots of small blocks
-            int block_size = Math.max((int) Math.floor(Math.sqrt(this.pl.size())), Flags.getMinBlockSize());
-
             // If there are skipping lists
             // Take the minimum between the posting list size and the MinBlockSize to write the block
-            int size = skipping ? Math.min(pl.size(), block_size) : this.pl.size();
-
-            // Allocate the buffer of the full length of the posting list and in case add 4 bytes to sotre the block dimension
+            int size = skipping ? Math.max((int) Math.floor(Math.sqrt(this.pl.size())), Flags.getMinBlockSize()) : this.pl.size();
             ByteBuffer buffer = skipping ? ByteBuffer.allocate(4 + size * 8) : ByteBuffer.allocate(size * 8);
 
             int post_count = 0;
-
             // Frequencies starting position in the buffer
-            int offset = (size-1) * 4;
-
-            //Position to save in the skipping element as offset of the block
-            long save_position = channel.position();
+            int offset = (size-1) * 4; //freqs starting position in the buffer
 
             if (skipping) {
                 buffer.putInt(size); //
@@ -442,51 +424,42 @@ public class PostingList {
 
             // Iterate all postings
             for (Posting post : this.pl) {
-
-                // Take the posting DocID and frequency and write it in the buffer
-                post_count++;
-                buffer.putInt(post.getDocId());
+                buffer.putInt(post.getDocId()); //docId
                 int current_position = buffer.position();
-                buffer.putInt(current_position + offset, post.getTermFreq());
+                buffer.putInt(current_position + offset, post.getTermFreq()); //freq
+                buffer.position(current_position);
 
-                // If the block size is reached
+                post_count++;
                 if (skipping && post_count % size == 0) {
-
-                    // Create the skipping element
-                    SkipElem se = new SkipElem(post.getDocId(), save_position, size);
+                    SkipElem se = new SkipElem(post.getDocId(), channel.position(), size);
                     sl.addSkipElem(se);
 
                     // Write the buffer to the file
-                    buffer.position(buffer.capacity());
                     buffer.flip();
                     channel.write(buffer);
-
-                    // Save the new position for the nex block offset
-                    save_position = channel.position();
                     buffer.clear();
 
-                    // If there are no more posting to write exit
                     int toProcess = this.pl.size()-post_count;
                     if (toProcess == 0){
                         break;
                     }
-
-                    // Compute size of the next block size and put it in the buffer for the next writing
-                    size = (toProcess >= size)? size : toProcess % size;
-                    buffer = ByteBuffer.allocate(4 + size * 8);
-
-                    offset = (size-1) * 4; //offset for the next block
-                    buffer.putInt(size); //write size of next block
+                    int next_size = (toProcess >= size)? size : toProcess % size;
+                    offset = (next_size-1) * 4;
+                    buffer.putInt(next_size);
                 }
             }
-            if (skipping) {
+            if (skipping && post_count % size == 0) { //non ho un altro skipElem da aggiungere ma devo scrivere la skipList
                 sl.ToBinFile(skipChannel);
-            } else{
-                // Write the buffer to the file
-                buffer.position(buffer.capacity());
-                buffer.flip();
-                channel.write(buffer);
+                return;
+            } else if (skipping && post_count % size != 0) {
+                SkipElem se = new SkipElem(this.pl.get(this.pl.size() - 1).getDocId(), channel.position(), post_count%size);
+                sl.addSkipElem(se);
+                sl.ToBinFile(skipChannel);
             }
+
+            // Write the buffer to the file
+            buffer.flip();
+            channel.write(buffer);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
