@@ -102,7 +102,7 @@ public class TextPreprocesser {
         line = cleanText(line);
         tokens = tokenizeLine(line);
         tokens = removeStopwords(tokens);
-        tokens = stemmingToken(tokens);
+        //tokens = stemmingToken(tokens);
 
         return tokens;
     }

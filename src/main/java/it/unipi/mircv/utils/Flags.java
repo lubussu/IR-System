@@ -13,15 +13,15 @@ public class Flags {
     /* Query parameters */
 
     // TRUE: Conjunctive Query FALSE: Disjunctive Query
-    private static boolean conjunctive = true;
+    private static boolean conjunctive = false;
 
     // TRUE: MaxScore  FALSE: DAAT
-    private static boolean maxScore = true;
+    private static boolean maxScore = false;
 
     // TRUE: BM25  FALSE: TFIDF
-    private static boolean scoreMode = false;
+    private static boolean scoreMode = true;
 
-    private static int numDocs = 5;
+    private static int numDocs = 100;
 
 
     public static void setCompression(boolean compression) {

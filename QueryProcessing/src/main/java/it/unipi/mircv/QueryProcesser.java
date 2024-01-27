@@ -18,6 +18,9 @@ public class QueryProcesser {
      * @param testing Boolean marking if the query is in test mode
      */
     public static void executeQueryProcesser(String query, boolean testing){
+        String fix = "Q0";
+        String runid = "RUN-01";
+
         long start = System.currentTimeMillis();
 
         // Execute the query preprocessing
@@ -26,10 +29,10 @@ public class QueryProcesser {
             System.out.println("(ERROR) Query not valid!");
             return;
         }
-        int queryNum = 0;
+        String topicId = "";
         if(testing){
             // Remove line number
-            queryNum = Integer.parseInt(queryTerms.remove(0));
+            topicId = queryTerms.remove(0);
         }
         PriorityQueue<DocumentScore> retrievedDocs;
 
@@ -42,19 +45,20 @@ public class QueryProcesser {
 
         long end = System.currentTimeMillis() - start;
 
-        int rank = 0;
+        int rank = 1;
 
         ArrayList<Integer> topKResults = new ArrayList<>();
         StringBuilder results = new StringBuilder();
-        String test_results = "";
+        StringBuilder test_results = new StringBuilder();
 
         // Print the scores on the terminal
         while (!retrievedDocs.isEmpty()) {
-            rank ++;
             DocumentScore ds = retrievedDocs.poll();
             results.insert(0, "Document: " + ds.getDocId() + "\t\tScore: " + ds.getScore() + "\n");
-            test_results = test_results + queryNum + " " + "Q0" + " " + ds.getDocId() + " " + rank + " " + ds.getScore() +" "+ "RUN-01\n";
+            test_results.append(topicId + "\t" + fix + "\t" + ds.getDocId()+ "\t" + rank + "\t" + (Math.floor(ds.getScore() * 1000) / 1000) + "\t" + runid + "\n");
+
             topKResults.add(0, ds.getDocId());
+            rank ++;
         }
         // Don't print results if testing mode
         if(!testing) {
@@ -69,5 +73,4 @@ public class QueryProcesser {
             }
         }
     }
-
 }
